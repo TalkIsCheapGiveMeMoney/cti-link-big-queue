@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+           http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+    
+        <!-- Dubbo全局配置 -->
+	<dubbo:application name="cti-link-big-queue" version="${application.version}" />
+	<dubbo:registry address="${dubbo.registry.address}" />
+	<dubbo:provider version="${application.version}" timeout="3000" retries="0" />
+	<dubbo:consumer version="${application.version}" check="true" />
+	<dubbo:protocol name="dubbo" serialization="kryo" port="${dubbo.protocol.port}" />
+	<dubbo:monitor protocol="registry" />
+
+	<!-- 使用注解自动注册和注入bean，并启用Dubbo的注解 -->
+	<dubbo:annotation />
+	<context:component-scan base-package="com.tinet.ctilink">
+		<context:include-filter type="annotation" expression="com.alibaba.dubbo.config.annotation.Service" />
+	</context:component-scan>
+
+	<!-- 调用dubbo服务 -->
+	<!--<dubbo:reference id="cdrObService" interface="com.tinet.ccic.wm.ob.service.CdrObService" />-->
+
+</beans>
