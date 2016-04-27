@@ -1,18 +1,18 @@
 package com.tinet.ctilink.bigqueue.trigger;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.davidmarquis.redisscheduler.TaskTriggerListener;
-import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
+import com.tinet.ctilink.bigqueue.inc.BigQueueMacro;
 import com.tinet.ctilink.bigqueue.service.imp.MemberServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
 import com.tinet.ctilink.cache.RedisService;
-import com.tinet.ctilink.inc.Const;
 import com.tinet.ctilink.json.JSONObject;
 
 /**
@@ -31,21 +31,26 @@ public class StatusScanTaskTriggerListener implements TaskTriggerListener {
 	private Map<String, Integer> memberDeviceStatusMap = new HashMap<String, Integer>();
 	private Map<String, Integer> memberLoginStatusMap = new HashMap<String, Integer>();
 	
+	
+	
     @Override
     public void taskTriggered(String taskId) {
         System.out.printf("Task %s is due for execution.", taskId);
         memberDeviceStatusMap.clear();
         memberLoginStatusMap.clear();
         
+        Map<String, Set<String>> memberQueueMap = BigQueueMacro.getReplaceMemberQueueMap();
+        
         Set<String> queueScaned = queueService.getScanSet();
         
         for(String queue: queueScaned){
         	String enterpriseId = queue.substring(0, BigQueueConst.ENTERPRISE_ID_LEN);
         	String qno = queue.substring(BigQueueConst.ENTERPRISE_ID_LEN);
-        	scanStatus(enterpriseId, qno);
+        	scanStatus(enterpriseId, qno, memberQueueMap);
         }
+        BigQueueMacro.replaceMemberQueueMap();
     }
-    private void scanStatus(String enterpriseId, String qno){
+    private void scanStatus(String enterpriseId, String qno, Map<String, Set<String>> memberQueueMap){
     	Integer idleCount = 0;
     	Integer avalibleCount = 0;
     	//获取队列joinEmpty设置
@@ -54,8 +59,18 @@ public class StatusScanTaskTriggerListener implements TaskTriggerListener {
     	
     	//获取队列中
     	Set<String> memberSet = queueService.getMemberSet(enterpriseId, qno);
+    	
     	//循环每个坐席
     	for(String member: memberSet){
+    		String cid = enterpriseId + member;
+    		Set<String> memberQueueSet = memberQueueMap.get(cid);
+    		if(memberQueueSet != null){
+    			memberQueueSet.add(qno);
+    		}else{
+    			memberQueueSet = new HashSet<String>();
+    			memberQueueSet.add(qno);
+    			memberQueueMap.put(cid, memberQueueSet);
+    		}
     		//获取deviceStatus
     		Integer deviceStatus;
     		if(memberDeviceStatusMap.containsKey(member)){

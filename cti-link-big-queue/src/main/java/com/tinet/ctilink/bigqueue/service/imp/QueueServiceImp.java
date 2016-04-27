@@ -15,6 +15,7 @@ import com.tinet.ctilink.bigqueue.entity.Queue;
 import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.inc.BigQueueChannelVar;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
+import com.tinet.ctilink.bigqueue.inc.BigQueueMacro;
 import com.tinet.ctilink.bigqueue.strategy.Strategy;
 import com.tinet.ctilink.bigqueue.strategy.StrategyFactory;
 import com.tinet.ctilink.cache.CacheKey;
@@ -85,6 +86,21 @@ public class QueueServiceImp {
 			leave(enterpriseId, qno, uniqueId);
 		}
     }
+    public boolean compareWeight(Integer weight, String enterpriseId, String cno){
+    	String cid = enterpriseId + cno;
+    	Set<String> queueSet = BigQueueMacro.getCurrentMemberQueueMap().get(cid);
+    	for(String qno: queueSet){
+    		JSONObject object = getFromConfCache(enterpriseId, qno);
+    		Queue queue = object.getBean(Queue.class);
+    		Integer queueEntryCount = getQueueEntryCount(enterpriseId, qno);
+    		Integer queueAvalible = getQueueIdleCount(enterpriseId, qno);
+    		if(queue.getWeight() > weight && queueEntryCount >= queueAvalible){
+    			return false;
+    		}
+    	}
+    	return true;
+    }
+    
     public CallMember findBest(String enterpriseId, String qno, String uniqueId, String customerNumber, String queueRemeberMember){
     	JSONObject object = getFromConfCache(enterpriseId, qno);
     	if(object != null){
@@ -108,12 +124,14 @@ public class QueueServiceImp {
     		while(true){
     			callMember = findBestMetric(memberList);
     			if(callMember != null){
-    				if(memberService.isAvalible(enterpriseId, callMember.getCno())){
-    					strategy.memberSelectedHandle(enterpriseId, qno, callMember.getCno(), uniqueId, customerNumber);
-    					incQueueEntryDialed(uniqueId, callMember.getCno());
-    					penddingEntry(enterpriseId, qno, uniqueId);
-    					CallMember selectMember = memberService.getCallMember(enterpriseId, qno, callMember.getCno());
-    					return selectMember;
+    				if(compareWeight(queue.getWeight(), enterpriseId, callMember.getCno())){
+	    				if(memberService.isAvalible(enterpriseId, callMember.getCno())){
+	    					strategy.memberSelectedHandle(enterpriseId, qno, callMember.getCno(), uniqueId, customerNumber);
+	    					incQueueEntryDialed(uniqueId, callMember.getCno());
+	    					penddingEntry(enterpriseId, qno, uniqueId);
+	    					CallMember selectMember = memberService.getCallMember(enterpriseId, qno, callMember.getCno());
+	    					return selectMember;
+	    				}
     				}
     			}
     		}
