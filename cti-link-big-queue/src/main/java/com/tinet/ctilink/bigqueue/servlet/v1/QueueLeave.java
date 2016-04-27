@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
 import com.tinet.ctilink.json.JSONObject;
 
-@WebServlet("/v1/queue/get")
+@WebServlet("/v1/queue/leave")
 public class QueueLeave extends HttpServlet {
 
 	@Autowired
@@ -35,11 +35,8 @@ public class QueueLeave extends HttpServlet {
         
         String enterpriseId = req.getParameter("enterpriseId");
         String qno = req.getParameter("qno");
-        
-        JSONObject res = queueService.getQueueParam(enterpriseId, qno);
-        if(res != null){
-        	out.print(res.toString());
-        }
+        String uniqueId = req.getParameter("uniqueId");
+        queueService.leave(enterpriseId, qno, uniqueId);
         out.flush();
         out.close();
     }

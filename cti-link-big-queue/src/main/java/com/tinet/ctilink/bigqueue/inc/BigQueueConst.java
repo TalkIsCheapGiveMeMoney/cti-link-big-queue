@@ -1,6 +1,6 @@
 package com.tinet.ctilink.bigqueue.inc;
 
-public class Const {
+public class BigQueueConst {
 	public static final int MEMBER_DEVICE_STATUS_INVALID = -1;
 	public static final int MEMBER_DEVICE_STATUS_IDLE = 0;
 	public static final int MEMBER_DEVICE_STATUS_LOCKED = 1;
@@ -34,10 +34,13 @@ public class Const {
 	public static final int QUEUE_CODE_OUR_TURN = 6;
 	public static final int QUEUE_CODE_ROUTE_OK = 7;
 	public static final int QUEUE_CODE_COMPLETE = 8;
+	public static final int QUEUE_CODE_ROUTE_FAIL = 9;
 	
 	public static final int QUEUE_PRIORITY_MULTIPILER = 1000000;
 	public static final int QUEUE_LOCK_TIMEOUT = 2000;
+	public static final int MEMBER_LOCK_TIMEOUT = 2000;
 	
+	public static final int MEMBER_STATUS_TRYING_MAX_TIMEOUT = 80;
 	
 	
 }

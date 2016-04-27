@@ -15,7 +15,7 @@ import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
 import com.tinet.ctilink.cache.RedisService;
 import com.tinet.ctilink.util.RandomGenerator;
 
-public class RROrderedStrategy implements Strategy, InitializingBean{
+public class FewestCallsStrategy implements Strategy, InitializingBean{
 	
 	@Autowired
 	QueueServiceImp queueService;
@@ -28,11 +28,9 @@ public class RROrderedStrategy implements Strategy, InitializingBean{
 	@Override
 	public List<CallMember> calcMetric(String enterpriseId, String qno, String uniqueId){
 		List<CallMember> memberList = queueService.getMembers(enterpriseId, qno);
-		Random rand = new Random();
 		for(CallMember callMember: memberList){
 			Integer dialedCount = queueService.getQueueEntryDialed(uniqueId, callMember.getCno());
-			Integer randNumber = rand.nextInt(100);
-			Integer metric = callMember.getPenalty() * 100 + randNumber + dialedCount * 10000000;
+			Integer metric = callMember.getPenalty() * 1000 + callMember.getCalls() + dialedCount * 10000000;
 			callMember.setMetic(metric);
 		}
 		return memberList;

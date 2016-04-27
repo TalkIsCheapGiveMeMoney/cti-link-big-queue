@@ -23,6 +23,6 @@ public class RedisEventListener {
     private void sendMessage(Map<String, Object> event) {
         //channel
         String channel = "channel:xxxevent";
-        redisService.convertAndSend(channel, event);
+        redisService.convertAndSend(1, channel, "");
     }
 }

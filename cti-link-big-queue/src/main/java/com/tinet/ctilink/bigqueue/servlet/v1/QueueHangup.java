@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
 import com.tinet.ctilink.json.JSONObject;
 
-@WebServlet("/v1/queue/get")
+@WebServlet("/v1/queue/hangup")
 public class QueueHangup extends HttpServlet {
 
 	@Autowired
@@ -35,11 +35,10 @@ public class QueueHangup extends HttpServlet {
         
         String enterpriseId = req.getParameter("enterpriseId");
         String qno = req.getParameter("qno");
+        String uniqueId = req.getParameter("uniqueId");
         
-        JSONObject res = queueService.getQueueParam(enterpriseId, qno);
-        if(res != null){
-        	out.print(res.toString());
-        }
+        queueService.hangup(enterpriseId, qno, uniqueId);
+        
         out.flush();
         out.close();
     }

@@ -58,13 +58,23 @@
 		</property>
 		<property name="schedulerName" value="statusScan"/> 
 	</bean>
-	<bean id="commonTaskScheduler" class="com.github.davidmarquis.redisscheduler.impl.RedisTaskSchedulerImpl">
+	<bean id="statusCheckScanTaskScheduler" class="com.github.davidmarquis.redisscheduler.impl.RedisTaskSchedulerImpl">
+		<property name="redisTemplate" ref="jsonRedisTemplate"/>
+		<property name="pollingDelayMillis" value="100"/>
+		<property name="maxRetriesOnConnectionFailure" value="3"/>
+		<property name="loopMillis" value="300000"/>
+		<property name="taskTriggerListener">
+			<bean class="com.tinet.ctilink.bigqueue.trigger.StatusCheckScanTaskTriggerListener"/>
+		</property>
+		<property name="schedulerName" value="statusScan"/> 
+	</bean>
+	<bean id="wrapupEndTaskScheduler" class="com.github.davidmarquis.redisscheduler.impl.RedisTaskSchedulerImpl">
 		<property name="redisTemplate" ref="jsonRedisTemplate"/>
 		<property name="pollingDelayMillis" value="200"/>
 		<property name="maxRetriesOnConnectionFailure" value="3"/>
 		<property name="loopMillis" value="0"/>
 		<property name="taskTriggerListener">
-			<bean class="com.tinet.ctilink.bigqueue.trigger.CommonTaskTriggerListener"/>
+			<bean class="com.tinet.ctilink.bigqueue.trigger.WrapupEndTaskTriggerListener"/>
 		</property>
 		<property name="schedulerName" value="statusScan"/> 
 	</bean>

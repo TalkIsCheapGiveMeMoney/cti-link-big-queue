@@ -11,11 +11,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.tinet.ctilink.bigqueue.inc.ChannelVar;
+import com.tinet.ctilink.bigqueue.inc.BigQueueChannelVar;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
 import com.tinet.ctilink.json.JSONObject;
 
-@WebServlet("/v1/queue/get")
+@WebServlet("/v1/queue/join")
 public class QueueJoin extends HttpServlet {
 
 	@Autowired
@@ -43,7 +43,7 @@ public class QueueJoin extends HttpServlet {
         
         JSONObject res = new JSONObject();
         Integer queueCode = queueService.join(enterpriseId, qno, customerNumber, uniqueId, priority, joinTime);
-        res.put(ChannelVar.QUEUE_CODE, queueCode);
+        res.put(BigQueueChannelVar.QUEUE_CODE, queueCode);
         out.print(res.toString());
         out.flush();
         out.close();

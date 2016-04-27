@@ -36,7 +36,7 @@ public class QueueGet extends HttpServlet {
         String enterpriseId = req.getParameter("enterpriseId");
         String qno = req.getParameter("qno");
         
-        JSONObject res = queueService.get(enterpriseId, qno);
+        JSONObject res = queueService.getFromConfCache(enterpriseId, qno);
         if(res != null){
         	out.print(res.toString());
         }

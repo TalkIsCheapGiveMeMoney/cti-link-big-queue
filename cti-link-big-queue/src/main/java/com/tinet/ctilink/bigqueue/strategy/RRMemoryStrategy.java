@@ -15,24 +15,36 @@ import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
 import com.tinet.ctilink.cache.RedisService;
 import com.tinet.ctilink.util.RandomGenerator;
 
-public class RROrderedStrategy implements Strategy, InitializingBean{
+public class RRMemoryStrategy implements Strategy, InitializingBean{
 	
 	@Autowired
 	QueueServiceImp queueService;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception{
-		StrategyFactory.register("rrordered", this);
+		StrategyFactory.register("rrmemory", this);
 	}
 	
 	@Override
 	public List<CallMember> calcMetric(String enterpriseId, String qno, String uniqueId){
 		List<CallMember> memberList = queueService.getMembers(enterpriseId, qno);
-		Random rand = new Random();
+		Collections.sort(memberList,new Comparator<CallMember>(){
+            public int compare(CallMember arg0, CallMember arg1) {
+                return Integer.valueOf(arg0.getCno()).compareTo(Integer.valueOf(arg1.getCno()));
+            }
+        });
+		
+		Integer rrpos = queueService.getQueueRrpos(enterpriseId, qno);
+		rrpos = rrpos % memberList.size();
+		Integer pos = 0;
 		for(CallMember callMember: memberList){
-			Integer dialedCount = queueService.getQueueEntryDialed(uniqueId, callMember.getCno());
-			Integer randNumber = rand.nextInt(100);
-			Integer metric = callMember.getPenalty() * 100 + randNumber + dialedCount * 10000000;
+			Integer metric;
+			if(pos < rrpos){
+				metric = 10000 + pos;
+			}else{
+				metric = pos;
+			}
+			metric += callMember.getPenalty() * 1000000;
 			callMember.setMetic(metric);
 		}
 		return memberList;
@@ -41,6 +53,7 @@ public class RROrderedStrategy implements Strategy, InitializingBean{
 
 	@Override
 	public void memberSelectedHandle(String enterpriseId, String qno, String cno, String uniqueId, String customerNumber){
+		queueService.incQueueRrpos(enterpriseId, qno);
 	}
 	
 	@Override

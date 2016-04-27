@@ -9,7 +9,6 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 import com.github.davidmarquis.redisscheduler.RedisTaskScheduler;
-import com.tinet.ctilink.bigqueue.task.StatusScanTask;
 
 /**
  * 应用程序启动器
@@ -24,6 +23,9 @@ public class ApplicationStarter implements ApplicationListener<ContextRefreshedE
 	@Autowired
     @Qualifier("statusScanTaskScheduler")
     private RedisTaskScheduler statusScanScheduler;
+	@Autowired
+    @Qualifier("statusCheckScanTaskScheduler")
+    private RedisTaskScheduler statusCheckScanScheduler;
 	
 	@Override
 	public void onApplicationEvent(final ContextRefreshedEvent event) {
@@ -32,8 +34,8 @@ public class ApplicationStarter implements ApplicationListener<ContextRefreshedE
 		// http://docs.amazonaws.cn/AWSSdkDocsJava/latest/DeveloperGuide/java-dg-jvm-ttl.html
 		java.security.Security.setProperty("networkaddress.cache.ttl", "60");
 
-		StatusScanTask statusScanTask = new StatusScanTask();
-		statusScanTask.start();
+		statusScanScheduler.schedule("queueMemberStatusScan", null);
+		statusCheckScanScheduler.schedule("queueMemberStatusCheckScan", null);
 		
 		logger.info("cti-link-big-queue启动成功");
 		System.out.println("cti-link-big-queue启动成功");

@@ -4,7 +4,10 @@ public class CallMember {
 	private String cno;
 	private Integer penalty;
 	private Integer calls;
+	private Integer lastCall;
 	private Integer metic;
+	private String _interface;
+	
 	public String getCno() {
 		return cno;
 	}
@@ -30,5 +33,17 @@ public class CallMember {
 		this.metic = metic;
 	}
 	
+	public String getInterface(){
+		return _interface;
+	}
+	public void setInterface(String _interface){
+		this._interface = _interface;
+	}
+	public Integer getLastCall() {
+		return lastCall;
+	}
+	public void setLastCall(Integer lastCall) {
+		this.lastCall = lastCall;
+	}
 	
 }
