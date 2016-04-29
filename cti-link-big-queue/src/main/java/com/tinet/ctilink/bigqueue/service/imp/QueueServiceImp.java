@@ -1,6 +1,7 @@
 package com.tinet.ctilink.bigqueue.service.imp;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,21 +35,21 @@ public class QueueServiceImp {
 	@Autowired
 	MemberServiceImp memberService;
 	
-    public JSONObject getFromConfCache(String enterpriseId, String qno){
+    public Queue getFromConfCache(String enterpriseId, String qno){
     	String key = String.format(CacheKey.QUEUE_ENTERPRISE_ID_QNO, enterpriseId, qno);
     	String res = redisService.get(Const.REDIS_DB_CONF_INDEX, key, String.class);
     	JSONObject object = null;
     	if(StringUtils.isEmpty(res)){
     		object = JSONObject.fromObject(res);
+    		return object.getBean(Queue.class);
     	}
-    	return object;
+    	return null;
     }
     
-    public Integer join(String enterpriseId, String qno, String customerNumber, String uniqueId, Integer priority, Integer joinTime){
+    public Integer join(String enterpriseId, String qno, String customerNumber, String uniqueId, Integer priority, Integer joinTime, Integer startTime, Integer overflow){
     	Integer res = BigQueueConst.QUEUE_CODE_JOIN_EMPTY;
-    	JSONObject object = getFromConfCache(enterpriseId, qno);
-    	if(object != null){
-    		Queue queue = object.getBean(Queue.class);
+    	Queue queue = getFromConfCache(enterpriseId, qno);
+    	if(queue != null){
     		Integer avalibleCount = getQueueAvalibleCount(enterpriseId, qno);
     		if(avalibleCount > 0){
     			res = BigQueueConst.QUEUE_CODE_JOIN_EMPTY;
@@ -60,7 +61,7 @@ public class QueueServiceImp {
     			return res;
     		}
     		
-    		insertQueueEntry(enterpriseId, qno, uniqueId, priority, joinTime);
+    		insertQueueEntry(enterpriseId, qno, uniqueId, priority, joinTime, startTime, overflow);
     		addScan(enterpriseId, qno);
     		
     		Strategy strategy = StrategyFactory.getInstance(queue.getStrategy());
@@ -70,8 +71,37 @@ public class QueueServiceImp {
     	}
     	return res;
     }
-    
-    public void leave(String enterpriseId, String qno, String uniqueId){
+    private void recalHoldTime(String enterpriseId, String qno, Integer holdTime){
+    	Integer currentHoldTime = (Integer)getQueueStatistic(enterpriseId, qno, "hold_time");
+    	Integer newHoldTime = (currentHoldTime * 3 + holdTime) / 4;
+    	setQueueStatistic(enterpriseId, qno, "hold_time", newHoldTime);
+    }
+    public void leave(String enterpriseId, String qno, String uniqueId, Integer leaveCode){
+    	Queue queue = getFromConfCache(enterpriseId, qno);
+    	if(queue == null){
+    		return;
+    	}
+    	switch(leaveCode){
+    		case BigQueueConst.LEAVE_CODE_COMPLETE:
+    			incQueueStatistic(enterpriseId, qno, "completed", 1);
+    			Integer joinTime = (Integer)getQueueEntryInfo(uniqueId, "join_time");
+    			Integer holdTime = new Long(new Date().getTime()/1000).intValue() - joinTime;
+    			recalHoldTime(enterpriseId, qno, holdTime);
+    			if(holdTime <= queue.getServiceLevel()){
+    				incQueueStatistic(enterpriseId, qno, "completed_in_sl", 1);
+    			}
+    			break;
+    		case BigQueueConst.LEAVE_CODE_ABANDON:
+    			incQueueStatistic(enterpriseId, qno, "abandoned", 1);
+    			break;
+    		case BigQueueConst.LEAVE_CODE_TIMEOUT:
+    			incQueueStatistic(enterpriseId, qno, "timeout", 1);
+    			break;
+    		case BigQueueConst.LEAVE_CODE_EMPTY:
+    			incQueueStatistic(enterpriseId, qno, "empty", 1);
+    			break;
+    	}
+
     	removeQueueEntry(enterpriseId, qno, uniqueId);
 
 		//如果queueEntry没有等待的了，删除扫描列表
@@ -83,28 +113,28 @@ public class QueueServiceImp {
     
     public void hangup(String enterpriseId, String qno, String uniqueId){
 		if(getQueueEntryIndex(enterpriseId, qno, uniqueId) != null){
-			leave(enterpriseId, qno, uniqueId);
+			leave(enterpriseId, qno, uniqueId, BigQueueConst.LEAVE_CODE_ABANDON);
 		}
     }
-    public boolean compareWeight(Integer weight, String enterpriseId, String cno){
+    private boolean compareWeight(Integer weight, String enterpriseId, String cno){
     	String cid = enterpriseId + cno;
     	Set<String> queueSet = BigQueueMacro.getCurrentMemberQueueMap().get(cid);
     	for(String qno: queueSet){
-    		JSONObject object = getFromConfCache(enterpriseId, qno);
-    		Queue queue = object.getBean(Queue.class);
-    		Integer queueEntryCount = getQueueEntryCount(enterpriseId, qno);
-    		Integer queueAvalible = getQueueIdleCount(enterpriseId, qno);
-    		if(queue.getWeight() > weight && queueEntryCount >= queueAvalible){
-    			return false;
+    		Queue queue = getFromConfCache(enterpriseId, qno);
+    		if(queue != null){
+	    		Integer queueEntryCount = getQueueEntryCount(enterpriseId, qno);
+	    		Integer queueAvalible = getQueueIdleCount(enterpriseId, qno);
+	    		if(queue.getWeight() > weight && queueEntryCount >= queueAvalible){
+	    			return false;
+	    		}
     		}
     	}
     	return true;
     }
     
     public CallMember findBest(String enterpriseId, String qno, String uniqueId, String customerNumber, String queueRemeberMember){
-    	JSONObject object = getFromConfCache(enterpriseId, qno);
-    	if(object != null){
-    		Queue queue = object.getBean(Queue.class);
+    	Queue queue = getFromConfCache(enterpriseId, qno);
+    	if(queue != null){
     		Strategy strategy = StrategyFactory.getInstance(queue.getStrategy());
 
     		List<CallMember> memberList = strategy.calcMetric(enterpriseId, qno, uniqueId);
@@ -138,8 +168,12 @@ public class QueueServiceImp {
     	}
     	return null;
     }
+    
+    public void rna(String enterpriseId, String qno, String uniqueId){
+    	unPenddingEntry(enterpriseId, qno, uniqueId);
+    }
 
-    public CallMember findRemember(List<CallMember> memberList, String rememberCno){
+    private CallMember findRemember(List<CallMember> memberList, String rememberCno){
     	for(CallMember callMember: memberList){
     		if(callMember.getCno().equals(rememberCno)){
     			return callMember;
@@ -148,7 +182,7 @@ public class QueueServiceImp {
     	return null;
     }
     
-	public CallMember findBestMetric(List<CallMember> memberList){
+	private CallMember findBestMetric(List<CallMember> memberList){
 		CallMember bestCallMember = null;
 		Integer minMetric = Integer.MAX_VALUE;
 		for(CallMember callMember: memberList){
@@ -252,19 +286,36 @@ public class QueueServiceImp {
     	String avalibleMemberKey = String.format(BigQueueCacheKey.QUEUE_AVALIBLE_MEMBER, enterpriseId);
     	return (Integer)redisService.hget(Const.REDIS_DB_CTI_INDEX, avalibleMemberKey, qno);
     }
-    
+    public Set<String> getQueueEntrySet(String enterpriseId, String qno){
+    	String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY, enterpriseId, qno);
+    	return redisService.zrange(Const.REDIS_DB_CTI_INDEX, queueEntryKey, Long.MIN_VALUE, Long.MAX_VALUE );
+    }
+    public Object getQueueEntryInfo(String uniqueId, String field){
+		String key = String.format(BigQueueCacheKey.QUEUE_ENTRY_INFO, uniqueId);
+		return redisService.hget(Const.REDIS_DB_CTI_INDEX, key, field);
+    }
+    public void setQueueEntryInfo(String uniqueId, String field, Object value){
+		String key = String.format(BigQueueCacheKey.QUEUE_ENTRY_INFO, uniqueId);
+		redisService.hset(Const.REDIS_DB_CTI_INDEX, key, field, value);
+    }
     public Integer getQueueEntryCount(String enterpriseId, String qno){
     	String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY, enterpriseId, qno);
     	return redisService.zcount(Const.REDIS_DB_CTI_INDEX, queueEntryKey, Double.MIN_VALUE, Double.MAX_VALUE ).intValue();
     }
     
-    public void insertQueueEntry(String enterpriseId, String qno, String uniqueId, Integer priority,Integer joinTime){
+    public void insertQueueEntry(String enterpriseId, String qno, String uniqueId, Integer priority,Integer joinTime, Integer startTime, Integer overflow){
 		String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY, enterpriseId, qno);
 		String queueEntryNpKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_NP, enterpriseId, qno);
 		Integer score = priority * BigQueueConst.QUEUE_PRIORITY_MULTIPILER + joinTime % BigQueueConst.QUEUE_PRIORITY_MULTIPILER;
 		
 		redisService.zadd(Const.REDIS_DB_CTI_INDEX, queueEntryKey, uniqueId, score);
 		redisService.zadd(Const.REDIS_DB_CTI_INDEX, queueEntryNpKey, uniqueId, score);
+		
+		setQueueEntryInfo(uniqueId, "join_time", joinTime);
+		setQueueEntryInfo(uniqueId, "priority", priority);
+		setQueueEntryInfo(uniqueId, "start_time", startTime);
+		setQueueEntryInfo(uniqueId, "overflow", overflow);
+		setQueueEntryInfo(uniqueId, "priority", priority);
     }
     public void removeQueueEntry(String enterpriseId, String qno, String uniqueId){
 		//删除queue_entry_7000001_0001
@@ -280,12 +331,12 @@ public class QueueServiceImp {
 		redisService.delete(Const.REDIS_DB_CTI_INDEX, queueEntryInfoKey);
     }
     
-    public void penddingEntry(String enterpriseId, String qno, String uniqueId){
+    private void penddingEntry(String enterpriseId, String qno, String uniqueId){
     	String queueEntryNpKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_NP, enterpriseId, qno);
     	redisService.zrem(Const.REDIS_DB_CTI_INDEX, queueEntryNpKey, uniqueId);
     }
     
-    public void unPenddingEntry(String enterpriseId, String qno, String uniqueId){
+    private void unPenddingEntry(String enterpriseId, String qno, String uniqueId){
     	String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_NP, enterpriseId, qno);
     	Integer score = redisService.zscore(Const.REDIS_DB_CTI_INDEX, queueEntryKey, uniqueId).intValue();
     	String queueEntryNpKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_NP, enterpriseId, qno);
@@ -324,40 +375,40 @@ public class QueueServiceImp {
     }
     
     public Integer getQueueEntryLinpos(String uniqueId){
-		String key = String.format(BigQueueCacheKey.QUEUE_ENTRY_INFO, uniqueId);
-		Integer linpos = (Integer) redisService.hget(Const.REDIS_DB_CTI_INDEX, key, "linpos");
+		Integer linpos = (Integer) getQueueEntryInfo(uniqueId, "linpos");
 		return linpos;
     }
     
     public void setQueueEntryLinpos(String uniqueId, Integer linpos){
- 		String key = String.format(BigQueueCacheKey.QUEUE_ENTRY_INFO, uniqueId);
- 		redisService.hset(Const.REDIS_DB_CTI_INDEX, key, "linpos", linpos);
+ 		setQueueEntryInfo(uniqueId, "linpos", linpos);
 	}
     
     public Integer getQueueEntryDialed(String uniqueId, String cno){
-    	String key = String.format(BigQueueCacheKey.QUEUE_ENTRY_INFO, uniqueId);
- 		Integer dialedCount = (Integer)redisService.hget(Const.REDIS_DB_CTI_INDEX, key, cno);
+ 		Integer dialedCount = (Integer)getQueueEntryInfo(uniqueId, "dialed_" + cno);
  		return dialedCount;
     }
     
     public void incQueueEntryDialed(String uniqueId, String cno){
     	String key = String.format(BigQueueCacheKey.QUEUE_ENTRY_INFO, uniqueId);
- 		redisService.hincrby(Const.REDIS_DB_CTI_INDEX, key, cno, 1);
+ 		redisService.hincrby(Const.REDIS_DB_CTI_INDEX, key, "dialed_" + cno, 1);
     }
     
-    public Integer getQueueRrpos(String enterpriseId, String qno ){
-    	String key = String.format(BigQueueCacheKey.QUEUE_RRPOS, enterpriseId);
- 		Integer res = (Integer)redisService.hget(Const.REDIS_DB_CTI_INDEX, key, qno);
+    public Integer getQueueStatistic(String enterpriseId, String qno, String field){
+    	String key = String.format(BigQueueCacheKey.QUEUE_STATISTIC, enterpriseId, qno);
+ 		Integer res = (Integer)redisService.hget(Const.REDIS_DB_CTI_INDEX, key, field);
  		if(res == null){
- 			redisService.hincrby(Const.REDIS_DB_CTI_INDEX, key, qno, 0);
+ 			redisService.hincrby(Const.REDIS_DB_CTI_INDEX, key, field, 0);
  			return 0;
  		}
  		return res;
     }
-    
-    public void incQueueRrpos(String enterpriseId, String qno){
-    	String key = String.format(BigQueueCacheKey.QUEUE_RRPOS, enterpriseId);
- 		redisService.hincrby(Const.REDIS_DB_CTI_INDEX, key, qno, 1);
+    public void setQueueStatistic(String enterpriseId, String qno, String field, Integer value){
+    	String key = String.format(BigQueueCacheKey.QUEUE_STATISTIC, enterpriseId, qno);
+    	redisService.hset(Const.REDIS_DB_CTI_INDEX, key, field, value);
+    }
+    public void incQueueStatistic(String enterpriseId, String qno, String field, Integer value){
+    	String key = String.format(BigQueueCacheKey.QUEUE_STATISTIC, enterpriseId, qno);
+    	redisService.hincrby(Const.REDIS_DB_CTI_INDEX, key, field, value);
     }
     
     public Set<String> getMemberSet(String enterpriseId, String qno){

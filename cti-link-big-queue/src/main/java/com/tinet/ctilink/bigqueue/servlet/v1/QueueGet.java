@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.tinet.ctilink.bigqueue.entity.Queue;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
 import com.tinet.ctilink.json.JSONObject;
 
@@ -36,9 +37,9 @@ public class QueueGet extends HttpServlet {
         String enterpriseId = req.getParameter("enterpriseId");
         String qno = req.getParameter("qno");
         
-        JSONObject res = queueService.getFromConfCache(enterpriseId, qno);
-        if(res != null){
-        	out.print(res.toString());
+        Queue queue = queueService.getFromConfCache(enterpriseId, qno);
+        if(queue != null){
+        	out.print(JSONObject.fromObject(queue).toString());
         }
         out.flush();
         out.close();

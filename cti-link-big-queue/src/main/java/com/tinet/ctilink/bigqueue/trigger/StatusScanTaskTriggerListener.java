@@ -8,6 +8,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.davidmarquis.redisscheduler.TaskTriggerListener;
+import com.tinet.ctilink.bigqueue.entity.Queue;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
 import com.tinet.ctilink.bigqueue.inc.BigQueueMacro;
 import com.tinet.ctilink.bigqueue.service.imp.MemberServiceImp;
@@ -54,8 +55,11 @@ public class StatusScanTaskTriggerListener implements TaskTriggerListener {
     	Integer idleCount = 0;
     	Integer avalibleCount = 0;
     	//获取队列joinEmpty设置
-    	JSONObject queueObject = queueService.getFromConfCache(enterpriseId, qno);
-    	Integer joinEmpty = (Integer)queueObject.get("joinEmpty");
+    	Queue queue = queueService.getFromConfCache(enterpriseId, qno);
+    	if(queue == null){
+    		return;
+    	}
+    	Integer joinEmpty = queue.getJoinEmpty();
     	
     	//获取队列中
     	Set<String> memberSet = queueService.getMemberSet(enterpriseId, qno);

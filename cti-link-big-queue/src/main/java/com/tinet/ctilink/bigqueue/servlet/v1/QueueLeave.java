@@ -36,7 +36,9 @@ public class QueueLeave extends HttpServlet {
         String enterpriseId = req.getParameter("enterpriseId");
         String qno = req.getParameter("qno");
         String uniqueId = req.getParameter("uniqueId");
-        queueService.leave(enterpriseId, qno, uniqueId);
+        Integer leaveCode = Integer.parseInt(req.getParameter("leaveCode"));
+        
+        queueService.leave(enterpriseId, qno, uniqueId, leaveCode);
         out.flush();
         out.close();
     }

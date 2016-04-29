@@ -34,7 +34,7 @@ public class RRMemoryStrategy implements Strategy, InitializingBean{
             }
         });
 		
-		Integer rrpos = queueService.getQueueRrpos(enterpriseId, qno);
+		Integer rrpos = queueService.getQueueStatistic(enterpriseId, qno, "rrpos");
 		rrpos = rrpos % memberList.size();
 		Integer pos = 0;
 		for(CallMember callMember: memberList){
@@ -53,7 +53,7 @@ public class RRMemoryStrategy implements Strategy, InitializingBean{
 
 	@Override
 	public void memberSelectedHandle(String enterpriseId, String qno, String cno, String uniqueId, String customerNumber){
-		queueService.incQueueRrpos(enterpriseId, qno);
+		queueService.incQueueStatistic(enterpriseId, qno, "rrpos", 1);
 	}
 	
 	@Override

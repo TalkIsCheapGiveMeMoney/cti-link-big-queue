@@ -37,6 +37,7 @@ public class ApplicationStarter implements ApplicationListener<ContextRefreshedE
 		statusScanScheduler.schedule("queueMemberStatusScan", null);
 		statusCheckScanScheduler.schedule("queueMemberStatusCheckScan", null);
 		
+		
 		logger.info("cti-link-big-queue启动成功");
 		System.out.println("cti-link-big-queue启动成功");
 	}
