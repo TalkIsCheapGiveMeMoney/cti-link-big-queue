@@ -3,17 +3,18 @@ package com.tinet.ctilink.bigqueue.trigger;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.davidmarquis.redisscheduler.TaskTriggerListener;
+import com.tinet.ctilink.bigqueue.entity.Agent;
 import com.tinet.ctilink.bigqueue.entity.Enterprise;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
+import com.tinet.ctilink.bigqueue.service.imp.AgentServiceImp;
+import com.tinet.ctilink.bigqueue.service.imp.ChannelServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.EnterpriseServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.MemberServiceImp;
 import com.tinet.ctilink.cache.RedisService;
-import com.tinet.ctilink.json.JSONObject;
 
 /**
  * @author fengwei //
@@ -27,7 +28,10 @@ public class StatusCheckScanTaskTriggerListener implements TaskTriggerListener {
 	private MemberServiceImp memberService;
 	@Autowired
 	private EnterpriseServiceImp enterpriseService;
-	
+	@Autowired
+	private AgentServiceImp agentService;
+	@Autowired
+	private ChannelServiceImp channelService;
     @Override
     public void taskTriggered(String taskId) {
 
@@ -66,7 +70,13 @@ public class StatusCheckScanTaskTriggerListener implements TaskTriggerListener {
 	    			}
 	    			break;
 	    		case BigQueueConst.MEMBER_DEVICE_STATUS_INUSE:
-	    			
+	    			Agent agent = agentService.getAgent(enterpriseId, cno);
+	    			if(channelService.isAlive(agent.getCurrentChannelUniqueId())){
+	    				
+	    			}else{
+	    				memberService.setDeviceStatus(enterpriseId, cno, BigQueueConst.MEMBER_DEVICE_STATUS_IDLE);
+	    				System.out.printf("StatusCheckScan bad status checked: enterpriseId=%s cno=%s", enterpriseId, field);
+	    			}
 	    			break;
     		}
     		

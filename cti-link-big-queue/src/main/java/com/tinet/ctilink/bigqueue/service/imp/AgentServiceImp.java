@@ -1,5 +1,6 @@
 package com.tinet.ctilink.bigqueue.service.imp;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,18 +13,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.davidmarquis.redisscheduler.RedisTaskScheduler;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
 import com.tinet.ctilink.bigqueue.entity.Agent;
+import com.tinet.ctilink.bigqueue.entity.AgentTel;
 import com.tinet.ctilink.bigqueue.entity.CallMember;
+import com.tinet.ctilink.bigqueue.entity.Enterprise;
 import com.tinet.ctilink.bigqueue.entity.Queue;
 import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
 import com.tinet.ctilink.bigqueue.inc.BigQueueMacro;
+import com.tinet.ctilink.cache.CacheKey;
 import com.tinet.ctilink.cache.RedisService;
+import com.tinet.ctilink.conf.model.Gateway;
+import com.tinet.ctilink.entity.Caller;
 import com.tinet.ctilink.inc.Const;
 import com.tinet.ctilink.json.JSONObject;
+import com.tinet.ctilink.util.AreaCodeUtil;
 import com.tinet.ctilink.util.RedisLock;
+import com.tinet.ctilink.util.RouterUtil;
 
 @Service
 public class AgentServiceImp {
@@ -42,15 +54,47 @@ public class AgentServiceImp {
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
 		String bindTel = params.get("bindTel").toString();
-		String bindType = params.get("bindType").toString();
+		Integer bindType = Integer.parseInt(params.get("bindType").toString());
+		String loginStatus = params.get("loginStatus").toString();
 		
 		Agent agent = getAgent(enterpriseId, cno);
 		
 		if(agent != null){
+			List<AgentTel> agentTelList = getAgentBindTel(enterpriseId, cno);
+			boolean validBindTel = false;
+			for(AgentTel agentTel :agentTelList){
+				if(agentTel.getTel().equals(bindTel) && agentTel.getTelType().equals(bindType)){
+					validBindTel = true;
+					break;
+				}
+			}
+			if(validBindTel == false){
+				response = ActionResponse.createFailResponse(-1, "invalid bindTel");
+				return response;
+			}
+			
 			//查询是bindTel否在绑定电话里
 			
+			
 			//从路由逻辑中获取inteface
-			//更新bind_tel的绑定状态
+
+			JSONObject jsonObject = new JSONObject();
+			Caller caller = AreaCodeUtil.updateGetAreaCode(bindTel, "");
+			Integer routerClidCallType = Const.ROUTER_CLID_CALL_TYPE_IB_RIGHT;
+			Gateway gateway = RouterUtil.getRouterGateway(enterpriseId, routerClidCallType, caller);
+			
+			if (gateway != null) {
+				jsonObject.put("pre", gateway.getPrefix());
+				jsonObject.put("post", gateway.getName());
+				jsonObject.put("gw_ip", gateway.getIpAddr());
+				jsonObject.put("cdr_callee_area_code", caller.getAreaCode());
+				jsonObject.put("dial_interface_cust", "PJSIP/" + gateway.getName()+"/sip:"+gateway.getPrefix() + caller.getCallerNumber() + "@" + gateway.getIpAddr()+":"+gateway.getPort());
+				
+			}else{
+				response = ActionResponse.createFailResponse(-1, "no route");
+				return response;
+			}
+			
 			//加入到queue_member中
 			//检查坐席是否在任何队列中
 
@@ -327,5 +371,26 @@ public class AgentServiceImp {
 		//MEMBER_LOCK
 		
 	}
-	
+	private List<AgentTel> getAgentBindTel(String enterpriseId, String cno){
+		String key = String.format(CacheKey.AGENT_TEL_ENTERPRISE_ID_CNO, enterpriseId, cno);
+		String jsonStr = redisService.get(Const.REDIS_DB_CONF_INDEX, key);
+
+		List<AgentTel> agentTelList = null;
+		if (jsonStr != null) {
+			ObjectMapper mapper = new ObjectMapper();
+
+			JavaType valueType = mapper.getTypeFactory().constructParametrizedType(ArrayList.class, List.class,
+					AgentTel.class);
+			try {
+				agentTelList = mapper.readValue(jsonStr, valueType);
+			} catch (JsonParseException e) {
+				e.printStackTrace();
+			} catch (JsonMappingException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return agentTelList;
+	}
 }

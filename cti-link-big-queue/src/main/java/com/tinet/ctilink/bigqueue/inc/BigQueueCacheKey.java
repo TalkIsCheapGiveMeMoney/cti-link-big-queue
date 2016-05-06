@@ -27,6 +27,7 @@ public class BigQueueCacheKey {
 	public static String MEMBER_LOCK = "member_device_status_lock_%s_%s";
     /* 坐席数据 hash*/
     public static final String AGENT = "agent_%s";
-    
+    /* 通道存活 */
+    public static final String CHANNEL_ALIVE ="sip-media-server.channel.%s";
 
 }

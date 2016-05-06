@@ -11,10 +11,10 @@ import com.github.davidmarquis.redisscheduler.TaskTriggerListener;
 import com.tinet.ctilink.bigqueue.entity.Queue;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
 import com.tinet.ctilink.bigqueue.inc.BigQueueMacro;
+import com.tinet.ctilink.bigqueue.service.imp.ChannelServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.MemberServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
 import com.tinet.ctilink.cache.RedisService;
-import com.tinet.ctilink.json.JSONObject;
 
 /**
  * @author fengwei //
@@ -28,6 +28,8 @@ public class StatusScanTaskTriggerListener implements TaskTriggerListener {
 	private QueueServiceImp queueService;
 	@Autowired
 	private MemberServiceImp memberService;
+	@Autowired
+	private ChannelServiceImp channelService;
 	
 	private Map<String, Integer> memberDeviceStatusMap = new HashMap<String, Integer>();
 	private Map<String, Integer> memberLoginStatusMap = new HashMap<String, Integer>();
@@ -48,8 +50,22 @@ public class StatusScanTaskTriggerListener implements TaskTriggerListener {
         	String enterpriseId = queue.substring(0, BigQueueConst.ENTERPRISE_ID_LEN);
         	String qno = queue.substring(BigQueueConst.ENTERPRISE_ID_LEN);
         	scanStatus(enterpriseId, qno, memberQueueMap);
+        	scanEntry(enterpriseId, qno);
         }
         BigQueueMacro.replaceMemberQueueMap();
+    }
+    private void scanEntry(String enterpriseId, String qno){
+
+    	Set<String> entrySet = queueService.getQueueEntrySet(enterpriseId, qno);
+		for(String entry: entrySet){
+			String uniqueId = entry;
+			if(channelService.isAlive(uniqueId)){
+				
+			}else{
+				System.out.printf("发现宕机造成的通道不存在，%s %s %s", enterpriseId, qno, uniqueId);
+				queueService.hangup(enterpriseId, qno, uniqueId);
+			}
+		}
     }
     private void scanStatus(String enterpriseId, String qno, Map<String, Set<String>> memberQueueMap){
     	Integer idleCount = 0;
