@@ -24,7 +24,13 @@
             <artifactId>cti-link-big-queue-api</artifactId>
             <version>0.0.1</version>
         </dependency>
-
+        
+        <dependency>
+            <groupId>com.tinet</groupId>
+            <artifactId>cti-link-conf-api</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+        
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>dubbo</artifactId>
@@ -117,10 +123,11 @@
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.github.davidmarquis</groupId>
-            <artifactId>redis-scheduler</artifactId>
-        </dependency>
+		<dependency>
+		   <groupId>com.github.davidmarquis</groupId>
+		  <artifactId>redis-scheduler</artifactId>
+		  <version>1.0.3-RELEASE</version>
+		</dependency>
         
     </dependencies>
 

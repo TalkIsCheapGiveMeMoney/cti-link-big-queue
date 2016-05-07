@@ -15,7 +15,7 @@ public class ChannelServiceImp {
 	RedisService redisService;
 	
 	public boolean isAlive(String uniqueId){
-		String key = String.format(BigQueueCacheKey.CHANNEL_ALIVE, uniqueId);
+		String key = String.format(BigQueueCacheKey.CHANNEL_ALIVE_UNIQUEID, uniqueId);
 		String res = redisService.get(Const.REDIS_DB_CTI_INDEX, key);
 		if(StringUtils.isEmpty(res)){
 			return false;

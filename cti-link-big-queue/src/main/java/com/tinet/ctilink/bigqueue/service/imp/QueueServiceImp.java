@@ -21,6 +21,7 @@ import com.tinet.ctilink.bigqueue.strategy.Strategy;
 import com.tinet.ctilink.bigqueue.strategy.StrategyFactory;
 import com.tinet.ctilink.cache.CacheKey;
 import com.tinet.ctilink.cache.RedisService;
+import com.tinet.ctilink.conf.model.QueueMember;
 import com.tinet.ctilink.inc.Const;
 import com.tinet.ctilink.json.JSONObject;
 import com.tinet.ctilink.util.RedisLock;
@@ -268,44 +269,44 @@ public class QueueServiceImp {
     }
     
     public void setQueueIdleCount(String enterpriseId, String qno, Integer count){
-    	String idleMemberKey = String.format(BigQueueCacheKey.QUEUE_IDLE_MEMBER, enterpriseId);
+    	String idleMemberKey = String.format(BigQueueCacheKey.QUEUE_IDLE_MEMBER_ENTERPRISE_ID, enterpriseId);
     	redisService.hset(Const.REDIS_DB_CTI_INDEX, idleMemberKey, qno, count);
     }
     
     public Integer getQueueIdleCount(String enterpriseId, String qno){
-    	String idleMemberKey = String.format(BigQueueCacheKey.QUEUE_IDLE_MEMBER, enterpriseId);
+    	String idleMemberKey = String.format(BigQueueCacheKey.QUEUE_IDLE_MEMBER_ENTERPRISE_ID, enterpriseId);
     	return (Integer)redisService.hget(Const.REDIS_DB_CTI_INDEX, idleMemberKey, qno);
     }
     
     public void setQueueAvalibleCount(String enterpriseId, String qno, Integer count){
-    	String avalibleMemberKey = String.format(BigQueueCacheKey.QUEUE_AVALIBLE_MEMBER, enterpriseId);
+    	String avalibleMemberKey = String.format(BigQueueCacheKey.QUEUE_AVALIBLE_MEMBER_ENTERPRISE_ID, enterpriseId, qno);
     	redisService.hset(Const.REDIS_DB_CTI_INDEX, avalibleMemberKey, qno, count);
     }
     
     public Integer getQueueAvalibleCount(String enterpriseId, String qno){
-    	String avalibleMemberKey = String.format(BigQueueCacheKey.QUEUE_AVALIBLE_MEMBER, enterpriseId);
+    	String avalibleMemberKey = String.format(BigQueueCacheKey.QUEUE_AVALIBLE_MEMBER_ENTERPRISE_ID, enterpriseId, qno);
     	return (Integer)redisService.hget(Const.REDIS_DB_CTI_INDEX, avalibleMemberKey, qno);
     }
     public Set<String> getQueueEntrySet(String enterpriseId, String qno){
-    	String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY, enterpriseId, qno);
+    	String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_ENTERPRISE_ID_QNO, enterpriseId, qno);
     	return redisService.zrange(Const.REDIS_DB_CTI_INDEX, queueEntryKey, Long.MIN_VALUE, Long.MAX_VALUE );
     }
     public Object getQueueEntryInfo(String uniqueId, String field){
-		String key = String.format(BigQueueCacheKey.QUEUE_ENTRY_INFO, uniqueId);
+		String key = String.format(BigQueueCacheKey.QUEUE_ENTRY_INFO_UNIQUE_ID, uniqueId);
 		return redisService.hget(Const.REDIS_DB_CTI_INDEX, key, field);
     }
     public void setQueueEntryInfo(String uniqueId, String field, Object value){
-		String key = String.format(BigQueueCacheKey.QUEUE_ENTRY_INFO, uniqueId);
+		String key = String.format(BigQueueCacheKey.QUEUE_ENTRY_INFO_UNIQUE_ID, uniqueId);
 		redisService.hset(Const.REDIS_DB_CTI_INDEX, key, field, value);
     }
     public Integer getQueueEntryCount(String enterpriseId, String qno){
-    	String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY, enterpriseId, qno);
+    	String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_ENTERPRISE_ID_QNO, enterpriseId, qno);
     	return redisService.zcount(Const.REDIS_DB_CTI_INDEX, queueEntryKey, Double.MIN_VALUE, Double.MAX_VALUE ).intValue();
     }
     
     public void insertQueueEntry(String enterpriseId, String qno, String uniqueId, Integer priority,Integer joinTime, Integer startTime, Integer overflow){
-		String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY, enterpriseId, qno);
-		String queueEntryNpKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_NP, enterpriseId, qno);
+		String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_ENTERPRISE_ID_QNO, enterpriseId, qno);
+		String queueEntryNpKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_NP_ENTERPRISE_ID_QNO, enterpriseId, qno);
 		Integer score = priority * BigQueueConst.QUEUE_PRIORITY_MULTIPILER + joinTime % BigQueueConst.QUEUE_PRIORITY_MULTIPILER;
 		
 		redisService.zadd(Const.REDIS_DB_CTI_INDEX, queueEntryKey, uniqueId, score);
@@ -320,26 +321,26 @@ public class QueueServiceImp {
     public void removeQueueEntry(String enterpriseId, String qno, String uniqueId){
 		//删除queue_entry_7000001_0001
 		//删除queue_entry_np_7000001_0001
-		String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY, enterpriseId, qno);
-		String queueEntryNpKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_NP, enterpriseId, qno);
+		String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_ENTERPRISE_ID_QNO, enterpriseId, qno);
+		String queueEntryNpKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_NP_ENTERPRISE_ID_QNO, enterpriseId, qno);
 		
 		redisService.zrem(Const.REDIS_DB_CTI_INDEX, queueEntryKey, uniqueId);
 		redisService.zrem(Const.REDIS_DB_CTI_INDEX, queueEntryNpKey,uniqueId);
 		
 		//删除queue_entry_info_${uniqueId}
-		String queueEntryInfoKey =  String.format(BigQueueCacheKey.QUEUE_ENTRY_INFO, uniqueId);
+		String queueEntryInfoKey =  String.format(BigQueueCacheKey.QUEUE_ENTRY_INFO_UNIQUE_ID, uniqueId);
 		redisService.delete(Const.REDIS_DB_CTI_INDEX, queueEntryInfoKey);
     }
     
     private void penddingEntry(String enterpriseId, String qno, String uniqueId){
-    	String queueEntryNpKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_NP, enterpriseId, qno);
+    	String queueEntryNpKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_NP_ENTERPRISE_ID_QNO, enterpriseId, qno);
     	redisService.zrem(Const.REDIS_DB_CTI_INDEX, queueEntryNpKey, uniqueId);
     }
     
     private void unPenddingEntry(String enterpriseId, String qno, String uniqueId){
-    	String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_NP, enterpriseId, qno);
+    	String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_NP_ENTERPRISE_ID_QNO, enterpriseId, qno);
     	Integer score = redisService.zscore(Const.REDIS_DB_CTI_INDEX, queueEntryKey, uniqueId).intValue();
-    	String queueEntryNpKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_NP, enterpriseId, qno);
+    	String queueEntryNpKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_NP_ENTERPRISE_ID_QNO, enterpriseId, qno);
     	redisService.zadd(Const.REDIS_DB_CTI_INDEX, queueEntryNpKey, uniqueId, score);
     }
     
@@ -357,7 +358,7 @@ public class QueueServiceImp {
     }
     
     public Integer getQueueEntryIndex(String enterpriseId, String qno, String uniqueId){
-    	String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY, enterpriseId, qno);
+    	String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_ENTERPRISE_ID_QNO, enterpriseId, qno);
 		Long res = redisService.zrank(Const.REDIS_DB_CTI_INDEX, queueEntryKey, uniqueId);
 		if(res != null){
 			return res.intValue();
@@ -366,7 +367,7 @@ public class QueueServiceImp {
     }
     
     public Integer getQueueEntryNpIndex(String enterpriseId, String qno, String uniqueId){
-    	String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_NP, enterpriseId, qno);
+    	String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_NP_ENTERPRISE_ID_QNO, enterpriseId, qno);
 		Long res = redisService.zrank(Const.REDIS_DB_CTI_INDEX, queueEntryKey, uniqueId);
 		if(res != null){
 			return res.intValue();
@@ -389,12 +390,12 @@ public class QueueServiceImp {
     }
     
     public void incQueueEntryDialed(String uniqueId, String cno){
-    	String key = String.format(BigQueueCacheKey.QUEUE_ENTRY_INFO, uniqueId);
+    	String key = String.format(BigQueueCacheKey.QUEUE_ENTRY_INFO_UNIQUE_ID, uniqueId);
  		redisService.hincrby(Const.REDIS_DB_CTI_INDEX, key, "dialed_" + cno, 1);
     }
     
     public Integer getQueueStatistic(String enterpriseId, String qno, String field){
-    	String key = String.format(BigQueueCacheKey.QUEUE_STATISTIC, enterpriseId, qno);
+    	String key = String.format(BigQueueCacheKey.QUEUE_STATISTIC_ENTERPRISE_ID_QNO, enterpriseId, qno);
  		Integer res = (Integer)redisService.hget(Const.REDIS_DB_CTI_INDEX, key, field);
  		if(res == null){
  			redisService.hincrby(Const.REDIS_DB_CTI_INDEX, key, field, 0);
@@ -403,18 +404,18 @@ public class QueueServiceImp {
  		return res;
     }
     public void setQueueStatistic(String enterpriseId, String qno, String field, Integer value){
-    	String key = String.format(BigQueueCacheKey.QUEUE_STATISTIC, enterpriseId, qno);
+    	String key = String.format(BigQueueCacheKey.QUEUE_STATISTIC_ENTERPRISE_ID_QNO, enterpriseId, qno);
     	redisService.hset(Const.REDIS_DB_CTI_INDEX, key, field, value);
     }
     public void incQueueStatistic(String enterpriseId, String qno, String field, Integer value){
-    	String key = String.format(BigQueueCacheKey.QUEUE_STATISTIC, enterpriseId, qno);
+    	String key = String.format(BigQueueCacheKey.QUEUE_STATISTIC_ENTERPRISE_ID_QNO, enterpriseId, qno);
     	redisService.hincrby(Const.REDIS_DB_CTI_INDEX, key, field, value);
     }
     
     public Set<String> getMemberSet(String enterpriseId, String qno){
     	//获取队列中
-    	String key = String.format(BigQueueCacheKey.QUEUE_MEMBER, enterpriseId, qno);
-    	Set<Object> memberSet = redisService.hgetallfield(Const.REDIS_DB_CTI_INDEX, key);
+    	String key = String.format(BigQueueCacheKey.QUEUE_MEMBER_ENTERPRISE_ID_QNO, enterpriseId, qno);
+    	Set<Object> memberSet = redisService.hkeys(Const.REDIS_DB_CTI_INDEX, key);
     	Set<String> res = new HashSet<String>();
     	for(Object object: memberSet){
     		res.add(object.toString());
@@ -422,23 +423,36 @@ public class QueueServiceImp {
     	return res;
     }
     public List<CallMember> getMembers(String enterpriseId, String qno){
-    	String key = String.format(BigQueueCacheKey.QUEUE_MEMBER, enterpriseId, qno);
-    	Map<Object,Object> res = redisService.hgetall(Const.REDIS_DB_CTI_INDEX, key);
-    	if(res != null){
-	    	List<CallMember> list = new ArrayList<CallMember>();
-	    	for(Object mapKey: res.keySet()){
-	    		String jsonStr = res.get(mapKey).toString();
-	    		if(StringUtils.isNotEmpty(jsonStr)){
-	    			CallMember callMember = JSONObject.fromObject(res).getBean(CallMember.class);
-	    			list.add(callMember);
-	    		}
-	    	}
-	    	return list;
+    	String key = String.format(BigQueueCacheKey.QUEUE_MEMBER_ENTERPRISE_ID_QNO, enterpriseId, qno);
+    	List<CallMember> list = redisService.hgetList(Const.REDIS_DB_CTI_INDEX, key, CallMember.class);
+    	return list;
+    }
+    
+    public CallMember getMember(String enterpriseId, String qno, String cno){
+    	String key = String.format(BigQueueCacheKey.QUEUE_MEMBER_ENTERPRISE_ID_QNO, enterpriseId, qno);
+    	return redisService.hget(Const.REDIS_DB_CTI_INDEX, key, cno, CallMember.class);
+    }
+    
+    public void setMember(String enterpriseId, QueueMember queueMember){
+    	CallMember callMember = getMember(enterpriseId, queueMember.getQno(), queueMember.getCno());
+    	if(callMember != null){
+    		callMember.setInterface(queueMember.getInterface());
+    		callMember.setPenalty(queueMember.getPenalty());
+    	}else{
+    		callMember = new CallMember();
+    		callMember.setInterface(queueMember.getInterface());
+    		callMember.setPenalty(queueMember.getPenalty());
+    		callMember.setCalls(0);
+    		callMember.setCno(queueMember.getCno());
+    		callMember.setLastCall(0);
     	}
-    	return null;
+    	String value = JSONObject.fromObject(callMember).toString();
+    	String key = String.format(BigQueueCacheKey.QUEUE_MEMBER_ENTERPRISE_ID_QNO, enterpriseId, queueMember.getQno());
+    	redisService.hset(Const.REDIS_DB_CTI_INDEX, key, callMember.getCno(), value);
+    	return;
     }
     public RedisLock lockQueue(String enterpriseId, String qno){
-    	String key = String.format(BigQueueCacheKey.QUEUE_LOCK, enterpriseId, qno);
+    	String key = String.format(BigQueueCacheKey.QUEUE_LOCK_ENTERPRISE_ID_QNO, enterpriseId, qno);
     	RedisLock lock = RedisLockUtil.lock(key, BigQueueConst.QUEUE_LOCK_TIMEOUT);
     	return lock;
     }

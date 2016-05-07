@@ -7,7 +7,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.davidmarquis.redisscheduler.TaskTriggerListener;
-import com.tinet.ctilink.bigqueue.entity.Agent;
+import com.tinet.ctilink.bigqueue.entity.CallAgent;
 import com.tinet.ctilink.bigqueue.entity.Enterprise;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
 import com.tinet.ctilink.bigqueue.service.imp.AgentServiceImp;
@@ -70,7 +70,7 @@ public class StatusCheckScanTaskTriggerListener implements TaskTriggerListener {
 	    			}
 	    			break;
 	    		case BigQueueConst.MEMBER_DEVICE_STATUS_INUSE:
-	    			Agent agent = agentService.getAgent(enterpriseId, cno);
+	    			CallAgent agent = agentService.getCallAgent(enterpriseId, cno);
 	    			if(channelService.isAlive(agent.getCurrentChannelUniqueId())){
 	    				
 	    			}else{

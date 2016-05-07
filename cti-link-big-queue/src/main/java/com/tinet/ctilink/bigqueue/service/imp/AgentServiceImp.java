@@ -19,23 +19,21 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.davidmarquis.redisscheduler.RedisTaskScheduler;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
-import com.tinet.ctilink.bigqueue.entity.Agent;
-import com.tinet.ctilink.bigqueue.entity.AgentTel;
+import com.tinet.ctilink.bigqueue.entity.CallAgent;
 import com.tinet.ctilink.bigqueue.entity.CallMember;
-import com.tinet.ctilink.bigqueue.entity.Enterprise;
+import com.tinet.ctilink.bigqueue.entity.Gateway;
 import com.tinet.ctilink.bigqueue.entity.Queue;
 import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
 import com.tinet.ctilink.bigqueue.inc.BigQueueMacro;
 import com.tinet.ctilink.cache.CacheKey;
 import com.tinet.ctilink.cache.RedisService;
-import com.tinet.ctilink.conf.model.Gateway;
-import com.tinet.ctilink.entity.Caller;
+import com.tinet.ctilink.conf.model.Agent;
+import com.tinet.ctilink.conf.model.AgentTel;
+import com.tinet.ctilink.conf.model.QueueMember;
 import com.tinet.ctilink.inc.Const;
 import com.tinet.ctilink.json.JSONObject;
-import com.tinet.ctilink.util.AreaCodeUtil;
 import com.tinet.ctilink.util.RedisLock;
-import com.tinet.ctilink.util.RouterUtil;
 
 @Service
 public class AgentServiceImp {
@@ -55,10 +53,10 @@ public class AgentServiceImp {
 		String cno = params.get("cno").toString();
 		String bindTel = params.get("bindTel").toString();
 		Integer bindType = Integer.parseInt(params.get("bindType").toString());
-		String loginStatus = params.get("loginStatus").toString();
+		Integer loginStatus = Integer.parseInt(params.get("loginStatus").toString());
+		String pauseDescription = (params.get("pauseDescription") == null)?params.get("pauseDescription").toString():null;
 		
 		Agent agent = getAgent(enterpriseId, cno);
-		
 		if(agent != null){
 			List<AgentTel> agentTelList = getAgentBindTel(enterpriseId, cno);
 			boolean validBindTel = false;
@@ -75,29 +73,23 @@ public class AgentServiceImp {
 			
 			//查询是bindTel否在绑定电话里
 			
-			
-			//从路由逻辑中获取inteface
-
-			JSONObject jsonObject = new JSONObject();
-			Caller caller = AreaCodeUtil.updateGetAreaCode(bindTel, "");
-			Integer routerClidCallType = Const.ROUTER_CLID_CALL_TYPE_IB_RIGHT;
-			Gateway gateway = RouterUtil.getRouterGateway(enterpriseId, routerClidCallType, caller);
-			
-			if (gateway != null) {
-				jsonObject.put("pre", gateway.getPrefix());
-				jsonObject.put("post", gateway.getName());
-				jsonObject.put("gw_ip", gateway.getIpAddr());
-				jsonObject.put("cdr_callee_area_code", caller.getAreaCode());
-				jsonObject.put("dial_interface_cust", "PJSIP/" + gateway.getName()+"/sip:"+gateway.getPrefix() + caller.getCallerNumber() + "@" + gateway.getIpAddr()+":"+gateway.getPort());
+			CallAgent callAgent = getCallAgent(enterpriseId, cno);
+			if(callAgent == null){
+				callAgent = new CallAgent();
+				callAgent.set_interface(_interface);
+				initCallAgent(callAgent);
+				memberService.setDeviceStatus(enterpriseId, cno, BigQueueConst.MEMBER_DEVICE_STATUS_IDLE);
 				
 			}else{
-				response = ActionResponse.createFailResponse(-1, "no route");
+				
+			}
+			memberService.setLoginStatus(enterpriseId, cno, loginStatus);
+			//加入到queue_member中 这样可以让呼叫过来
+			if(updateQueueMember(enterpriseId, cno) == false){
+				response = ActionResponse.createFailResponse(-1, "not in any queue");
 				return response;
 			}
 			
-			//加入到queue_member中
-			//检查坐席是否在任何队列中
-
 			
 			response = ActionResponse.createSuccessResponse();
 			return response;
@@ -118,7 +110,7 @@ public class AgentServiceImp {
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
 		String description = params.get("description").toString();
-		Agent agent = getAgent(enterpriseId, cno);
+		CallAgent agent = getCallAgent(enterpriseId, cno);
 		
 		if(agent != null){
 			RedisLock memberLock = memberService.lockMember(enterpriseId, cno);
@@ -159,7 +151,7 @@ public class AgentServiceImp {
 		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
-		Agent agent = getAgent(enterpriseId, cno);
+		CallAgent agent = getCallAgent(enterpriseId, cno);
 		
 		if(agent != null){
 			RedisLock memberLock = memberService.lockMember(enterpriseId, cno);
@@ -268,7 +260,7 @@ public class AgentServiceImp {
 		List<CallMember> memberList = queueService.getMembers(enterpriseId, qno);
 		for(CallMember member: memberList){
 			String cno = member.getCno();
-			Agent agent = getAgent(enterpriseId, cno);
+			CallAgent agent = getCallAgent(enterpriseId, cno);
 			Map<String, Object> memberStatusMap = new HashMap<String, Object>();
 			memberStatusMap.put("cno", cno);
 			memberStatusMap.put("bindTel", agent.getBindTel());
@@ -333,7 +325,7 @@ public class AgentServiceImp {
 			queueStatusMap.put(qno, thisQueueStatusMap);
 			response.setValues(queueStatusMap);
 		}else{
-			Agent agent = getAgent(enterpriseId, cno);
+			CallAgent agent = getCallAgent(enterpriseId, cno);
 			if(agent != null){	
 				Set<String> queueSet = BigQueueMacro.getCurrentMemberQueueMap().get(enterpriseId + cno);
 				for(String thisQno: queueSet){
@@ -354,16 +346,18 @@ public class AgentServiceImp {
 	}
 	
 	public Agent getAgent(String enterpriseId, String cno){
-		String agentKey = String.format(BigQueueCacheKey.AGENT, enterpriseId);
-		String res = (String) redisService.hget(Const.REDIS_DB_CTI_INDEX, agentKey, cno);
-		if(StringUtils.isNotEmpty(res)){
-			JSONObject json = new JSONObject();
-			json.fromObject(res);
-			return json.getBean(Agent.class);
-		}
-		return null;
+		String agentKey = String.format(CacheKey.AGENT_ENTERPRISE_ID_CNO, enterpriseId, cno);
+		Agent agent = redisService.get(Const.REDIS_DB_CONF_INDEX, agentKey, Agent.class);
+		return agent;
 	}
-	private void initAgent(String enterpriseId, String cno){
+	public CallAgent getCallAgent(String enterpriseId, String cno){
+		String agentKey = String.format(BigQueueCacheKey.AGENT_ENTERPRISE_ID, enterpriseId);
+		CallAgent agent = redisService.hget(Const.REDIS_DB_CTI_INDEX, agentKey, cno, CallAgent.class);
+		return agent;
+	}
+	
+	private void initCallAgent(CallAgent agent){
+		
 		//MEMBER_LOGIN_STATUS
 		//QUEUE_MEMBER
 		//MEMBER_DEVICE_STATUS
@@ -373,24 +367,18 @@ public class AgentServiceImp {
 	}
 	private List<AgentTel> getAgentBindTel(String enterpriseId, String cno){
 		String key = String.format(CacheKey.AGENT_TEL_ENTERPRISE_ID_CNO, enterpriseId, cno);
-		String jsonStr = redisService.get(Const.REDIS_DB_CONF_INDEX, key);
+		List<AgentTel> agentTelList = redisService.getList(Const.REDIS_DB_CONF_INDEX, key, AgentTel.class);
 
-		List<AgentTel> agentTelList = null;
-		if (jsonStr != null) {
-			ObjectMapper mapper = new ObjectMapper();
-
-			JavaType valueType = mapper.getTypeFactory().constructParametrizedType(ArrayList.class, List.class,
-					AgentTel.class);
-			try {
-				agentTelList = mapper.readValue(jsonStr, valueType);
-			} catch (JsonParseException e) {
-				e.printStackTrace();
-			} catch (JsonMappingException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 		return agentTelList;
+	}
+	
+	private boolean updateQueueMember(String enterpriseId, String cno){
+		
+		String confKey = String.format(CacheKey.QUEUE_MEMBER_ENTERPRISE_ID_CNO, enterpriseId, cno);
+		List<QueueMember> queueMemberList = redisService.getList(Const.REDIS_DB_CONF_INDEX, confKey, QueueMember.class);
+		for(QueueMember queueMember: queueMemberList){
+			 queueService.setMember(enterpriseId, queueMember);
+		}
+		return queueMemberList.size() > 0;
 	}
 }

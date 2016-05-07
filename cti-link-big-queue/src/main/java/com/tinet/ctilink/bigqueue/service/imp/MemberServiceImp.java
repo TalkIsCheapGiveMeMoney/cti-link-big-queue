@@ -23,7 +23,7 @@ public class MemberServiceImp {
 	RedisService redisService;
 	
     public RedisLock lockMember(String enterpriseId, String cno){
-    	String key = String.format(BigQueueCacheKey.MEMBER_LOCK, enterpriseId, cno);
+    	String key = String.format(BigQueueCacheKey.MEMBER_LOCK_ENTERPRISE_ID_CNO, enterpriseId, cno);
     	RedisLock lock = RedisLockUtil.lock(key, BigQueueConst.MEMBER_LOCK_TIMEOUT);
     	return lock;
     }
@@ -39,22 +39,22 @@ public class MemberServiceImp {
      * @param deviceStatus
      */
     public void setDeviceStatus(String enterpriseId, String cno, Integer deviceStatus){
-    	String deviceStatusKey = String.format(BigQueueCacheKey.MEMBER_DEVICE_STATUS, enterpriseId);
+    	String deviceStatusKey = String.format(BigQueueCacheKey.MEMBER_DEVICE_STATUS_ENTERPRISE_ID, enterpriseId);
     	redisService.hset(Const.REDIS_DB_CTI_INDEX, deviceStatusKey, cno, deviceStatus);
     	redisService.hset(Const.REDIS_DB_CTI_INDEX, deviceStatusKey, "start_" + cno, redisService.time());
     }
     public Integer getDeviceStatus(String enterpriseId, String cno){
-    	String deviceStatusKey = String.format(BigQueueCacheKey.MEMBER_DEVICE_STATUS, enterpriseId);
+    	String deviceStatusKey = String.format(BigQueueCacheKey.MEMBER_DEVICE_STATUS_ENTERPRISE_ID, enterpriseId);
     	Object value = redisService.hget(Const.REDIS_DB_CTI_INDEX, deviceStatusKey, cno);
     	return (Integer) value;
     }
     public Integer getDeviceStatusStartTime(String enterpriseId, String cno){
-    	String deviceStatusKey = String.format(BigQueueCacheKey.MEMBER_DEVICE_STATUS, enterpriseId);
+    	String deviceStatusKey = String.format(BigQueueCacheKey.MEMBER_DEVICE_STATUS_ENTERPRISE_ID, enterpriseId);
     	Object value = redisService.hget(Const.REDIS_DB_CTI_INDEX, deviceStatusKey, "start_" + cno);
     	return (Integer) value;
     }
     public Map<Object, Object> getDeviceStatusAll(String enterpriseId){
-    	String deviceStatusKey = String.format(BigQueueCacheKey.MEMBER_DEVICE_STATUS, enterpriseId);
+    	String deviceStatusKey = String.format(BigQueueCacheKey.MEMBER_DEVICE_STATUS_ENTERPRISE_ID, enterpriseId);
     	Map<Object, Object> map = redisService.hgetall(Const.REDIS_DB_CTI_INDEX, deviceStatusKey);
     	return map;
     }
@@ -65,22 +65,22 @@ public class MemberServiceImp {
      * @param loginStatus
      */
     public void setLoginStatus(String enterpriseId, String cno, Integer loginStatus){
-    	String loginStatusKey = String.format(BigQueueCacheKey.MEMBER_LOGIN_STATUS, enterpriseId);
+    	String loginStatusKey = String.format(BigQueueCacheKey.MEMBER_LOGIN_STATUS_ENTERPRISE_ID, enterpriseId);
     	redisService.hset(Const.REDIS_DB_CTI_INDEX, loginStatusKey, cno, loginStatus);
     	redisService.hset(Const.REDIS_DB_CTI_INDEX, loginStatusKey, "start_" + cno, redisService.time());
     }
     public Integer getLoginStatus(String enterpriseId, String cno){
-    	String loginStatusKey = String.format(BigQueueCacheKey.MEMBER_LOGIN_STATUS, enterpriseId);
+    	String loginStatusKey = String.format(BigQueueCacheKey.MEMBER_LOGIN_STATUS_ENTERPRISE_ID, enterpriseId);
     	Object value = redisService.hget(Const.REDIS_DB_CTI_INDEX, loginStatusKey, cno);
     	return (Integer) value;
     }
     public Integer getLoginStatusStartTime(String enterpriseId, String cno){
-    	String loginStatusKey = String.format(BigQueueCacheKey.MEMBER_LOGIN_STATUS, enterpriseId);
+    	String loginStatusKey = String.format(BigQueueCacheKey.MEMBER_LOGIN_STATUS_ENTERPRISE_ID, enterpriseId);
     	Object value = redisService.hget(Const.REDIS_DB_CTI_INDEX, loginStatusKey, "start_" + cno);
     	return (Integer) value;
     }
     public CallMember getCallMember(String enterpriseId, String qno, String cno){
-    	String key = String.format(BigQueueCacheKey.QUEUE_MEMBER, enterpriseId, qno);
+    	String key = String.format(BigQueueCacheKey.QUEUE_MEMBER_ENTERPRISE_ID_QNO, enterpriseId, qno);
     	Object res = redisService.hget(Const.REDIS_DB_CTI_INDEX, key, cno);
     	if(res != null){
 	    	JSONObject object = null;

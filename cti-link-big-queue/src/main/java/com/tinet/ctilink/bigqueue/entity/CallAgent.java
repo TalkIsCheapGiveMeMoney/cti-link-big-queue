@@ -1,6 +1,6 @@
 package com.tinet.ctilink.bigqueue.entity;
 
-public class Agent {
+public class CallAgent {
 	private String bindTel;
 	private Integer bindType;
 	private String _interface;
