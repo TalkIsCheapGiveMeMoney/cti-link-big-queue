@@ -8,13 +8,13 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.davidmarquis.redisscheduler.TaskTriggerListener;
-import com.tinet.ctilink.bigqueue.entity.Queue;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
 import com.tinet.ctilink.bigqueue.inc.BigQueueMacro;
 import com.tinet.ctilink.bigqueue.service.imp.ChannelServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.MemberServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
 import com.tinet.ctilink.cache.RedisService;
+import com.tinet.ctilink.conf.model.Queue;
 
 /**
  * @author fengwei //

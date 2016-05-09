@@ -11,8 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.tinet.ctilink.bigqueue.entity.Queue;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
+import com.tinet.ctilink.conf.model.Queue;
 import com.tinet.ctilink.json.JSONObject;
 
 @WebServlet("/v1/queue/get")

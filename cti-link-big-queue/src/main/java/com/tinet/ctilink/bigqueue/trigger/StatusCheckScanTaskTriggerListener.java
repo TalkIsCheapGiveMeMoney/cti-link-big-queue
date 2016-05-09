@@ -8,13 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.davidmarquis.redisscheduler.TaskTriggerListener;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
-import com.tinet.ctilink.bigqueue.entity.Enterprise;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
 import com.tinet.ctilink.bigqueue.service.imp.AgentServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.ChannelServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.EnterpriseServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.MemberServiceImp;
 import com.tinet.ctilink.cache.RedisService;
+import com.tinet.ctilink.conf.model.Entity;
 
 /**
  * @author fengwei //
@@ -35,11 +35,11 @@ public class StatusCheckScanTaskTriggerListener implements TaskTriggerListener {
     @Override
     public void taskTriggered(String taskId) {
 
-        List<Enterprise> enterpriseList = enterpriseService.getAllActive();
+        List<Entity> enterpriseList = enterpriseService.getAllActive();
         
-        for(Enterprise enterprise: enterpriseList){
+        for(Entity entity: enterpriseList){
         	
-        	scanStatusCheck(String.valueOf(enterprise.getEnterpriseId()));
+        	scanStatusCheck(String.valueOf(entity.getEnterpriseId()));
         }
     }
     private void scanStatusCheck(String enterpriseId){

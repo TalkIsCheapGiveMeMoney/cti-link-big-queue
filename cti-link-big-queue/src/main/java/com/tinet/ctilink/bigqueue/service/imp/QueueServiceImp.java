@@ -1,10 +1,8 @@
 package com.tinet.ctilink.bigqueue.service.imp;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -12,15 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tinet.ctilink.bigqueue.entity.CallMember;
-import com.tinet.ctilink.bigqueue.entity.Queue;
 import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
-import com.tinet.ctilink.bigqueue.inc.BigQueueChannelVar;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
 import com.tinet.ctilink.bigqueue.inc.BigQueueMacro;
 import com.tinet.ctilink.bigqueue.strategy.Strategy;
 import com.tinet.ctilink.bigqueue.strategy.StrategyFactory;
 import com.tinet.ctilink.cache.CacheKey;
 import com.tinet.ctilink.cache.RedisService;
+import com.tinet.ctilink.conf.model.Queue;
 import com.tinet.ctilink.conf.model.QueueMember;
 import com.tinet.ctilink.inc.Const;
 import com.tinet.ctilink.json.JSONObject;
@@ -38,13 +35,8 @@ public class QueueServiceImp {
 	
     public Queue getFromConfCache(String enterpriseId, String qno){
     	String key = String.format(CacheKey.QUEUE_ENTERPRISE_ID_QNO, enterpriseId, qno);
-    	String res = redisService.get(Const.REDIS_DB_CONF_INDEX, key, String.class);
-    	JSONObject object = null;
-    	if(StringUtils.isEmpty(res)){
-    		object = JSONObject.fromObject(res);
-    		return object.getBean(Queue.class);
-    	}
-    	return null;
+    	Queue queue = redisService.get(Const.REDIS_DB_CONF_INDEX, key, Queue.class);
+    	return queue;
     }
     
     public Integer join(String enterpriseId, String qno, String customerNumber, String uniqueId, Integer priority, Integer joinTime, Integer startTime, Integer overflow){
@@ -451,6 +443,12 @@ public class QueueServiceImp {
     	redisService.hset(Const.REDIS_DB_CTI_INDEX, key, callMember.getCno(), value);
     	return;
     }
+    public void delMember(String enterpriseId, String qno, String cno){
+    	String key = String.format(BigQueueCacheKey.QUEUE_MEMBER_ENTERPRISE_ID_QNO, enterpriseId, qno);
+    	redisService.hdel(Const.REDIS_DB_CTI_INDEX, key, cno);
+    }
+    
+   
     public RedisLock lockQueue(String enterpriseId, String qno){
     	String key = String.format(BigQueueCacheKey.QUEUE_LOCK_ENTERPRISE_ID_QNO, enterpriseId, qno);
     	RedisLock lock = RedisLockUtil.lock(key, BigQueueConst.QUEUE_LOCK_TIMEOUT);
