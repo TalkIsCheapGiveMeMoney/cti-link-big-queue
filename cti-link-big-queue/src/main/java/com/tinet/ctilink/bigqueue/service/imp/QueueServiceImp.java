@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.tinet.ctilink.ami.inc.AmiEventConst;
 import com.tinet.ctilink.bigqueue.entity.CallMember;
 import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
@@ -203,6 +204,14 @@ public class QueueServiceImp {
     	    			queueEvent.put("uniqueId", uniqueId);
     					queueEventService.publishEvent(queueEvent);
     					
+    					JSONObject event = new JSONObject();
+    					event.put("event", AmiEventConst.QUEUE_CALL);
+    					event.put("enterpriseId", enterpriseId);
+    					event.put("qno", qno);
+    					event.put("cno", callMember.getCno());
+    					event.put("uniqueId", uniqueId);
+    					event.put("customerNumber", customerNumber);
+    	    			redisService.convertAndSend(BigQueueCacheKey.AGENT_GATEWAY_EVENT_TOPIC, event);
     					return selectMember;
 					}
 				}

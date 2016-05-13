@@ -38,7 +38,7 @@ public class HoldHandler implements EventHandler, InitializingBean{
 				try{
 					CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
 					if(callAgent != null){
-						if(status.equals("on")){
+						if(status.equals("1")){
 							callAgent.setBusyDescription("hold");
 						}else{
 							callAgent.setBusyDescription("");
