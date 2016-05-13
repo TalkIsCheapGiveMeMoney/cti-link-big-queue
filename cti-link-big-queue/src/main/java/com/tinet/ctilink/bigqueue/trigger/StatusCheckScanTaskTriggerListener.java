@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.davidmarquis.redisscheduler.TaskTriggerListener;
@@ -21,7 +23,7 @@ import com.tinet.ctilink.conf.model.Entity;
  * @date 16/4/23 15:38
  */
 public class StatusCheckScanTaskTriggerListener implements TaskTriggerListener {
-	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	@Autowired
 	private RedisService redisService;
 	@Autowired
@@ -66,7 +68,7 @@ public class StatusCheckScanTaskTriggerListener implements TaskTriggerListener {
 	    		case BigQueueConst.MEMBER_DEVICE_STATUS_RINGING:
 	    			if(((new Date().getTime()/1000) - startTime) > BigQueueConst.MEMBER_STATUS_TRYING_MAX_TIMEOUT){
 	    				memberService.setDeviceStatus(enterpriseId, cno, BigQueueConst.MEMBER_DEVICE_STATUS_IDLE);
-	    				System.out.printf("StatusCheckScan bad status checked: enterpriseId=%s cno=%s", enterpriseId, field);
+	    				logger.error(String.format("StatusCheckScan bad status checked: enterpriseId=%s cno=%s", enterpriseId, field));
 	    			}
 	    			break;
 	    		case BigQueueConst.MEMBER_DEVICE_STATUS_INUSE:
@@ -75,7 +77,7 @@ public class StatusCheckScanTaskTriggerListener implements TaskTriggerListener {
 	    				
 	    			}else{
 	    				memberService.setDeviceStatus(enterpriseId, cno, BigQueueConst.MEMBER_DEVICE_STATUS_IDLE);
-	    				System.out.printf("StatusCheckScan bad status checked: enterpriseId=%s cno=%s", enterpriseId, field);
+	    				logger.error("StatusCheckScan bad status checked: enterpriseId=%s cno=%s", enterpriseId, field);
 	    			}
 	    			break;
     		}

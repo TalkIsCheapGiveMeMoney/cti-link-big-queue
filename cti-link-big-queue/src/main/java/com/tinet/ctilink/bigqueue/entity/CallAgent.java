@@ -1,6 +1,14 @@
 package com.tinet.ctilink.bigqueue.entity;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.tinet.ctilink.util.SipMediaServerUtil;
+
 public class CallAgent {
+	public static final Integer MONITOR_TYPE_SPY = 1;
+	public static final Integer MONITOR_TYPE_WHISPER = 2;
+	public static final Integer MONITOR_TYPE_THREEWAY = 3;
+	
 	private String bindTel;
 	private Integer bindType;
 	private String _interface;
@@ -17,17 +25,20 @@ public class CallAgent {
 	private String currentCustomerNumber;
 	private Integer currentCustomerNumberType;
 	private String currentCustomerNumberAreaCode;
-	private Integer currentNumberTrunk;
-	private Integer currentHotline;
+	private String currentNumberTrunk;
+	private String currentHotline;
 	private String currentQueue;
 	private Integer pauseType;
 	private String pauseDescription;
 	private String busyDescription;
-	private Integer monitoredType;
 	private String monitoredObject;
 	private Integer monitoredObjectType;
-	private String monitorChannel;
-	private String monitorChannelUniqueId;
+	private String consultChannel; // 咨询时对方的channel
+	
+	private String spyChannel; // 监听者的channel
+	private String whisperChannel; // 耳语者channel
+	private String threewayChannel; // 三方channel
+	private String bargeChannel;
 	private Integer loginTime;
 	
 	public String getBindTel() {
@@ -65,12 +76,14 @@ public class CallAgent {
 	}
 	public void setCurrentChannel(String currentChannel) {
 		this.currentChannel = currentChannel;
+		
 	}
 	public String getCurrentChannelUniqueId() {
 		return currentChannelUniqueId;
 	}
 	public void setCurrentChannelUniqueId(String currentChannelUniqueId) {
 		this.currentChannelUniqueId = currentChannelUniqueId;
+		this.currentSipId = SipMediaServerUtil.getSipId(currentChannelUniqueId);
 	}
 	public String getBridgedChannel() {
 		return bridgedChannel;
@@ -86,9 +99,6 @@ public class CallAgent {
 	}
 	public Integer getCurrentSipId() {
 		return currentSipId;
-	}
-	public void setCurrentSipId(Integer currentSipId) {
-		this.currentSipId = currentSipId;
 	}
 
 	public Integer getBindType() {
@@ -127,16 +137,16 @@ public class CallAgent {
 	public void setCurrentCustomerNumberAreaCode(String currentCustomerNumberAreaCode) {
 		this.currentCustomerNumberAreaCode = currentCustomerNumberAreaCode;
 	}
-	public Integer getCurrentNumberTrunk() {
+	public String getCurrentNumberTrunk() {
 		return currentNumberTrunk;
 	}
-	public void setCurrentNumberTrunk(Integer currentNumberTrunk) {
+	public void setCurrentNumberTrunk(String currentNumberTrunk) {
 		this.currentNumberTrunk = currentNumberTrunk;
 	}
-	public Integer getCurrentHotline() {
+	public String getCurrentHotline() {
 		return currentHotline;
 	}
-	public void setCurrentHotline(Integer currentHotline) {
+	public void setCurrentHotline(String currentHotline) {
 		this.currentHotline = currentHotline;
 	}
 	public String getCurrentQueue() {
@@ -157,11 +167,15 @@ public class CallAgent {
 	public void setBusyDescription(String busyDescription) {
 		this.busyDescription = busyDescription;
 	}
-	public Integer getMonitoredType() {
-		return monitoredType;
-	}
-	public void setMonitoredType(Integer monitoredType) {
-		this.monitoredType = monitoredType;
+	public String getMonitoredType() {
+		if (StringUtils.isNotEmpty(spyChannel)) {
+			return "spy";
+		} else if (StringUtils.isNotEmpty(whisperChannel)) {
+			return "whisper";
+		} else if (StringUtils.isNotEmpty(threewayChannel)) {
+			return "threeway";
+		}
+		return "";
 	}
 	public String getMonitoredObject() {
 		return monitoredObject;
@@ -175,18 +189,6 @@ public class CallAgent {
 	public void setMonitoredObjectType(Integer monitoredObjectType) {
 		this.monitoredObjectType = monitoredObjectType;
 	}
-	public String getMonitorChannel() {
-		return monitorChannel;
-	}
-	public void setMonitorChannel(String monitorChannel) {
-		this.monitorChannel = monitorChannel;
-	}
-	public String getMonitorChannelUniqueId() {
-		return monitorChannelUniqueId;
-	}
-	public void setMonitorChannelUniqueId(String monitorChannelUniqueId) {
-		this.monitorChannelUniqueId = monitorChannelUniqueId;
-	}
 	public Integer getLoginTime() {
 		return loginTime;
 	}
@@ -199,5 +201,59 @@ public class CallAgent {
 	public void setPauseType(Integer pauseType) {
 		this.pauseType = pauseType;
 	}
-
+	
+	public String getBargeChannel() {
+		return bargeChannel;
+	}
+	public void setBargeChannel(String bargeChannel) {
+		this.bargeChannel = bargeChannel;
+	}
+	
+	public String getConsultChannel() {
+		return consultChannel;
+	}
+	public void setConsultChannel(String consultChannel) {
+		this.consultChannel = consultChannel;
+	}
+	public String getSpyChannel() {
+		return spyChannel;
+	}
+	public void setSpyChannel(String spyChannel) {
+		this.spyChannel = spyChannel;
+	}
+	public String getWhisperChannel() {
+		return whisperChannel;
+	}
+	public void setWhisperChannel(String whisperChannel) {
+		this.whisperChannel = whisperChannel;
+	}
+	public String getThreewayChannel() {
+		return threewayChannel;
+	}
+	public void setThreewayChannel(String threewayChannel) {
+		this.threewayChannel = threewayChannel;
+	}
+	public void clearCall(){
+		currentChannel = "";
+		currentChannelUniqueId = "";
+		bridgedChannel = "";
+		bridgedChannelUniqueId = "";
+		currentSipId = -1;
+		currentDetailCallType = 0;
+		currentCallType = 0;
+		currentCustomerNumber = "";
+		currentCustomerNumberType = 0;
+		currentCustomerNumberAreaCode = "";
+		currentNumberTrunk = "";
+		currentHotline = "";
+		currentQueue = "";
+		busyDescription = "";
+		monitoredObject = "";
+		monitoredObjectType = 0;
+		consultChannel = "";
+		spyChannel = "";
+		whisperChannel = "";
+		threewayChannel = "";
+		bargeChannel = "";
+	}
 }

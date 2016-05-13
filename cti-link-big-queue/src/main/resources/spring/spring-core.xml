@@ -78,13 +78,16 @@
 		</property>
 		<property name="schedulerName" value="statusScan"/> 
 	</bean>
-	<!-- 定义接收事件的Redis消息监听器 -->
+	<!-- 定义接收事件的Redis消息监听器 
 	<bean id="eventListener" class="com.tinet.ctilink.bigqueue.RedisEventListener" />
-	<!-- 注册Redis消息订阅的监听器 -->
+	-->
+	<!-- 注册Redis消息订阅的监听器 
 	<redis:listener-container>
 		<redis:listener ref="eventListener" serializer="jsonRedisSerializer" method="handleMessage" topic="channel:xxxevent" />
 	</redis:listener-container>
-
+	-->
+	<bean id="amiEventListener" class="com.tinet.ctilink.bigqueue.AmiEventListener">
+	</bean>
 	<!-- 注入Spring上下文 -->
 	<bean id="contextUtil" class="com.tinet.ctilink.util.ContextUtil" />
 

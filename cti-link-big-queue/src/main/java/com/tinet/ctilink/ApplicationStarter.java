@@ -9,6 +9,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 import com.github.davidmarquis.redisscheduler.RedisTaskScheduler;
+import com.tinet.ctilink.bigqueue.AmiEventListener;
 
 /**
  * 应用程序启动器
@@ -26,6 +27,8 @@ public class ApplicationStarter implements ApplicationListener<ContextRefreshedE
 	@Autowired
     @Qualifier("statusCheckScanTaskScheduler")
     private RedisTaskScheduler statusCheckScanScheduler;
+	@Autowired
+	AmiEventListener amiEventListener;
 	
 	@Override
 	public void onApplicationEvent(final ContextRefreshedEvent event) {
@@ -37,6 +40,7 @@ public class ApplicationStarter implements ApplicationListener<ContextRefreshedE
 		statusScanScheduler.schedule("queueMemberStatusScan", null);
 		statusCheckScanScheduler.schedule("queueMemberStatusCheckScan", null);
 		
+		amiEventListener.start();
 		
 		logger.info("cti-link-big-queue启动成功");
 		System.out.println("cti-link-big-queue启动成功");

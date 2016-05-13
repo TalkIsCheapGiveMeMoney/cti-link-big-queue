@@ -1,6 +1,8 @@
 package com.tinet.ctilink.bigqueue.service.imp;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +12,7 @@ import com.tinet.ctilink.inc.Const;
 
 @Service
 public class ChannelServiceImp {
-	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	@Autowired
 	RedisService redisService;
 	

@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.davidmarquis.redisscheduler.TaskTriggerListener;
@@ -21,7 +23,7 @@ import com.tinet.ctilink.conf.model.Queue;
  * @date 16/4/23 15:38
  */
 public class StatusScanTaskTriggerListener implements TaskTriggerListener {
-	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	@Autowired
 	private RedisService redisService;
 	@Autowired

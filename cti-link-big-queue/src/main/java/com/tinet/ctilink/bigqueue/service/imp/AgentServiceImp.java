@@ -8,11 +8,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.github.davidmarquis.redisscheduler.RedisTaskScheduler;
+import com.github.pagehelper.StringUtil;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
 import com.tinet.ctilink.bigqueue.entity.CallMember;
@@ -30,12 +33,17 @@ import com.tinet.ctilink.util.RedisLock;
 
 @Service
 public class AgentServiceImp {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	@Autowired
 	RedisService redisService;
 	@Autowired
 	QueueServiceImp queueService;
 	@Autowired
 	MemberServiceImp memberService;
+	
+	@Autowired
+	private ChannelServiceImp channelService;
+	
 	@Autowired
     @Qualifier("wrapupEndTaskScheduler")
     private RedisTaskScheduler wrapupEndTaskScheduler;
@@ -49,6 +57,7 @@ public class AgentServiceImp {
 		Integer loginStatus = Integer.parseInt(params.get("loginStatus").toString());
 		String pauseDescription = (params.get("pauseDescription") == null)?params.get("pauseDescription").toString():null;
 		Integer pauseType = BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE_TYPE_NORMAL;
+		
 		
 		Agent agent = getAgent(enterpriseId, cno);
 		if(agent != null){
@@ -71,37 +80,51 @@ public class AgentServiceImp {
 				response = ActionResponse.createFailResponse(-1, "not in any queue");
 				return response;
 			}
-			CallAgent callAgent = getCallAgent(enterpriseId, cno);
-			if(callAgent == null){
-				callAgent = new CallAgent();
-				callAgent.set_interface(queueMemberList.get(0).getInterface());
-				callAgent.setBindTel(bindTel);
-				callAgent.setBindType(bindType);
-				callAgent.setCno(cno);
-				callAgent.setEnterpriseId(Integer.parseInt(enterpriseId));
-				callAgent.setLoginTime(new Long(new Date().getTime()/1000).intValue());
-				callAgent.setName(agent.getName());
-				
-				memberService.setDeviceStatus(enterpriseId, cno, BigQueueConst.MEMBER_DEVICE_STATUS_IDLE);
-				
+			
+			//先获取lock memberService.lockMember(enterpriseId, cno);
+			RedisLock memberLock = memberService.lockMember(enterpriseId, cno);
+			if(memberLock != null){
+				try{
+					CallAgent callAgent = getCallAgent(enterpriseId, cno);
+					if(callAgent != null){
+						callAgent.set_interface(queueMemberList.get(0).getInterface());
+						callAgent.setBindTel(bindTel);
+						callAgent.setBindType(bindType);
+						callAgent.setLoginTime(new Long(new Date().getTime()/1000).intValue());
+						
+						//检查是否需要回位状态
+						if(isNeedResetDeviceStatus(callAgent)){
+							memberService.setDeviceStatus(enterpriseId, cno, BigQueueConst.MEMBER_DEVICE_STATUS_IDLE);
+						}
+					}else{
+						callAgent = new CallAgent();
+						callAgent.set_interface(queueMemberList.get(0).getInterface());
+						callAgent.setBindTel(bindTel);
+						callAgent.setBindType(bindType);
+						callAgent.setCno(cno);
+						callAgent.setEnterpriseId(Integer.parseInt(enterpriseId));
+						callAgent.setLoginTime(new Long(new Date().getTime()/1000).intValue());
+						callAgent.setName(agent.getName());
+						
+						memberService.setDeviceStatus(enterpriseId, cno, BigQueueConst.MEMBER_DEVICE_STATUS_IDLE);
+					}
+					memberService.setLoginStatus(enterpriseId, cno, loginStatus);
+					if(loginStatus == BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE){
+						callAgent.setPauseDescription(pauseDescription);
+						callAgent.setPauseType(pauseType);
+					}
+					saveCallAgent(enterpriseId, cno, callAgent);
+				}catch(Exception e){
+					e.printStackTrace();
+				}finally{
+					memberService.unlockMember(memberLock);
+				}
+				//加入到queue_member中 这样可以让呼叫过来
+				updateQueueMember(enterpriseId, cno, queueMemberList);
+				response = ActionResponse.createSuccessResponse();
 			}else{
-				callAgent.set_interface(queueMemberList.get(0).getInterface());
-				callAgent.setBindTel(bindTel);
-				callAgent.setBindType(bindType);
-				callAgent.setLoginTime(new Long(new Date().getTime()/1000).intValue());
+				response = ActionResponse.createFailResponse(-1, "fail to get lock");
 			}
-			memberService.setLoginStatus(enterpriseId, cno, loginStatus);
-			if(loginStatus == BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE){
-				callAgent.setPauseDescription(pauseDescription);
-				callAgent.setPauseType(pauseType);
-			}
-			saveCallAgent(enterpriseId, cno, callAgent);
-			//加入到queue_member中 这样可以让呼叫过来
-			updateQueueMember(enterpriseId, cno, queueMemberList);
-			
-			
-			response = ActionResponse.createSuccessResponse();
-			return response;
 		}else {
 			response = ActionResponse.createFailResponse(-1, "no such agent");
 		}
@@ -112,20 +135,30 @@ public class AgentServiceImp {
 		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
-		Agent agent = getAgent(enterpriseId, cno);
-		if(agent != null){
-			CallAgent callAgent = getCallAgent(enterpriseId, cno);
-			if(callAgent == null){
-				response = ActionResponse.createFailResponse(-1, "no call agent");
-				return response;
+		
+		//先获取lock memberService.lockMember(enterpriseId, cno);
+		RedisLock memberLock = memberService.lockMember(enterpriseId, cno);
+		if(memberLock != null){
+			try{
+				CallAgent callAgent = getCallAgent(enterpriseId, cno);
+				if(callAgent != null){
+					Integer deviceStatus = memberService.getDeviceStatus(enterpriseId, cno);
+					if(deviceStatus != BigQueueConst.MEMBER_DEVICE_STATUS_IDLE){
+						response = ActionResponse.createFailResponse(-1, "status not idle");
+						return response;
+					}
+					memberService.setLoginStatus(enterpriseId, cno, BigQueueConst.MEMBER_LOGIN_STATUS_OFFLINE);
+					saveCallAgent(enterpriseId, cno, null);
+				}else{
+					response = ActionResponse.createFailResponse(-1, "no call agent");
+					return response;
+				}
+			}catch(Exception e){
+				e.printStackTrace();
+			}finally{
+				memberService.unlockMember(memberLock);
 			}
-			Integer deviceStatus = memberService.getDeviceStatus(enterpriseId, cno);
-			if(deviceStatus != BigQueueConst.MEMBER_DEVICE_STATUS_IDLE){
-				response = ActionResponse.createFailResponse(-1, "status not idle");
-				return response;
-			}
-			memberService.setLoginStatus(enterpriseId, cno, BigQueueConst.MEMBER_LOGIN_STATUS_OFFLINE);
-			saveCallAgent(enterpriseId, cno, null);
+			
 			
 			List<QueueMember> queueMemberList = getQueueMemberList(enterpriseId, cno);
 			delQueueMember(enterpriseId, cno, queueMemberList);
@@ -142,12 +175,14 @@ public class AgentServiceImp {
 		String cno = params.get("cno").toString();
 		String type = params.get("type").toString();
 		String description = params.get("description").toString();
-		CallAgent callAgent = getCallAgent(enterpriseId, cno);
 		
-		if(callAgent != null){
-			RedisLock memberLock = memberService.lockMember(enterpriseId, cno);
-			if(memberLock != null){
-				try{
+		//先获取lock memberService.lockMember(enterpriseId, cno);
+		RedisLock memberLock = memberService.lockMember(enterpriseId, cno);
+		if(memberLock != null){
+			try{
+				CallAgent callAgent = getCallAgent(enterpriseId, cno);
+				if(callAgent != null){
+				
 					Integer loginStatus = memberService.getLoginStatus(enterpriseId, cno);
 					switch(loginStatus){
 					case BigQueueConst.MEMBER_LOGIN_STATUS_OFFLINE:
@@ -170,15 +205,18 @@ public class AgentServiceImp {
 						break;
 					}
 					saveCallAgent(enterpriseId, cno, callAgent);
-				}finally{
-					memberService.unlockMember(memberLock);
-				}
-			}else{
-				response = ActionResponse.createFailResponse(-1, "fail to get lock");
+				}else{
+					response = ActionResponse.createFailResponse(-1, "no such agent");
+				}	
+			}catch(Exception e){
+				e.printStackTrace();
+			}finally{
+				memberService.unlockMember(memberLock);
 			}
-		}else {
-			response = ActionResponse.createFailResponse(-1, "no such agent");
+		}else{
+			response = ActionResponse.createFailResponse(-1, "fail to get lock");
 		}
+		
 		
 		return response;
 	}
@@ -186,12 +224,13 @@ public class AgentServiceImp {
 		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
-		CallAgent callAgent = getCallAgent(enterpriseId, cno);
-		
-		if(callAgent != null){
-			RedisLock memberLock = memberService.lockMember(enterpriseId, cno);
-			if(memberLock != null){
-				try{
+
+		//先获取lock memberService.lockMember(enterpriseId, cno);
+		RedisLock memberLock = memberService.lockMember(enterpriseId, cno);
+		if(memberLock != null){
+			try{
+				CallAgent callAgent = getCallAgent(enterpriseId, cno);
+				if(callAgent != null){
 					Integer loginStatus = memberService.getLoginStatus(enterpriseId, cno);
 					switch(loginStatus){
 					case BigQueueConst.MEMBER_LOGIN_STATUS_OFFLINE:
@@ -213,16 +252,18 @@ public class AgentServiceImp {
 						break;
 					}
 					saveCallAgent(enterpriseId, cno, callAgent);
-				}finally{
-					memberService.unlockMember(memberLock);
+				}else {
+					response = ActionResponse.createFailResponse(-1, "no such agent");
 				}
-			}else{
-				response = ActionResponse.createFailResponse(-1, "fail to get lock");
+			}catch(Exception e){
+				e.printStackTrace();
+			}finally{
+				memberService.unlockMember(memberLock);
 			}
-		}else {
-			response = ActionResponse.createFailResponse(-1, "no such agent");
+		}else{
+			response = ActionResponse.createFailResponse(-1, "fail to get lock");
 		}
-		
+
 		return response;
 	}
 	public ActionResponse changeBindTel(Map params){
@@ -258,23 +299,34 @@ public class AgentServiceImp {
 				response = ActionResponse.createFailResponse(-1, "status not idle");
 				return response;
 			}
-			CallAgent callAgent = getCallAgent(enterpriseId, cno);
-			if(callAgent == null){
-				response = ActionResponse.createFailResponse(-1, "no call agent");
-				return response;
-			}
-			
-			callAgent.set_interface(queueMemberList.get(0).getInterface());
-			callAgent.setBindTel(bindTel);
-			callAgent.setBindType(bindType);
-			callAgent.setLoginTime(new Long(new Date().getTime()/1000).intValue());
-				
-			saveCallAgent(enterpriseId, cno, callAgent);
-			//加入到queue_member中 这样可以让呼叫过来
-			updateQueueMember(enterpriseId, cno, queueMemberList);
+			//先获取lock memberService.lockMember(enterpriseId, cno);
+			RedisLock memberLock = memberService.lockMember(enterpriseId, cno);
+			if(memberLock != null){
+				try{
+					CallAgent callAgent = getCallAgent(enterpriseId, cno);
+					if(callAgent != null){
+						callAgent.set_interface(queueMemberList.get(0).getInterface());
+						callAgent.setBindTel(bindTel);
+						callAgent.setBindType(bindType);
+						callAgent.setLoginTime(new Long(new Date().getTime()/1000).intValue());
+							
+						saveCallAgent(enterpriseId, cno, callAgent);
+						//加入到queue_member中 这样可以让呼叫过来
+						updateQueueMember(enterpriseId, cno, queueMemberList);
 
-			response = ActionResponse.createSuccessResponse();
-			return response;
+						response = ActionResponse.createSuccessResponse();
+					}else{
+						response = ActionResponse.createFailResponse(-1, "no call agent");
+						return response;
+					}
+				}catch(Exception e){
+					e.printStackTrace();
+				}finally{
+					memberService.unlockMember(memberLock);
+				}
+			}else{
+				response = ActionResponse.createFailResponse(-1, "fail to get lock");
+			}
 		}else {
 			response = ActionResponse.createFailResponse(-1, "no such agent");
 		}
@@ -368,7 +420,7 @@ public class AgentServiceImp {
 					memberStatusMap.put("pauseType", agent.getPauseType());
 					memberStatusMap.put("pauseDescription", agent.getPauseDescription());
 				}
-				if(agent.getMonitoredType() != null){
+				if(StringUtil.isNotEmpty(agent.getMonitoredType())){
 					memberStatusMap.put("monitoredType", agent.getMonitoredType());
 					memberStatusMap.put("monitoredObject", agent.getMonitoredObject());
 					memberStatusMap.put("monitoredObjectType", agent.getMonitoredObjectType());
@@ -440,7 +492,7 @@ public class AgentServiceImp {
 		return agent;
 	}
 	
-	private void saveCallAgent(String enterpriseId, String cno, CallAgent callAgent){
+	public void saveCallAgent(String enterpriseId, String cno, CallAgent callAgent){
 		if(callAgent == null){
 			String agentKey = String.format(BigQueueCacheKey.AGENT_ENTERPRISE_ID, enterpriseId);
 			redisService.hdel(Const.REDIS_DB_CTI_INDEX, agentKey, cno);
@@ -471,5 +523,27 @@ public class AgentServiceImp {
 		String confKey = String.format(CacheKey.QUEUE_MEMBER_ENTERPRISE_ID_CNO, enterpriseId, cno);
 		List<QueueMember> queueMemberList = redisService.getList(Const.REDIS_DB_CONF_INDEX, confKey, QueueMember.class);
 		return queueMemberList;
+	}
+	private boolean isNeedResetDeviceStatus(CallAgent callAgent){
+		boolean res = false;
+		Integer deviceStatus = memberService.getDeviceStatus(String.valueOf(callAgent.getEnterpriseId()), callAgent.getCno());
+		switch(deviceStatus){
+			case BigQueueConst.MEMBER_DEVICE_STATUS_IDLE:
+				break;
+			case BigQueueConst.MEMBER_DEVICE_STATUS_INVALID:
+				res = true;
+				break;
+			case BigQueueConst.MEMBER_DEVICE_STATUS_LOCKED:
+				res = true;
+				break;
+			case BigQueueConst.MEMBER_DEVICE_STATUS_INVITE:
+			case BigQueueConst.MEMBER_DEVICE_STATUS_RINGING:
+			case BigQueueConst.MEMBER_DEVICE_STATUS_INUSE:
+				if(!channelService.isAlive(callAgent.getCurrentChannelUniqueId())){
+					res = true;
+				}
+				break;
+		}
+		return res;
 	}
 }
