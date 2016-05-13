@@ -31,7 +31,10 @@ public class BigQueueCacheKey {
     public static final String AGENT_ENTERPRISE_ID = "agent_%s";
     /* 通道存活 */
     public static final String CHANNEL_ALIVE_UNIQUEID ="sip-media-server.channel.%s";
-    /* */
+    /* ami模块发送出来event到这个list */
     public static final String AMI_EVENT_LIST = "cti-link.ami.event";
-
+    /* agent-gateway pub/sub topic */
+    public static final String AGENT_GATEWAY_EVENT_TOPIC = "cti-link.agent-gateway.event";
+    /* 队列事件 pub/sub topic */
+    public static final String QUEUE_EVENT_TOPIC = "cti-link.queue.event";
 }

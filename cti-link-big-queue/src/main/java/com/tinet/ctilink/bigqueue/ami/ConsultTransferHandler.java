@@ -7,7 +7,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.tinet.ctilink.ami.inc.AmiEventConst;
-import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
+import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.service.imp.AgentServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.MemberServiceImp;
 import com.tinet.ctilink.cache.RedisService;
@@ -31,7 +31,7 @@ public class ConsultTransferHandler implements EventHandler, InitializingBean{
 			String consulterCno = event.getString("consulterCno");
 			
 			if (StringUtils.isNotEmpty(consulterCno)) {
-				redisService.convertAndSend(BigQueueConst.AGENT_GATEWAY_EVENT_TOPIC, event);
+				redisService.convertAndSend(BigQueueCacheKey.AGENT_GATEWAY_EVENT_TOPIC, event);
 			}
 		}catch(Exception e){
 			e.printStackTrace();

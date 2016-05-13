@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.tinet.ctilink.ami.inc.AmiEventConst;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
-import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
+import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.service.imp.AgentServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.MemberServiceImp;
 import com.tinet.ctilink.cache.RedisService;
@@ -52,7 +52,7 @@ public class BargeUnlinkHandler implements EventHandler, InitializingBean{
 			}else{
 				logger.error("fail to get lock when dispatch BargeLinkEvent");
 			}
-			redisService.convertAndSend(BigQueueConst.AGENT_GATEWAY_EVENT_TOPIC, event);
+			redisService.convertAndSend(BigQueueCacheKey.AGENT_GATEWAY_EVENT_TOPIC, event);
 		}catch(Exception e){
 			e.printStackTrace();
 			return false;

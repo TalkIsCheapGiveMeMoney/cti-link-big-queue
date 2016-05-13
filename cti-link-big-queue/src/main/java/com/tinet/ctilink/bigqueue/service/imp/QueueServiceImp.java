@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.tinet.ctilink.bigqueue.ami.StatusHandler;
 import com.tinet.ctilink.bigqueue.entity.CallMember;
 import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
@@ -35,6 +34,9 @@ public class QueueServiceImp {
 	
 	@Autowired
 	MemberServiceImp memberService;
+	
+	@Autowired
+	QueueEventServiceImp queueEventService;
 	
     public Queue getFromConfCache(String enterpriseId, String qno){
     	String key = String.format(CacheKey.QUEUE_ENTERPRISE_ID_QNO, enterpriseId, qno);
@@ -63,6 +65,19 @@ public class QueueServiceImp {
     		Strategy strategy = StrategyFactory.getInstance(queue.getStrategy());
     		strategy.joinHandle(enterpriseId, qno, uniqueId, customerNumber);
     		res = BigQueueConst.QUEUE_CODE_JOIN_OK;
+    		
+			JSONObject queueEvent = new JSONObject();
+			queueEvent.put("event", "join");
+			queueEvent.put("enterpriseId", enterpriseId);
+			queueEvent.put("qno", qno);
+			queueEvent.put("startTime", startTime);
+			queueEvent.put("priority", priority);
+			queueEvent.put("joinTime", joinTime);
+			queueEvent.put("customerNumber", customerNumber);
+			queueEvent.put("uniqueId", uniqueId);
+			queueEvent.put("overflow", overflow);
+
+			queueEventService.publishEvent(queueEvent);
     		return res;
     	}
     	return res;
@@ -77,24 +92,60 @@ public class QueueServiceImp {
     	if(queue == null){
     		return;
     	}
+    	Integer joinTime = (Integer)getQueueEntryInfo(uniqueId, "join_time");
+		Integer holdTime = new Long(new Date().getTime()/1000).intValue() - joinTime;
+		
+    	JSONObject queueEvent = new JSONObject();
     	switch(leaveCode){
     		case BigQueueConst.LEAVE_CODE_COMPLETE:
     			incQueueStatistic(enterpriseId, qno, "completed", 1);
-    			Integer joinTime = (Integer)getQueueEntryInfo(uniqueId, "join_time");
-    			Integer holdTime = new Long(new Date().getTime()/1000).intValue() - joinTime;
     			recalHoldTime(enterpriseId, qno, holdTime);
     			if(holdTime <= queue.getServiceLevel()){
     				incQueueStatistic(enterpriseId, qno, "completed_in_sl", 1);
     			}
+    			
+    			queueEvent.put("event", "complete");
+    			queueEvent.put("enterpriseId", enterpriseId);
+    			queueEvent.put("qno", qno);
+    			queueEvent.put("holdTime", holdTime);
+    			queueEvent.put("joinTime", joinTime);
+    			queueEvent.put("uniqueId", uniqueId);
+
+    			queueEventService.publishEvent(queueEvent);
     			break;
     		case BigQueueConst.LEAVE_CODE_ABANDON:
     			incQueueStatistic(enterpriseId, qno, "abandoned", 1);
+    			
+    			queueEvent.put("event", "abandon");
+    			queueEvent.put("enterpriseId", enterpriseId);
+    			queueEvent.put("qno", qno);
+    			queueEvent.put("holdTime", holdTime);
+    			queueEvent.put("joinTime", joinTime);
+    			queueEvent.put("uniqueId", uniqueId);
+
+    			queueEventService.publishEvent(queueEvent);
     			break;
     		case BigQueueConst.LEAVE_CODE_TIMEOUT:
     			incQueueStatistic(enterpriseId, qno, "timeout", 1);
+    			
+    			queueEvent.put("event", "timeout");
+    			queueEvent.put("enterpriseId", enterpriseId);
+    			queueEvent.put("qno", qno);
+    			queueEvent.put("holdTime", holdTime);
+    			queueEvent.put("joinTime", joinTime);
+    			queueEvent.put("uniqueId", uniqueId);
+    			queueEventService.publishEvent(queueEvent);
     			break;
     		case BigQueueConst.LEAVE_CODE_EMPTY:
     			incQueueStatistic(enterpriseId, qno, "empty", 1);
+    			
+    			queueEvent.put("event", "empty");
+    			queueEvent.put("enterpriseId", enterpriseId);
+    			queueEvent.put("qno", qno);
+    			queueEvent.put("holdTime", holdTime);
+    			queueEvent.put("joinTime", joinTime);
+    			queueEvent.put("uniqueId", uniqueId);
+    			queueEventService.publishEvent(queueEvent);
     			break;
     	}
 
@@ -143,6 +194,15 @@ public class QueueServiceImp {
 						incQueueEntryDialed(uniqueId, callMember.getCno());
     					penddingEntry(enterpriseId, qno, uniqueId);
     					CallMember selectMember = memberService.getCallMember(enterpriseId, qno, callMember.getCno());
+    					
+    					JSONObject queueEvent = new JSONObject();
+    	    			queueEvent.put("event", "call");
+    	    			queueEvent.put("enterpriseId", enterpriseId);
+    	    			queueEvent.put("qno", qno);
+    	    			queueEvent.put("cno", callMember.getCno());
+    	    			queueEvent.put("uniqueId", uniqueId);
+    					queueEventService.publishEvent(queueEvent);
+    					
     					return selectMember;
 					}
 				}
@@ -155,6 +215,15 @@ public class QueueServiceImp {
 	    					strategy.memberSelectedHandle(enterpriseId, qno, callMember.getCno(), uniqueId, customerNumber);
 	    					incQueueEntryDialed(uniqueId, callMember.getCno());
 	    					penddingEntry(enterpriseId, qno, uniqueId);
+	    					
+	    					JSONObject queueEvent = new JSONObject();
+	    	    			queueEvent.put("event", "call");
+	    	    			queueEvent.put("enterpriseId", enterpriseId);
+	    	    			queueEvent.put("qno", qno);
+	    	    			queueEvent.put("cno", callMember.getCno());
+	    	    			queueEvent.put("uniqueId", uniqueId);
+	    					queueEventService.publishEvent(queueEvent);
+	    					
 	    					CallMember selectMember = memberService.getCallMember(enterpriseId, qno, callMember.getCno());
 	    					return selectMember;
 	    				}
@@ -165,8 +234,16 @@ public class QueueServiceImp {
     	return null;
     }
     
-    public void rna(String enterpriseId, String qno, String uniqueId){
+    public void rna(String enterpriseId, String qno, String cno, String uniqueId){
     	unPenddingEntry(enterpriseId, qno, uniqueId);
+    	
+		JSONObject queueEvent = new JSONObject();
+		queueEvent.put("event", "rna");
+		queueEvent.put("enterpriseId", enterpriseId);
+		queueEvent.put("qno", qno);
+		queueEvent.put("cno", cno);
+		queueEvent.put("uniqueId", uniqueId);
+		queueEventService.publishEvent(queueEvent);
     }
 
     private CallMember findRemember(List<CallMember> memberList, String rememberCno){

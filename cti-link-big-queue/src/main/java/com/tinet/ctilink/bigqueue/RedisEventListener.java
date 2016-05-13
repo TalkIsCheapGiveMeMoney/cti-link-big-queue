@@ -1,9 +1,10 @@
 package com.tinet.ctilink.bigqueue;
 
-import com.tinet.ctilink.cache.RedisService;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Map;
+import com.tinet.ctilink.cache.RedisService;
 
 /**
  * @author fengwei //

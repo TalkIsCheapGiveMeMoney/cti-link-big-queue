@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.tinet.ctilink.ami.inc.AmiEventConst;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
-import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
+import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.service.imp.AgentServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.MemberServiceImp;
 import com.tinet.ctilink.cache.RedisService;
@@ -64,7 +64,7 @@ public class BargeLinkHandler implements EventHandler, InitializingBean{
 			bargeeEvent.put("enterpriseId", event.getString("enterpriseId"));
 			bargeeEvent.put("cno", event.getString("cno"));
 			bargeeEvent.put("bargedCno", event.getString("bargedCno"));
-			redisService.convertAndSend(BigQueueConst.AGENT_GATEWAY_EVENT_TOPIC, event);
+			redisService.convertAndSend(BigQueueCacheKey.AGENT_GATEWAY_EVENT_TOPIC, event);
 			//发送事件给被强插者
 			if(StringUtils.isNotEmpty(cno)){
 				JSONObject bargerEvent = new JSONObject();
@@ -74,7 +74,7 @@ public class BargeLinkHandler implements EventHandler, InitializingBean{
 				bargerEvent.put("bargedCno", event.getString("bargedCno"));
 				bargerEvent.put("bargeObject", event.getString("bargeObject"));
 				bargerEvent.put("objectType", event.getString("objectType"));
-				redisService.convertAndSend(BigQueueConst.AGENT_GATEWAY_EVENT_TOPIC, event);
+				redisService.convertAndSend(BigQueueCacheKey.AGENT_GATEWAY_EVENT_TOPIC, event);
 				//发送事件给发起者
 			}
 			

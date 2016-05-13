@@ -10,10 +10,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.tinet.ctilink.bigqueue.entity.CallMember;
-import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
-import com.tinet.ctilink.cache.RedisService;
-import com.tinet.ctilink.inc.Const;
 
 public class LinearStrategy implements Strategy,InitializingBean{
 	@Autowired

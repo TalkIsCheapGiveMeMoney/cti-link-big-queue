@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
-import com.tinet.ctilink.json.JSONObject;
 
 @WebServlet("/v1/queue/leave")
 public class QueueLeave extends HttpServlet {

@@ -1,6 +1,5 @@
 package com.tinet.ctilink.bigqueue.ami;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -15,7 +14,7 @@ import com.tinet.ctilink.cache.RedisService;
 import com.tinet.ctilink.json.JSONObject;
 import com.tinet.ctilink.util.RedisLock;
 
-public class WhisperLinkHandler implements EventHandler, InitializingBean{
+public class HoldHandler implements EventHandler, InitializingBean{
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	@Autowired
     private RedisService redisService;
@@ -24,27 +23,26 @@ public class WhisperLinkHandler implements EventHandler, InitializingBean{
     private MemberServiceImp memberService;
     @Override
 	public void afterPropertiesSet() throws Exception{
-		EventHandlerFactory.register(AmiEventConst.WHISPER_LINK, this);
+		EventHandlerFactory.register(AmiEventConst.HOLD, this);
 	}
 	
 	public boolean handle(JSONObject event){
 		try{
 			String enterpriseId = event.getString("enterpriseId");
 			String cno = event.getString("cno");
-			String channel = event.getString("channel");
-			String whisperObject = event.getString("whisperObject");
-			String objectType = event.getString("objectType");
-			String whisperedCno = event.getString("whisperedCno");
+			String status = event.getString("status");
 			
 			//先获取lock memberService.lockMember(enterpriseId, cno);
-			RedisLock memberLock = memberService.lockMember(enterpriseId, whisperedCno);
+			RedisLock memberLock = memberService.lockMember(enterpriseId, cno);
 			if(memberLock != null){
 				try{
-					CallAgent callAgent = agentService.getCallAgent(enterpriseId, whisperedCno);
+					CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
 					if(callAgent != null){
-						callAgent.setWhisperChannel(channel);
-						callAgent.setMonitoredObject(whisperObject);
-						callAgent.setMonitoredObjectType(Integer.parseInt(objectType));
+						if(status.equals("on")){
+							callAgent.setBusyDescription("hold");
+						}else{
+							callAgent.setBusyDescription("");
+						}
 						agentService.saveCallAgent(enterpriseId, cno, callAgent);
 					}else{
 						logger.error("no such callAgent when dispatch BargeLinkEvent");
@@ -57,9 +55,7 @@ public class WhisperLinkHandler implements EventHandler, InitializingBean{
 			}else{
 				logger.error("fail to get lock when dispatch BargeLinkEvent");
 			}
-			if(StringUtils.isNotEmpty(cno)){
-				redisService.convertAndSend(BigQueueCacheKey.AGENT_GATEWAY_EVENT_TOPIC, event);
-			}
+			redisService.convertAndSend(BigQueueCacheKey.AGENT_GATEWAY_EVENT_TOPIC, event);
 		}catch(Exception e){
 			e.printStackTrace();
 			return false;

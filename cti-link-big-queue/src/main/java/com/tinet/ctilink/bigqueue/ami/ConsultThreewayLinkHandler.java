@@ -7,7 +7,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.tinet.ctilink.ami.inc.AmiEventConst;
-import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
+import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.service.imp.AgentServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.MemberServiceImp;
 import com.tinet.ctilink.cache.RedisService;
@@ -38,7 +38,7 @@ public class ConsultThreewayLinkHandler implements EventHandler, InitializingBea
 				consulteeEvent.put("enterpriseId", event.getString("enterpriseId"));
 				consulteeEvent.put("cno", event.getString("cno"));
 				consulteeEvent.put("consulterCno", event.getString("consulterCno"));
-				redisService.convertAndSend(BigQueueConst.AGENT_GATEWAY_EVENT_TOPIC, event);
+				redisService.convertAndSend(BigQueueCacheKey.AGENT_GATEWAY_EVENT_TOPIC, event);
 			}
 
 			//发送事件到咨询发起者的那个人
@@ -46,7 +46,7 @@ public class ConsultThreewayLinkHandler implements EventHandler, InitializingBea
 			consulteeEvent.put("event", event.getString("event"));
 			consulteeEvent.put("enterpriseId", event.getString("enterpriseId"));
 			consulteeEvent.put("cno", event.getString("consulterCno"));
-			redisService.convertAndSend(BigQueueConst.AGENT_GATEWAY_EVENT_TOPIC, event);
+			redisService.convertAndSend(BigQueueCacheKey.AGENT_GATEWAY_EVENT_TOPIC, event);
 		}catch(Exception e){
 			e.printStackTrace();
 			return false;

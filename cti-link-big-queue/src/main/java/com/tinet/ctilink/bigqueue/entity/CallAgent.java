@@ -9,6 +9,10 @@ public class CallAgent {
 	public static final Integer MONITOR_TYPE_WHISPER = 2;
 	public static final Integer MONITOR_TYPE_THREEWAY = 3;
 	
+	public static final Integer LOGIN_TYPE_FRONT = 1;
+	public static final Integer LOGIN_TYPE_BACKEND = 2;
+	
+	private Integer loginType;
 	private String bindTel;
 	private Integer bindType;
 	private String _interface;
@@ -41,16 +45,22 @@ public class CallAgent {
 	private String bargeChannel;
 	private Integer loginTime;
 	
+	public Integer getLoginType() {
+		return loginType;
+	}
+	public void setLoginType(Integer loginType) {
+		this.loginType = loginType;
+	}
 	public String getBindTel() {
 		return bindTel;
 	}
 	public void setBindTel(String bindTel) {
 		this.bindTel = bindTel;
 	}
-	public String get_interface() {
+	public String getInterface() {
 		return _interface;
 	}
-	public void set_interface(String _interface) {
+	public void setInterface(String _interface) {
 		this._interface = _interface;
 	}
 	public String getName() {
