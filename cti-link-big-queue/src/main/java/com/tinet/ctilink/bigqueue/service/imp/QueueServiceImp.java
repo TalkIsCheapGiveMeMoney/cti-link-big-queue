@@ -205,7 +205,7 @@ public class QueueServiceImp {
     					queueEventService.publishEvent(queueEvent);
     					
     					JSONObject event = new JSONObject();
-    					event.put("event", AmiEventConst.QUEUE_CALL);
+    					event.put("event", "queueCall");
     					event.put("enterpriseId", enterpriseId);
     					event.put("qno", qno);
     					event.put("cno", callMember.getCno());

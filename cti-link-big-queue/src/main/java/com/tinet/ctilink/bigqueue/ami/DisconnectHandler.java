@@ -17,7 +17,7 @@ public class DisconnectHandler implements EventHandler, InitializingBean{
 	
 	@Override
 	public void afterPropertiesSet() throws Exception{
-		EventHandlerFactory.register(AmiEventConst.DISCONNECT, this);
+		EventHandlerFactory.register(AmiEventConst.DISCONNECT_UNLINK, this);
 	}
 	
 	public boolean handle(JSONObject event){
