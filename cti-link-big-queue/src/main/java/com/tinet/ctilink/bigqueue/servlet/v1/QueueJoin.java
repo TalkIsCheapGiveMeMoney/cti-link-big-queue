@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.tinet.ctilink.util.ContextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.tinet.ctilink.bigqueue.inc.BigQueueChannelVar;
@@ -18,9 +19,13 @@ import com.tinet.ctilink.json.JSONObject;
 @WebServlet("/v1/queue/join")
 public class QueueJoin extends HttpServlet {
 
-	@Autowired
 	QueueServiceImp queueService;
-	
+
+    @Override
+    public void init() throws ServletException {
+        queueService = ContextUtil.getBean(QueueServiceImp.class);
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {

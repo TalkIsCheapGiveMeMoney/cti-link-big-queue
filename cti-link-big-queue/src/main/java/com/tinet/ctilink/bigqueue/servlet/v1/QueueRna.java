@@ -9,16 +9,22 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.tinet.ctilink.util.ContextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
+import org.springframework.stereotype.Component;
 
-@WebServlet("/v1/queue/get")
+@WebServlet("/v1/queue/rna")
 public class QueueRna extends HttpServlet {
 
-	@Autowired
 	QueueServiceImp queueService;
-	
+
+    @Override
+    public void init() throws ServletException {
+        queueService = ContextUtil.getBean(QueueServiceImp.class);
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
