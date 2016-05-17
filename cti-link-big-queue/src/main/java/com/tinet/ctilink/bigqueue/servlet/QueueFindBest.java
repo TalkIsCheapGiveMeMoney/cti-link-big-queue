@@ -9,19 +9,21 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.tinet.ctilink.bigqueue.entity.CallMember;
 import com.tinet.ctilink.bigqueue.inc.BigQueueChannelVar;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
 import com.tinet.ctilink.json.JSONObject;
+import com.tinet.ctilink.util.ContextUtil;
 
 @WebServlet("/interface/queue/findBest")
 public class QueueFindBest extends HttpServlet {
 
-	@Autowired
 	QueueServiceImp queueService;
+	@Override
+	public void init() throws ServletException {
+		queueService = ContextUtil.getBean(QueueServiceImp.class);
+	}
 	
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)

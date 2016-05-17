@@ -14,12 +14,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
 import com.tinet.ctilink.conf.model.Queue;
 import com.tinet.ctilink.json.JSONObject;
+import com.tinet.ctilink.util.ContextUtil;
 
 @WebServlet("/interface/queue/get")
 public class QueueGet extends HttpServlet {
 
-	@Autowired
 	QueueServiceImp queueService;
+	@Override
+	public void init() throws ServletException {
+		queueService = ContextUtil.getBean(QueueServiceImp.class);
+	}
 	
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
