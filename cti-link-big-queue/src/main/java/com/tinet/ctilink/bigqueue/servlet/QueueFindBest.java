@@ -1,4 +1,4 @@
-package com.tinet.ctilink.bigqueue.servlet.v1;
+package com.tinet.ctilink.bigqueue.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -11,12 +11,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.tinet.ctilink.bigqueue.entity.CallMember;
+import com.tinet.ctilink.bigqueue.inc.BigQueueChannelVar;
+import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
-import com.tinet.ctilink.conf.model.Queue;
 import com.tinet.ctilink.json.JSONObject;
 
-@WebServlet("/v1/queue/get")
-public class QueueGet extends HttpServlet {
+@WebServlet("/interface/queue/findBest")
+public class QueueFindBest extends HttpServlet {
 
 	@Autowired
 	QueueServiceImp queueService;
@@ -36,11 +38,21 @@ public class QueueGet extends HttpServlet {
         
         String enterpriseId = req.getParameter("enterpriseId");
         String qno = req.getParameter("qno");
+        String uniqueId = req.getParameter("uniqueId");
+        String customerNumber = req.getParameter("customerNumber");
+        String queueRemeberMember = req.getParameter("queueRemeberMember");
+        JSONObject res = new JSONObject();
         
-        Queue queue = queueService.getFromConfCache(enterpriseId, qno);
-        if(queue != null){
-        	out.print(JSONObject.fromObject(queue).toString());
+        CallMember callMember = queueService.findBest(enterpriseId, qno, uniqueId, customerNumber, queueRemeberMember);
+        if(callMember != null){
+	        res.put(BigQueueChannelVar.QUEUE_CODE, BigQueueConst.QUEUE_CODE_ROUTE_OK);
+			res.put(BigQueueChannelVar.QUEUE_DIAL_INTERFACE, callMember.getInterface());
+			res.put(BigQueueChannelVar.QUEUE_DIAL_CNO, callMember.getCno());
+        }else{
+        	res.put(BigQueueChannelVar.QUEUE_CODE, BigQueueConst.QUEUE_CODE_ROUTE_FAIL);
         }
+
+        out.print(res.toString());
         out.flush();
         out.close();
     }

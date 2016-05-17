@@ -1,4 +1,4 @@
-package com.tinet.ctilink.bigqueue.servlet.v1;
+package com.tinet.ctilink.bigqueue.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
 
-@WebServlet("/v1/queue/get")
-public class QueueRna extends HttpServlet {
+@WebServlet("/interface/queue/hangup")
+public class QueueHangup extends HttpServlet {
 
 	@Autowired
 	QueueServiceImp queueService;
@@ -35,9 +35,9 @@ public class QueueRna extends HttpServlet {
         String enterpriseId = req.getParameter("enterpriseId");
         String qno = req.getParameter("qno");
         String uniqueId = req.getParameter("uniqueId");
-        String cno = req.getParameter("cno");
         
-        queueService.rna(enterpriseId, qno, cno, uniqueId);
+        queueService.hangup(enterpriseId, qno, uniqueId);
+        
         out.flush();
         out.close();
     }

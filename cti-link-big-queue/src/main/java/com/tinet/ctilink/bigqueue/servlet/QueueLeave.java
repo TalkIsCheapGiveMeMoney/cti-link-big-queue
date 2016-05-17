@@ -1,4 +1,4 @@
-package com.tinet.ctilink.bigqueue.servlet.v1;
+package com.tinet.ctilink.bigqueue.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
 
-@WebServlet("/v1/queue/leave")
+@WebServlet("/interface/queue/leave")
 public class QueueLeave extends HttpServlet {
 
 	@Autowired
