@@ -40,7 +40,7 @@ public class QueueServiceImp {
 	QueueEventServiceImp queueEventService;
 	
     public Queue getFromConfCache(String enterpriseId, String qno){
-    	String key = String.format(CacheKey.QUEUE_ENTERPRISE_ID_QNO, enterpriseId, qno);
+    	String key = String.format(CacheKey.QUEUE_ENTERPRISE_ID_QNO, Integer.parseInt(enterpriseId), qno);
     	Queue queue = redisService.get(Const.REDIS_DB_CONF_INDEX, key, Queue.class);
     	return queue;
     }
