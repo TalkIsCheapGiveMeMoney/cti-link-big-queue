@@ -419,19 +419,19 @@ public class AgentServiceImp {
 			String uniqueId = entry;
 			queueEntryMap.put("position", position);
 			position++;
-			Integer joinTime = (Integer)queueService.getQueueEntryInfo(uniqueId, "join_time");
+			Integer joinTime = (Integer)queueService.getQueueEntryInfo(uniqueId, "join_time", Integer.class);
 			queueEntryMap.put("joinTime", joinTime);//排队客户加入时间
 			Integer waitTime = new Long(new Date().getTime()/1000).intValue() - joinTime;
 			if(waitTime < 0) waitTime = 0;
 			queueEntryMap.put("waitTime", waitTime);//排队客户等待时间
-			Integer priority = (Integer)queueService.getQueueEntryInfo(uniqueId, "priority");
+			Integer priority = (Integer)queueService.getQueueEntryInfo(uniqueId, "priority", Integer.class);
 			queueEntryMap.put("priority", priority);//排队客户VIP级别
-			String customerNumber = (String)queueService.getQueueEntryInfo(uniqueId, "customer_number");
+			String customerNumber = (String)queueService.getQueueEntryInfo(uniqueId, "customer_number", String.class);
 			queueEntryMap.put("customerNumber", customerNumber);
 			queueEntryMap.put("uniqueId", uniqueId);
-			Integer startTime = (Integer)queueService.getQueueEntryInfo(uniqueId, "start_time");
+			Integer startTime = (Integer)queueService.getQueueEntryInfo(uniqueId, "start_time", Integer.class);
 			queueEntryMap.put("startTime", startTime);
-			Integer overflow = (Integer)queueService.getQueueEntryInfo(uniqueId, "overflow");
+			Integer overflow = (Integer)queueService.getQueueEntryInfo(uniqueId, "overflow", Integer.class);
 			queueEntryMap.put("overflow", overflow);
 			
 			Integer npIndex = queueService.getQueueEntryNpIndex(enterpriseId, qno, uniqueId);

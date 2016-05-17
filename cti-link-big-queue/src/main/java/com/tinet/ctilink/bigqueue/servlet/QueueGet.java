@@ -42,8 +42,25 @@ public class QueueGet extends HttpServlet {
         String qno = req.getParameter("qno");
         
         Queue queue = queueService.getFromConfCache(enterpriseId, qno);
+        
         if(queue != null){
-        	out.print(JSONObject.fromObject(queue).toString());
+        	JSONObject object = new JSONObject();
+        	object.put("queue_qno", queue.getQno());
+        	object.put("queue_moh", queue.getMusicClass());
+        	object.put("queue_timeout", queue.getQueueTimeout());
+        	object.put("queue_say_agentno", queue.getSayAgentno());
+        	object.put("queue_member_timeout", queue.getMemberTimeout());
+        	object.put("queue_retry", queue.getRetry());
+        	object.put("queue_vip_support", queue.getVipSupport());
+        	object.put("queue_announce_sound", queue.getAnnounceSound());
+        	object.put("queue_announce_sound_frequency", queue.getAnnounceSoundFrequency());
+        	object.put("queue_announce_sound_file", queue.getAnnounceSoundFile());
+        	object.put("queue_announce_position", queue.getAnnouncePosition());
+        	object.put("queue_announce_position_youarenext", queue.getAnnouncePositionYouarenext());
+        	object.put("queue_announce_position_frequency", queue.getAnnouncePositionFrequency());
+        	object.put("queue_announce_position_param", queue.getAnnouncePositionParam());
+
+        	out.print(object.toString());
         }
         out.flush();
         out.close();

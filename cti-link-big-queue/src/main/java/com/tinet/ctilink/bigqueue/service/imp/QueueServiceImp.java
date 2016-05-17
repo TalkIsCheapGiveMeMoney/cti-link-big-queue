@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.tinet.ctilink.ami.inc.AmiEventConst;
 import com.tinet.ctilink.bigqueue.entity.CallMember;
 import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
@@ -93,7 +92,7 @@ public class QueueServiceImp {
     	if(queue == null){
     		return;
     	}
-    	Integer joinTime = (Integer)getQueueEntryInfo(uniqueId, "join_time");
+    	Integer joinTime = (Integer)getQueueEntryInfo(uniqueId, "join_time", Integer.class);
 		Integer holdTime = new Long(new Date().getTime()/1000).intValue() - joinTime;
 		
     	JSONObject queueEvent = new JSONObject();
@@ -356,7 +355,8 @@ public class QueueServiceImp {
     
     public Integer getQueueIdleCount(String enterpriseId, String qno){
     	String idleMemberKey = String.format(BigQueueCacheKey.QUEUE_IDLE_MEMBER_ENTERPRISE_ID, enterpriseId);
-    	return (Integer)redisService.hget(Const.REDIS_DB_CTI_INDEX, idleMemberKey, qno);
+    	Integer count = (Integer)redisService.hget(Const.REDIS_DB_CTI_INDEX, idleMemberKey, qno, Integer.class);
+    	return (count == null)? 0:count;
     }
     
     public void setQueueAvalibleCount(String enterpriseId, String qno, Integer count){
@@ -366,15 +366,16 @@ public class QueueServiceImp {
     
     public Integer getQueueAvalibleCount(String enterpriseId, String qno){
     	String avalibleMemberKey = String.format(BigQueueCacheKey.QUEUE_AVALIBLE_MEMBER_ENTERPRISE_ID, enterpriseId, qno);
-    	return (Integer)redisService.hget(Const.REDIS_DB_CTI_INDEX, avalibleMemberKey, qno);
+    	Integer count = (Integer)redisService.hget(Const.REDIS_DB_CTI_INDEX, avalibleMemberKey, qno, Integer.class);
+    	return (count == null)? 0:count;
     }
     public Set<String> getQueueEntrySet(String enterpriseId, String qno){
     	String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_ENTERPRISE_ID_QNO, enterpriseId, qno);
     	return redisService.zrange(Const.REDIS_DB_CTI_INDEX, queueEntryKey, Long.MIN_VALUE, Long.MAX_VALUE );
     }
-    public Object getQueueEntryInfo(String uniqueId, String field){
+    public <T> Object getQueueEntryInfo(String uniqueId, String field, Class<T> clazz){
 		String key = String.format(BigQueueCacheKey.QUEUE_ENTRY_INFO_UNIQUE_ID, uniqueId);
-		return redisService.hget(Const.REDIS_DB_CTI_INDEX, key, field);
+		return redisService.hget(Const.REDIS_DB_CTI_INDEX, key, field, clazz);
     }
     public void setQueueEntryInfo(String uniqueId, String field, Object value){
 		String key = String.format(BigQueueCacheKey.QUEUE_ENTRY_INFO_UNIQUE_ID, uniqueId);
@@ -457,7 +458,7 @@ public class QueueServiceImp {
     }
     
     public Integer getQueueEntryLinpos(String uniqueId){
-		Integer linpos = (Integer) getQueueEntryInfo(uniqueId, "linpos");
+		Integer linpos = (Integer) getQueueEntryInfo(uniqueId, "linpos", Integer.class);
 		return linpos;
     }
     
@@ -466,8 +467,8 @@ public class QueueServiceImp {
 	}
     
     public Integer getQueueEntryDialed(String uniqueId, String cno){
- 		Integer dialedCount = (Integer)getQueueEntryInfo(uniqueId, "dialed_" + cno);
- 		return dialedCount;
+ 		Integer dialedCount = (Integer)getQueueEntryInfo(uniqueId, "dialed_" + cno, Integer.class);
+ 		return (dialedCount == null)? 0 : dialedCount;
     }
     
     public void incQueueEntryDialed(String uniqueId, String cno){
@@ -477,7 +478,7 @@ public class QueueServiceImp {
     
     public Integer getQueueStatistic(String enterpriseId, String qno, String field){
     	String key = String.format(BigQueueCacheKey.QUEUE_STATISTIC_ENTERPRISE_ID_QNO, enterpriseId, qno);
- 		Integer res = (Integer)redisService.hget(Const.REDIS_DB_CTI_INDEX, key, field);
+ 		Integer res = (Integer)redisService.hget(Const.REDIS_DB_CTI_INDEX, key, field, Integer.class);
  		if(res == null){
  			redisService.hincrby(Const.REDIS_DB_CTI_INDEX, key, field, 0);
  			return 0;

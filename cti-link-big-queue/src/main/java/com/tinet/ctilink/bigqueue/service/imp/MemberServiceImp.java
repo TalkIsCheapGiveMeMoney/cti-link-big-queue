@@ -46,12 +46,12 @@ public class MemberServiceImp {
     }
     public Integer getDeviceStatus(String enterpriseId, String cno){
     	String deviceStatusKey = String.format(BigQueueCacheKey.MEMBER_DEVICE_STATUS_ENTERPRISE_ID, enterpriseId);
-    	Object value = redisService.hget(Const.REDIS_DB_CTI_INDEX, deviceStatusKey, cno);
+    	Object value = redisService.hget(Const.REDIS_DB_CTI_INDEX, deviceStatusKey, cno, Integer.class);
     	return (Integer) value;
     }
     public Integer getDeviceStatusStartTime(String enterpriseId, String cno){
     	String deviceStatusKey = String.format(BigQueueCacheKey.MEMBER_DEVICE_STATUS_ENTERPRISE_ID, enterpriseId);
-    	Object value = redisService.hget(Const.REDIS_DB_CTI_INDEX, deviceStatusKey, "start_" + cno);
+    	Object value = redisService.hget(Const.REDIS_DB_CTI_INDEX, deviceStatusKey, "start_" + cno, Integer.class);
     	return (Integer) value;
     }
     public Map<Object, Object> getDeviceStatusAll(String enterpriseId){
@@ -72,25 +72,18 @@ public class MemberServiceImp {
     }
     public Integer getLoginStatus(String enterpriseId, String cno){
     	String loginStatusKey = String.format(BigQueueCacheKey.MEMBER_LOGIN_STATUS_ENTERPRISE_ID, enterpriseId);
-    	Object value = redisService.hget(Const.REDIS_DB_CTI_INDEX, loginStatusKey, cno);
+    	Object value = redisService.hget(Const.REDIS_DB_CTI_INDEX, loginStatusKey, cno, Integer.class);
     	return (Integer) value;
     }
     public Integer getLoginStatusStartTime(String enterpriseId, String cno){
     	String loginStatusKey = String.format(BigQueueCacheKey.MEMBER_LOGIN_STATUS_ENTERPRISE_ID, enterpriseId);
-    	Object value = redisService.hget(Const.REDIS_DB_CTI_INDEX, loginStatusKey, "start_" + cno);
+    	Object value = redisService.hget(Const.REDIS_DB_CTI_INDEX, loginStatusKey, "start_" + cno, Integer.class);
     	return (Integer) value;
     }
     public CallMember getCallMember(String enterpriseId, String qno, String cno){
     	String key = String.format(BigQueueCacheKey.QUEUE_MEMBER_ENTERPRISE_ID_QNO, enterpriseId, qno);
-    	Object res = redisService.hget(Const.REDIS_DB_CTI_INDEX, key, cno);
-    	if(res != null){
-	    	JSONObject object = null;
-	    	if(StringUtils.isEmpty(res.toString())){
-	    		object = JSONObject.fromObject(res);
-	    		return object.getBean(CallMember.class);
-	    	}
-    	}
-    	return null;
+    	CallMember callMember = redisService.hget(Const.REDIS_DB_CTI_INDEX, key, cno, CallMember.class);
+    	return callMember;
     }
     /**
      * 
