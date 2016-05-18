@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import com.tinet.ctilink.bigqueue.entity.CallMember;
 import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
-import com.tinet.ctilink.bigqueue.inc.BigQueueMacro;
 import com.tinet.ctilink.bigqueue.strategy.Strategy;
 import com.tinet.ctilink.bigqueue.strategy.StrategyFactory;
 import com.tinet.ctilink.cache.CacheKey;
@@ -36,6 +35,8 @@ public class QueueServiceImp {
 	MemberServiceImp memberService;
 	
 	@Autowired
+	AgentServiceImp agentService;
+	@Autowired
 	QueueEventServiceImp queueEventService;
 	
     public Queue getFromConfCache(String enterpriseId, String qno){
@@ -49,7 +50,7 @@ public class QueueServiceImp {
     	Queue queue = getFromConfCache(enterpriseId, qno);
     	if(queue != null){
     		Integer avalibleCount = getQueueAvalibleCount(enterpriseId, qno);
-    		if(avalibleCount > 0){
+    		if(avalibleCount <= 0){
     			res = BigQueueConst.QUEUE_CODE_JOIN_EMPTY;
     			return res;
     		}
@@ -165,12 +166,12 @@ public class QueueServiceImp {
     }
     private boolean compareWeight(Integer weight, String enterpriseId, String cno){
     	String cid = enterpriseId + cno;
-    	Set<String> queueSet = BigQueueMacro.getCurrentMemberQueueMap().get(cid);
-    	for(String qno: queueSet){
-    		Queue queue = getFromConfCache(enterpriseId, qno);
+    	List<QueueMember> queueMemberList = agentService.getQueueMemberList(enterpriseId, cno);
+    	for(QueueMember queueMember: queueMemberList){
+    		Queue queue = getFromConfCache(enterpriseId, queueMember.getQno());
     		if(queue != null){
-	    		Integer queueEntryCount = getQueueEntryCount(enterpriseId, qno);
-	    		Integer queueAvalible = getQueueIdleCount(enterpriseId, qno);
+	    		Integer queueEntryCount = getQueueEntryCount(enterpriseId, queueMember.getQno());
+	    		Integer queueAvalible = getQueueIdleCount(enterpriseId, queueMember.getQno());
 	    		if(queue.getWeight() > weight && queueEntryCount >= queueAvalible){
 	    			return false;
 	    		}
@@ -528,9 +529,9 @@ public class QueueServiceImp {
     		callMember.setCno(queueMember.getCno());
     		callMember.setLastCall(0);
     	}
-    	String value = JSONObject.fromObject(callMember).toString();
+    	
     	String key = String.format(BigQueueCacheKey.QUEUE_MEMBER_ENTERPRISE_ID_QNO, enterpriseId, queueMember.getQno());
-    	redisService.hset(Const.REDIS_DB_CTI_INDEX, key, callMember.getCno(), value);
+    	redisService.hset(Const.REDIS_DB_CTI_INDEX, key, callMember.getCno(), callMember);
     	return;
     }
     public void delMember(String enterpriseId, String qno, String cno){

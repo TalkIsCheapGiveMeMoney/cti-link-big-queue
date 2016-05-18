@@ -2,9 +2,12 @@ package com.tinet.ctilink.bigqueue.entity;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.tinet.ctilink.util.SipMediaServerUtil;
 
 public class CallAgent {
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	
 	public static final Integer MONITOR_TYPE_SPY = 1;
 	public static final Integer MONITOR_TYPE_WHISPER = 2;
 	public static final Integer MONITOR_TYPE_THREEWAY = 3;
@@ -177,6 +180,7 @@ public class CallAgent {
 	public void setBusyDescription(String busyDescription) {
 		this.busyDescription = busyDescription;
 	}
+
 	public String getMonitoredType() {
 		if (StringUtils.isNotEmpty(spyChannel)) {
 			return "spy";

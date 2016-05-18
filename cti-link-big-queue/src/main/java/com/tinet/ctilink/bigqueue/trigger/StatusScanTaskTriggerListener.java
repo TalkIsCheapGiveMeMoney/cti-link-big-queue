@@ -1,7 +1,6 @@
 package com.tinet.ctilink.bigqueue.trigger;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
-import com.tinet.ctilink.bigqueue.inc.BigQueueMacro;
 import com.tinet.ctilink.bigqueue.service.imp.ChannelServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.MemberServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
@@ -43,17 +41,15 @@ public class StatusScanTaskTriggerListener {
         memberDeviceStatusMap.clear();
         memberLoginStatusMap.clear();
         
-        Map<String, Set<String>> memberQueueMap = BigQueueMacro.getReplaceMemberQueueMap();
         
         Set<String> queueScaned = queueService.getScanSet();
         
         for(String queue: queueScaned){
         	String enterpriseId = queue.substring(0, BigQueueConst.ENTERPRISE_ID_LEN);
         	String qno = queue.substring(BigQueueConst.ENTERPRISE_ID_LEN);
-        	scanStatus(enterpriseId, qno, memberQueueMap);
+        	scanStatus(enterpriseId, qno);
         	scanEntry(enterpriseId, qno);
         }
-        BigQueueMacro.replaceMemberQueueMap();
     }
     private void scanEntry(String enterpriseId, String qno){
 
@@ -68,7 +64,7 @@ public class StatusScanTaskTriggerListener {
 			}
 		}
     }
-    private void scanStatus(String enterpriseId, String qno, Map<String, Set<String>> memberQueueMap){
+    private void scanStatus(String enterpriseId, String qno){
     	Integer idleCount = 0;
     	Integer avalibleCount = 0;
     	//获取队列joinEmpty设置
@@ -83,15 +79,6 @@ public class StatusScanTaskTriggerListener {
     	
     	//循环每个坐席
     	for(String member: memberSet){
-    		String cid = enterpriseId + member;
-    		Set<String> memberQueueSet = memberQueueMap.get(cid);
-    		if(memberQueueSet != null){
-    			memberQueueSet.add(qno);
-    		}else{
-    			memberQueueSet = new HashSet<String>();
-    			memberQueueSet.add(qno);
-    			memberQueueMap.put(cid, memberQueueSet);
-    		}
     		//获取deviceStatus
     		Integer deviceStatus;
     		if(memberDeviceStatusMap.containsKey(member)){

@@ -24,6 +24,9 @@ public class RRMemoryStrategy implements Strategy, InitializingBean{
 	@Override
 	public List<CallMember> calcMetric(String enterpriseId, String qno, String uniqueId){
 		List<CallMember> memberList = queueService.getMembers(enterpriseId, qno);
+		if(memberList.size() == 0){
+			return memberList; 
+		}
 		Collections.sort(memberList,new Comparator<CallMember>(){
             public int compare(CallMember arg0, CallMember arg1) {
                 return Integer.valueOf(arg0.getCno()).compareTo(Integer.valueOf(arg1.getCno()));

@@ -18,7 +18,6 @@ import com.tinet.ctilink.bigqueue.entity.CallAgent;
 import com.tinet.ctilink.bigqueue.entity.CallMember;
 import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
-import com.tinet.ctilink.bigqueue.inc.BigQueueMacro;
 import com.tinet.ctilink.bigqueue.service.AgentService;
 import com.tinet.ctilink.cache.CacheKey;
 import com.tinet.ctilink.cache.RedisService;
@@ -535,12 +534,12 @@ public class AgentServiceImp implements AgentService {
 		}else{
 			CallAgent agent = getCallAgent(enterpriseId, cno);
 			if(agent != null){	
-				Set<String> queueSet = BigQueueMacro.getCurrentMemberQueueMap().get(enterpriseId + cno);
-				for(String thisQno: queueSet){
+				List<QueueMember> queueMemberList = getQueueMemberList(enterpriseId, cno);
+		    	for(QueueMember queueMember: queueMemberList){
 					Map<String, Object> thisQueueStatusMap = new HashMap<String, Object>();
-					List<Map<String, Object>> thisMemberStatusMap = memberStatus(enterpriseId, qno);
-					List<Map<String, Object>> thisQueueEntryList = queueEntry(enterpriseId, qno);
-					Map<String, Object> thisQueueParamsMap = queueParams(enterpriseId, qno);
+					List<Map<String, Object>> thisMemberStatusMap = memberStatus(enterpriseId, queueMember.getQno());
+					List<Map<String, Object>> thisQueueEntryList = queueEntry(enterpriseId, queueMember.getQno());
+					Map<String, Object> thisQueueParamsMap = queueParams(enterpriseId, queueMember.getQno());
 					thisQueueStatusMap.put("memberStatus", thisMemberStatusMap);
 					thisQueueStatusMap.put("queueEntry", thisQueueEntryList);
 					thisQueueStatusMap.put("queueParams", thisQueueParamsMap);
@@ -591,7 +590,7 @@ public class AgentServiceImp implements AgentService {
 		}
 	}
 	
-	private List<QueueMember> getQueueMemberList(String enterpriseId, String cno){
+	public List<QueueMember> getQueueMemberList(String enterpriseId, String cno){
 		String confKey = String.format(CacheKey.QUEUE_MEMBER_ENTERPRISE_ID_CNO, Integer.parseInt(enterpriseId), cno);
 		List<QueueMember> queueMemberList = redisService.getList(Const.REDIS_DB_CONF_INDEX, confKey, QueueMember.class);
 		return queueMemberList;
