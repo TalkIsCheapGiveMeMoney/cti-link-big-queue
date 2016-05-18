@@ -43,8 +43,6 @@
 
 	<bean id="redisService" class="com.tinet.ctilink.cache.RedisService" />
 	
-	
-	
 	<!-- 定义接收事件的Redis消息监听器 
 	<bean id="eventListener" class="com.tinet.ctilink.bigqueue.RedisEventListener" />
 	-->

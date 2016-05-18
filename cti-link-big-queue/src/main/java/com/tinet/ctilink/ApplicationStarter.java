@@ -22,6 +22,8 @@ public class ApplicationStarter implements ApplicationListener<ContextRefreshedE
 
 	@Autowired
 	AmiEventListener amiEventListener;
+	@Autowired
+	StatusScanTaskTriggerListener statusScanTaskTriggerListener;
 	
 	@Override
 	public void onApplicationEvent(final ContextRefreshedEvent event) {
@@ -32,11 +34,10 @@ public class ApplicationStarter implements ApplicationListener<ContextRefreshedE
 
 		//statusScanScheduler.schedule("queueMemberStatusScan", null);
 		//statusCheckScanScheduler.schedule("queueMemberStatusCheckScan", null);
-		Runnable r = new Runnable(){
+		new Thread(new Runnable(){
 			@Override
 			public void run(){
 				while(true){
-					StatusScanTaskTriggerListener statusScanTaskTriggerListener = new StatusScanTaskTriggerListener();
 					statusScanTaskTriggerListener.taskTriggered("");
 					try {
 						Thread.sleep(1000);
@@ -46,7 +47,8 @@ public class ApplicationStarter implements ApplicationListener<ContextRefreshedE
 					}
 				}
 			}
-		};
+		}).start();
+		
 		amiEventListener.start();
 		
 		logger.info("cti-link-big-queue启动成功");

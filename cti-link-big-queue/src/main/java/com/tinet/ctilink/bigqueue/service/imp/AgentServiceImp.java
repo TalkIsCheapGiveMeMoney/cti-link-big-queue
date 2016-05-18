@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import com.github.pagehelper.StringUtil;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
@@ -20,6 +19,7 @@ import com.tinet.ctilink.bigqueue.entity.CallMember;
 import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
 import com.tinet.ctilink.bigqueue.inc.BigQueueMacro;
+import com.tinet.ctilink.bigqueue.service.AgentService;
 import com.tinet.ctilink.cache.CacheKey;
 import com.tinet.ctilink.cache.RedisService;
 import com.tinet.ctilink.conf.model.Agent;
@@ -30,8 +30,8 @@ import com.tinet.ctilink.inc.Const;
 import com.tinet.ctilink.json.JSONObject;
 import com.tinet.ctilink.util.RedisLock;
 
-@Service
-public class AgentServiceImp {
+@com.alibaba.dubbo.config.annotation.Service
+public class AgentServiceImp implements AgentService {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	@Autowired
 	RedisService redisService;

@@ -48,5 +48,5 @@ public class BigQueueConst {
     public static final int LEAVE_CODE_ABANDON = 2;
     public static final int LEAVE_CODE_TIMEOUT = 3;
     public static final int LEAVE_CODE_EMPTY = 4;
-    public static final String AGENT_GATEWAY_EVENT_TOPIC = "cti-link.agent-gateway.event";
+    
 }

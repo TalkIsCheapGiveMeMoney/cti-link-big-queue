@@ -8,6 +8,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
 import com.tinet.ctilink.bigqueue.inc.BigQueueMacro;
@@ -21,6 +22,7 @@ import com.tinet.ctilink.conf.model.Queue;
  * @author fengwei //
  * @date 16/4/23 15:38
  */
+@Component
 public class StatusScanTaskTriggerListener {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	@Autowired
