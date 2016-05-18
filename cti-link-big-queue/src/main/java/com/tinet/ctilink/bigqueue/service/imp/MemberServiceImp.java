@@ -91,7 +91,7 @@ public class MemberServiceImp {
      * @param cno
      * @return true 如果可用，并且锁定坐席状态到locked 返回false不可用，不锁定坐席状态
      */
-    public boolean isAvalible(String enterpriseId, String cno){
+    public boolean isAvalibleLock(String enterpriseId, String cno){
     	 Boolean res = false;
     	 RedisLock lock = lockMember(enterpriseId, cno);
     	 if(lock != null){
@@ -128,5 +128,21 @@ public class MemberServiceImp {
     		 unlockMember(lock);
     	 }
     	 return false;
+    }
+    /**
+     * 
+     * @param enterpriseId
+     * @param cno
+     * @return 
+     */
+    public void deviceStatusUnlock(String enterpriseId, String cno){
+    	 RedisLock lock = lockMember(enterpriseId, cno);
+    	 if(lock != null){
+    		 Integer deviceStatus = getDeviceStatus(enterpriseId, cno);
+    		 if(deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_LOCKED)){
+    			 setDeviceStatus(enterpriseId, cno, BigQueueConst.MEMBER_DEVICE_STATUS_IDLE);
+    		 }
+    		 unlockMember(lock);
+    	 }
     }
 }

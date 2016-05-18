@@ -160,7 +160,10 @@ public class QueueServiceImp {
 		}
     }
     
-    public void hangup(String enterpriseId, String qno, String uniqueId){
+    public void hangup(String enterpriseId, String qno, String cno, String uniqueId){
+    	if(cno != null && StringUtils.isNotEmpty(cno)){
+    		memberService.deviceStatusUnlock(enterpriseId, cno);
+    	}
 		if(getQueueEntryIndex(enterpriseId, qno, uniqueId) != null){
 			leave(enterpriseId, qno, uniqueId, BigQueueConst.LEAVE_CODE_ABANDON);
 		}
@@ -192,7 +195,7 @@ public class QueueServiceImp {
 				callAttemp = findRemember(attempList, queueRemeberMember);
 				if(callAttemp != null){
 					callAttemp.setStillGoing(false);
-					if(memberService.isAvalible(enterpriseId, callAttemp.getCallMember().getCno())){
+					if(memberService.isAvalibleLock(enterpriseId, callAttemp.getCallMember().getCno())){
 						strategy.memberSelectedHandle(enterpriseId, qno, callAttemp.getCallMember().getCno(), uniqueId, customerNumber);
 						incQueueEntryDialed(uniqueId, callAttemp.getCallMember().getCno());
     					penddingEntry(enterpriseId, qno, uniqueId);
@@ -221,8 +224,9 @@ public class QueueServiceImp {
     		while(true){
     			callAttemp = findBestMetric(attempList);
     			if(callAttemp != null){
+    				callAttemp.setStillGoing(false);
     				if(compareWeight(queue.getWeight(), enterpriseId, callAttemp.getCallMember().getCno())){
-	    				if(memberService.isAvalible(enterpriseId, callAttemp.getCallMember().getCno())){
+	    				if(memberService.isAvalibleLock(enterpriseId, callAttemp.getCallMember().getCno())){
 	    					strategy.memberSelectedHandle(enterpriseId, qno, callAttemp.getCallMember().getCno(), uniqueId, customerNumber);
 	    					incQueueEntryDialed(uniqueId, callAttemp.getCallMember().getCno());
 	    					penddingEntry(enterpriseId, qno, uniqueId);
@@ -250,6 +254,8 @@ public class QueueServiceImp {
     
     public void rna(String enterpriseId, String qno, String cno, String uniqueId){
     	unPenddingEntry(enterpriseId, qno, uniqueId);
+    	
+    	memberService.deviceStatusUnlock(enterpriseId, cno);
     	
 		JSONObject queueEvent = new JSONObject();
 		queueEvent.put("event", "rna");

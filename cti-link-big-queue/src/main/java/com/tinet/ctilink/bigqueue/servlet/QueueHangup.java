@@ -39,8 +39,9 @@ public class QueueHangup extends HttpServlet {
         String enterpriseId = req.getParameter("enterpriseId");
         String qno = req.getParameter("qno");
         String uniqueId = req.getParameter("uniqueId");
+        String cno = req.getParameter("cno");
         
-        queueService.hangup(enterpriseId, qno, uniqueId);
+        queueService.hangup(enterpriseId, qno, cno, uniqueId);
         
         out.flush();
         out.close();

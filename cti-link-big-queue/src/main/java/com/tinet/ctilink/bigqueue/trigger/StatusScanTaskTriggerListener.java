@@ -60,7 +60,7 @@ public class StatusScanTaskTriggerListener {
 				
 			}else{
 				System.out.printf("发现宕机造成的通道不存在，%s %s %s", enterpriseId, qno, uniqueId);
-				queueService.hangup(enterpriseId, qno, uniqueId);
+				queueService.hangup(enterpriseId, qno, null,uniqueId);
 			}
 		}
     }
