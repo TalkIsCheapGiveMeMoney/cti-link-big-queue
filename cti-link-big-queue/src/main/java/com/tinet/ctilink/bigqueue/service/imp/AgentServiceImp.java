@@ -11,10 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import com.github.davidmarquis.redisscheduler.RedisTaskScheduler;
 import com.github.pagehelper.StringUtil;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
@@ -46,9 +44,6 @@ public class AgentServiceImp {
 	@Autowired
 	private ChannelServiceImp channelService;
 	
-	@Autowired
-    @Qualifier("wrapupEndTaskScheduler")
-    private RedisTaskScheduler wrapupEndTaskScheduler;
 	
 	public ActionResponse login(Map params){
 		ActionResponse response = null;
@@ -234,7 +229,7 @@ public class AgentServiceImp {
 						callAgent.setPauseDescription(description);
 						callAgent.setPauseType(Integer.parseInt(type));
 						String taskId = String.format(BigQueueConst.WRAPUP_END_TASK_ID, cno);
-						wrapupEndTaskScheduler.unschedule(taskId);
+						//wrapupEndTaskScheduler.unschedule(taskId);
 						response = ActionResponse.createSuccessResponse();
 						
 						queueEvent = new JSONObject();
@@ -302,7 +297,7 @@ public class AgentServiceImp {
 					case BigQueueConst.MEMBER_LOGIN_STATUS_WRAPUP:
 						memberService.setLoginStatus(enterpriseId, cno, BigQueueConst.MEMBER_LOGIN_STATUS_READY);
 						String taskId = String.format(BigQueueConst.WRAPUP_END_TASK_ID, cno);
-						wrapupEndTaskScheduler.unschedule(taskId);
+						//wrapupEndTaskScheduler.unschedule(taskId);
 						response = ActionResponse.createSuccessResponse();
 						
 						queueEvent = new JSONObject();

@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.davidmarquis.redisscheduler.TaskTriggerListener;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
 import com.tinet.ctilink.bigqueue.service.imp.AgentServiceImp;
@@ -22,7 +21,7 @@ import com.tinet.ctilink.conf.model.Entity;
  * @author fengwei //
  * @date 16/4/23 15:38
  */
-public class StatusCheckScanTaskTriggerListener implements TaskTriggerListener {
+public class StatusCheckScanTaskTriggerListener {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	@Autowired
 	private RedisService redisService;
@@ -34,7 +33,8 @@ public class StatusCheckScanTaskTriggerListener implements TaskTriggerListener {
 	private AgentServiceImp agentService;
 	@Autowired
 	private ChannelServiceImp channelService;
-    @Override
+
+    
     public void taskTriggered(String taskId) {
 
         List<Entity> enterpriseList = enterpriseService.getAllActive();

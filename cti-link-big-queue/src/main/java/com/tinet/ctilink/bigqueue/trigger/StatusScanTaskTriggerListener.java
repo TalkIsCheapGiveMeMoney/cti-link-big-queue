@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.davidmarquis.redisscheduler.TaskTriggerListener;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
 import com.tinet.ctilink.bigqueue.inc.BigQueueMacro;
 import com.tinet.ctilink.bigqueue.service.imp.ChannelServiceImp;
@@ -22,7 +21,7 @@ import com.tinet.ctilink.conf.model.Queue;
  * @author fengwei //
  * @date 16/4/23 15:38
  */
-public class StatusScanTaskTriggerListener implements TaskTriggerListener {
+public class StatusScanTaskTriggerListener {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	@Autowired
 	private RedisService redisService;
@@ -38,7 +37,6 @@ public class StatusScanTaskTriggerListener implements TaskTriggerListener {
 	
 	
 	
-    @Override
     public void taskTriggered(String taskId) {
         System.out.printf("Task %s is due for execution.", taskId);
         memberDeviceStatusMap.clear();
