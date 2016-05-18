@@ -64,6 +64,11 @@ public class StatusCheckScanTaskTriggerListener {
 	    		case BigQueueConst.MEMBER_DEVICE_STATUS_IDLE:
 	    			break;
 	    		case BigQueueConst.MEMBER_DEVICE_STATUS_LOCKED:
+	    			if(((new Date().getTime()/1000) - startTime) > BigQueueConst.MEMBER_STATUS_LOCKED_MAX_TIMEOUT){
+	    				memberService.setDeviceStatus(enterpriseId, cno, BigQueueConst.MEMBER_DEVICE_STATUS_IDLE);
+	    				logger.error(String.format("StatusCheckScan bad status checked: enterpriseId=%s cno=%s", enterpriseId, field));
+	    			}
+	    			break;
 	    		case BigQueueConst.MEMBER_DEVICE_STATUS_INVITE:
 	    		case BigQueueConst.MEMBER_DEVICE_STATUS_RINGING:
 	    			if(((new Date().getTime()/1000) - startTime) > BigQueueConst.MEMBER_STATUS_TRYING_MAX_TIMEOUT){

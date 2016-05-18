@@ -89,7 +89,7 @@ public class QueueServiceImp {
     	Integer newHoldTime = (currentHoldTime * 3 + holdTime) / 4;
     	setQueueStatistic(enterpriseId, qno, "hold_time", newHoldTime);
     }
-    public void leave(String enterpriseId, String qno, String uniqueId, Integer leaveCode){
+    public void leave(String enterpriseId, String qno, String uniqueId, Integer leaveCode, String cno){
     	Queue queue = getFromConfCache(enterpriseId, qno);
     	if(queue == null){
     		return;
@@ -112,6 +112,7 @@ public class QueueServiceImp {
     			queueEvent.put("holdTime", holdTime);
     			queueEvent.put("joinTime", joinTime);
     			queueEvent.put("uniqueId", uniqueId);
+    			queueEvent.put("cno", cno);
 
     			queueEventService.publishEvent(queueEvent);
     			break;
@@ -165,11 +166,10 @@ public class QueueServiceImp {
     		memberService.deviceStatusUnlock(enterpriseId, cno);
     	}
 		if(getQueueEntryIndex(enterpriseId, qno, uniqueId) != null){
-			leave(enterpriseId, qno, uniqueId, BigQueueConst.LEAVE_CODE_ABANDON);
+			leave(enterpriseId, qno, uniqueId, BigQueueConst.LEAVE_CODE_ABANDON, "");
 		}
     }
     private boolean compareWeight(Integer weight, String enterpriseId, String cno){
-    	String cid = enterpriseId + cno;
     	List<QueueMember> queueMemberList = agentService.getQueueMemberList(enterpriseId, cno);
     	for(QueueMember queueMember: queueMemberList){
     		Queue queue = getFromConfCache(enterpriseId, queueMember.getQno());
@@ -401,7 +401,7 @@ public class QueueServiceImp {
     public void insertQueueEntry(String enterpriseId, String qno, String uniqueId, Integer priority,Integer joinTime, Integer startTime, Integer overflow){
 		String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_ENTERPRISE_ID_QNO, enterpriseId, qno);
 		String queueEntryNpKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_NP_ENTERPRISE_ID_QNO, enterpriseId, qno);
-		Integer score = priority * BigQueueConst.QUEUE_PRIORITY_MULTIPILER + joinTime % BigQueueConst.QUEUE_PRIORITY_MULTIPILER;
+		Integer score = priority * BigQueueConst.QUEUE_PRIORITY_MULTIPILER + startTime % BigQueueConst.QUEUE_PRIORITY_MULTIPILER;
 		
 		redisService.zadd(Const.REDIS_DB_CTI_INDEX, queueEntryKey, uniqueId, score);
 		redisService.zadd(Const.REDIS_DB_CTI_INDEX, queueEntryNpKey, uniqueId, score);
@@ -432,7 +432,7 @@ public class QueueServiceImp {
     }
     
     private void unPenddingEntry(String enterpriseId, String qno, String uniqueId){
-    	String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_NP_ENTERPRISE_ID_QNO, enterpriseId, qno);
+    	String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_ENTERPRISE_ID_QNO, enterpriseId, qno);
     	Integer score = redisService.zscore(Const.REDIS_DB_CTI_INDEX, queueEntryKey, uniqueId).intValue();
     	String queueEntryNpKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_NP_ENTERPRISE_ID_QNO, enterpriseId, qno);
     	redisService.zadd(Const.REDIS_DB_CTI_INDEX, queueEntryNpKey, uniqueId, score);

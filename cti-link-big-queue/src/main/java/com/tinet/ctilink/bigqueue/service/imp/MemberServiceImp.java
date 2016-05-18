@@ -126,6 +126,7 @@ public class MemberServiceImp {
     			 setDeviceStatus(enterpriseId, cno, BigQueueConst.MEMBER_DEVICE_STATUS_LOCKED);
     		 }
     		 unlockMember(lock);
+    		 return res;
     	 }
     	 return false;
     }
