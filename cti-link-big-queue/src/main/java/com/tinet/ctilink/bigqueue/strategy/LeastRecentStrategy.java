@@ -4,10 +4,11 @@ import java.util.List;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.tinet.ctilink.bigqueue.entity.CallMember;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
-
+@Component
 public class LeastRecentStrategy implements Strategy, InitializingBean{
 	
 	@Autowired

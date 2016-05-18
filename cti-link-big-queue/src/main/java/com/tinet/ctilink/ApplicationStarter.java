@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.github.davidmarquis.redisscheduler.RedisTaskScheduler;
 import com.tinet.ctilink.bigqueue.AmiEventListener;
+import com.tinet.ctilink.bigqueue.trigger.StatusScanTaskTriggerListener;
 
 /**
  * 应用程序启动器
@@ -22,12 +23,6 @@ public class ApplicationStarter implements ApplicationListener<ContextRefreshedE
 	private static Logger logger = LoggerFactory.getLogger(ApplicationStarter.class);
 
 	@Autowired
-    @Qualifier("statusScanTaskScheduler")
-    private RedisTaskScheduler statusScanScheduler;
-	@Autowired
-    @Qualifier("statusCheckScanTaskScheduler")
-    private RedisTaskScheduler statusCheckScanScheduler;
-	@Autowired
 	AmiEventListener amiEventListener;
 	
 	@Override
@@ -37,9 +32,23 @@ public class ApplicationStarter implements ApplicationListener<ContextRefreshedE
 		// http://docs.amazonaws.cn/AWSSdkDocsJava/latest/DeveloperGuide/java-dg-jvm-ttl.html
 		java.security.Security.setProperty("networkaddress.cache.ttl", "60");
 
-		statusScanScheduler.schedule("queueMemberStatusScan", null);
-		statusCheckScanScheduler.schedule("queueMemberStatusCheckScan", null);
-		
+		//statusScanScheduler.schedule("queueMemberStatusScan", null);
+		//statusCheckScanScheduler.schedule("queueMemberStatusCheckScan", null);
+		Runnable r = new Runnable(){
+			@Override
+			public void run(){
+				while(true){
+					StatusScanTaskTriggerListener statusScanTaskTriggerListener = new StatusScanTaskTriggerListener();
+					statusScanTaskTriggerListener.taskTriggered("");
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		};
 		amiEventListener.start();
 		
 		logger.info("cti-link-big-queue启动成功");

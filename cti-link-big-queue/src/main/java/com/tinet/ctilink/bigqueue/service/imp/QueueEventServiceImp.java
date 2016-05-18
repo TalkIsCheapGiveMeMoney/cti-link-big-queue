@@ -26,10 +26,6 @@ public class QueueEventServiceImp {
 	@Autowired
 	private ChannelServiceImp channelService;
 	
-	@Autowired
-    @Qualifier("wrapupEndTaskScheduler")
-    private RedisTaskScheduler wrapupEndTaskScheduler;
-	
 	public void publishEvent(JSONObject event){
 		try{
 			event.put("eventTime", new Long(new Date().getTime()/1000).intValue());

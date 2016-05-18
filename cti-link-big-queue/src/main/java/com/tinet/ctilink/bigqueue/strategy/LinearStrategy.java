@@ -8,10 +8,11 @@ import java.util.Set;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.tinet.ctilink.bigqueue.entity.CallMember;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
-
+@Component
 public class LinearStrategy implements Strategy,InitializingBean{
 	@Autowired
 	QueueServiceImp queueService;

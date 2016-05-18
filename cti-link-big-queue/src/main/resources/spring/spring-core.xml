@@ -42,38 +42,9 @@
 	</bean>
 
 	<bean id="redisService" class="com.tinet.ctilink.cache.RedisService" />
-	<!-- redisTaskScheduler 注入Spring上下文 -->
-	<bean id="redisSchedulerContextUtil" class="com.github.davidmarquis.redisscheduler.impl.ContextUtil" />
-	<bean id="statusScanTaskScheduler" class="com.github.davidmarquis.redisscheduler.impl.RedisTaskSchedulerImpl">
-		<property name="redisTemplate" ref="redisTemplate"/>
-		<property name="pollingDelayMillis" value="100"/>
-		<property name="maxRetriesOnConnectionFailure" value="3"/>
-		<property name="loopMillis" value="1000"/>
-		<property name="taskTriggerListener">
-			<bean class="com.tinet.ctilink.bigqueue.trigger.StatusScanTaskTriggerListener"/>
-		</property>
-		<property name="schedulerName" value="statusScan"/> 
-	</bean>
-	<bean id="statusCheckScanTaskScheduler" class="com.github.davidmarquis.redisscheduler.impl.RedisTaskSchedulerImpl">
-		<property name="redisTemplate" ref="redisTemplate"/>
-		<property name="pollingDelayMillis" value="100"/>
-		<property name="maxRetriesOnConnectionFailure" value="3"/>
-		<property name="loopMillis" value="300000"/>
-		<property name="taskTriggerListener">
-			<bean class="com.tinet.ctilink.bigqueue.trigger.StatusCheckScanTaskTriggerListener"/>
-		</property>
-		<property name="schedulerName" value="statusScan"/> 
-	</bean>
-	<bean id="wrapupEndTaskScheduler" class="com.github.davidmarquis.redisscheduler.impl.RedisTaskSchedulerImpl">
-		<property name="redisTemplate" ref="redisTemplate"/>
-		<property name="pollingDelayMillis" value="200"/>
-		<property name="maxRetriesOnConnectionFailure" value="3"/>
-		<property name="loopMillis" value="0"/>
-		<property name="taskTriggerListener">
-			<bean class="com.tinet.ctilink.bigqueue.trigger.WrapupEndTaskTriggerListener"/>
-		</property>
-		<property name="schedulerName" value="statusScan"/> 
-	</bean>
+	
+	
+	
 	<!-- 定义接收事件的Redis消息监听器 
 	<bean id="eventListener" class="com.tinet.ctilink.bigqueue.RedisEventListener" />
 	-->
