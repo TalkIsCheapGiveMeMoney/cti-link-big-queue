@@ -53,7 +53,7 @@ public class AgentServiceImp implements AgentService {
 		Integer bindType = Integer.parseInt(params.get("bindType").toString());
 		Integer loginType = Integer.parseInt(params.get("loginType").toString());
 		Integer loginStatus = Integer.parseInt(params.get("loginStatus").toString());
-		String pauseDescription = (params.get("pauseDescription") == null)?params.get("pauseDescription").toString():null;
+		String pauseDescription = (params.get("pauseDescription") == null)?null:params.get("pauseDescription").toString();
 		Integer pauseType = BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE_TYPE_NORMAL;
 		
 		
@@ -554,7 +554,7 @@ public class AgentServiceImp implements AgentService {
 	}
 	
 	public Agent getAgent(String enterpriseId, String cno){
-		String agentKey = String.format(CacheKey.AGENT_ENTERPRISE_ID_CNO, enterpriseId, cno);
+		String agentKey = String.format(CacheKey.AGENT_ENTERPRISE_ID_CNO, Integer.parseInt(enterpriseId), cno);
 		Agent agent = redisService.get(Const.REDIS_DB_CONF_INDEX, agentKey, Agent.class);
 		return agent;
 	}
@@ -570,11 +570,11 @@ public class AgentServiceImp implements AgentService {
 			redisService.hdel(Const.REDIS_DB_CTI_INDEX, agentKey, cno);
 		}else{
 			String agentKey = String.format(BigQueueCacheKey.AGENT_ENTERPRISE_ID, callAgent.getEnterpriseId());
-			redisService.hset(Const.REDIS_DB_CTI_INDEX, agentKey, callAgent.getCno(), CallAgent.class);
+			redisService.hset(Const.REDIS_DB_CTI_INDEX, agentKey, callAgent.getCno(), callAgent);
 		}
 	}
 	private List<AgentTel> getAgentBindTel(String enterpriseId, String cno){
-		String key = String.format(CacheKey.AGENT_TEL_ENTERPRISE_ID_CNO, enterpriseId, cno);
+		String key = String.format(CacheKey.AGENT_TEL_ENTERPRISE_ID_CNO, Integer.parseInt(enterpriseId), cno);
 		List<AgentTel> agentTelList = redisService.getList(Const.REDIS_DB_CONF_INDEX, key, AgentTel.class);
 
 		return agentTelList;
@@ -592,7 +592,7 @@ public class AgentServiceImp implements AgentService {
 	}
 	
 	private List<QueueMember> getQueueMemberList(String enterpriseId, String cno){
-		String confKey = String.format(CacheKey.QUEUE_MEMBER_ENTERPRISE_ID_CNO, enterpriseId, cno);
+		String confKey = String.format(CacheKey.QUEUE_MEMBER_ENTERPRISE_ID_CNO, Integer.parseInt(enterpriseId), cno);
 		List<QueueMember> queueMemberList = redisService.getList(Const.REDIS_DB_CONF_INDEX, confKey, QueueMember.class);
 		return queueMemberList;
 	}

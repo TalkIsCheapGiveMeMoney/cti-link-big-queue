@@ -47,7 +47,7 @@ public class AgentLogin extends HttpServlet {
         params.put("bindType", req.getParameter("bindType"));
         params.put("loginType", req.getParameter("loginType"));
         params.put("loginStatus", req.getParameter("loginStatus"));
-
+        params.put("pauseDescription", req.getParameter("pauseDescription"));
 
         ActionResponse res = agentService.login(params);
         if(res != null){

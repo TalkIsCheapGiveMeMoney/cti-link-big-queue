@@ -40,7 +40,6 @@ public class StatusScanTaskTriggerListener {
 	
 	
     public void taskTriggered(String taskId) {
-        System.out.printf("Task %s is due for execution.", taskId);
         memberDeviceStatusMap.clear();
         memberLoginStatusMap.clear();
         
