@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.tinet.ctilink.bigqueue.entity.CallAttemp;
 import com.tinet.ctilink.bigqueue.entity.CallMember;
 import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
@@ -185,22 +186,23 @@ public class QueueServiceImp {
     	if(queue != null){
     		Strategy strategy = StrategyFactory.getInstance(queue.getStrategy());
 
-    		List<CallMember> memberList = strategy.calcMetric(enterpriseId, qno, uniqueId);
-			CallMember callMember = null;
+    		List<CallAttemp> attempList = strategy.calcMetric(enterpriseId, qno, uniqueId);
+    		CallAttemp callAttemp = null;
 			if(StringUtils.isNotEmpty(queueRemeberMember)){
-				callMember = findRemember(memberList, queueRemeberMember);
-				if(callMember != null){
-					if(memberService.isAvalible(enterpriseId, callMember.getCno())){
-						strategy.memberSelectedHandle(enterpriseId, qno, callMember.getCno(), uniqueId, customerNumber);
-						incQueueEntryDialed(uniqueId, callMember.getCno());
+				callAttemp = findRemember(attempList, queueRemeberMember);
+				if(callAttemp != null){
+					callAttemp.setStillGoing(false);
+					if(memberService.isAvalible(enterpriseId, callAttemp.getCallMember().getCno())){
+						strategy.memberSelectedHandle(enterpriseId, qno, callAttemp.getCallMember().getCno(), uniqueId, customerNumber);
+						incQueueEntryDialed(uniqueId, callAttemp.getCallMember().getCno());
     					penddingEntry(enterpriseId, qno, uniqueId);
-    					CallMember selectMember = memberService.getCallMember(enterpriseId, qno, callMember.getCno());
+    					CallMember selectMember = memberService.getCallMember(enterpriseId, qno, callAttemp.getCallMember().getCno());
     					
     					JSONObject queueEvent = new JSONObject();
     	    			queueEvent.put("event", "call");
     	    			queueEvent.put("enterpriseId", enterpriseId);
     	    			queueEvent.put("qno", qno);
-    	    			queueEvent.put("cno", callMember.getCno());
+    	    			queueEvent.put("cno", callAttemp.getCallMember().getCno());
     	    			queueEvent.put("uniqueId", uniqueId);
     					queueEventService.publishEvent(queueEvent);
     					
@@ -208,7 +210,7 @@ public class QueueServiceImp {
     					event.put("event", "queueCall");
     					event.put("enterpriseId", enterpriseId);
     					event.put("qno", qno);
-    					event.put("cno", callMember.getCno());
+    					event.put("cno", callAttemp.getCallMember().getCno());
     					event.put("uniqueId", uniqueId);
     					event.put("customerNumber", customerNumber);
     	    			redisService.convertAndSend(BigQueueCacheKey.AGENT_GATEWAY_EVENT_TOPIC, event);
@@ -217,27 +219,30 @@ public class QueueServiceImp {
 				}
 			}
     		while(true){
-    			callMember = findBestMetric(memberList);
-    			if(callMember != null){
-    				if(compareWeight(queue.getWeight(), enterpriseId, callMember.getCno())){
-	    				if(memberService.isAvalible(enterpriseId, callMember.getCno())){
-	    					strategy.memberSelectedHandle(enterpriseId, qno, callMember.getCno(), uniqueId, customerNumber);
-	    					incQueueEntryDialed(uniqueId, callMember.getCno());
+    			callAttemp = findBestMetric(attempList);
+    			if(callAttemp != null){
+    				if(compareWeight(queue.getWeight(), enterpriseId, callAttemp.getCallMember().getCno())){
+	    				if(memberService.isAvalible(enterpriseId, callAttemp.getCallMember().getCno())){
+	    					strategy.memberSelectedHandle(enterpriseId, qno, callAttemp.getCallMember().getCno(), uniqueId, customerNumber);
+	    					incQueueEntryDialed(uniqueId, callAttemp.getCallMember().getCno());
 	    					penddingEntry(enterpriseId, qno, uniqueId);
 	    					
 	    					JSONObject queueEvent = new JSONObject();
 	    	    			queueEvent.put("event", "call");
 	    	    			queueEvent.put("enterpriseId", enterpriseId);
 	    	    			queueEvent.put("qno", qno);
-	    	    			queueEvent.put("cno", callMember.getCno());
+	    	    			queueEvent.put("cno", callAttemp.getCallMember().getCno());
 	    	    			queueEvent.put("uniqueId", uniqueId);
 	    					queueEventService.publishEvent(queueEvent);
 	    					
-	    					CallMember selectMember = memberService.getCallMember(enterpriseId, qno, callMember.getCno());
+	    					CallMember selectMember = memberService.getCallMember(enterpriseId, qno, callAttemp.getCallMember().getCno());
 	    					return selectMember;
 	    				}
     				}
+    			}else{
+    				break;
     			}
+    			
     		}
     	}
     	return null;
@@ -255,25 +260,25 @@ public class QueueServiceImp {
 		queueEventService.publishEvent(queueEvent);
     }
 
-    private CallMember findRemember(List<CallMember> memberList, String rememberCno){
-    	for(CallMember callMember: memberList){
-    		if(callMember.getCno().equals(rememberCno)){
-    			return callMember;
+    private CallAttemp findRemember(List<CallAttemp> attempList, String rememberCno){
+    	for(CallAttemp callAttemp: attempList){
+    		if(callAttemp.getCallMember().getCno().equals(rememberCno)){
+    			return callAttemp;
     		}
     	}
     	return null;
     }
     
-	private CallMember findBestMetric(List<CallMember> memberList){
-		CallMember bestCallMember = null;
+	private CallAttemp findBestMetric(List<CallAttemp> attempList){
+		CallAttemp bestCallAttemp = null;
 		Integer minMetric = Integer.MAX_VALUE;
-		for(CallMember callMember: memberList){
-			if(callMember.getMetic() < minMetric){
-				minMetric = callMember.getMetic();
-				bestCallMember = callMember;
+		for(CallAttemp callAttemp: attempList){
+			if(callAttemp.isStillGoing() == true && callAttemp.getCallMember().getMetic() < minMetric){
+				minMetric = callAttemp.getCallMember().getMetic();
+				bestCallAttemp = callAttemp;
 			}
 		}
-		return bestCallMember;	
+		return bestCallAttemp;	
 	}
 	
     public boolean isAvalibleMember(Integer deviceStatus, Integer loginStatus, Integer joinEmptyCondition){

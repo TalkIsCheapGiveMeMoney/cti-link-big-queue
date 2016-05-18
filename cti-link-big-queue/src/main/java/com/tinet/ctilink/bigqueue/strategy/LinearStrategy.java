@@ -10,6 +10,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.tinet.ctilink.bigqueue.entity.CallAttemp;
 import com.tinet.ctilink.bigqueue.entity.CallMember;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
 @Component
@@ -23,7 +24,9 @@ public class LinearStrategy implements Strategy,InitializingBean{
 	}
 	
 	@Override
-	public List<CallMember> calcMetric(String enterpriseId, String qno, String uniqueId){
+	public List<CallAttemp> calcMetric(String enterpriseId, String qno, String uniqueId){
+		List<CallAttemp> attempList = new ArrayList<CallAttemp>();
+		
 		Set<String> memberSet = queueService.getMemberSet(enterpriseId, qno);
 		List<CallMember> memberList=new ArrayList<CallMember>();  
 		for(String member: memberSet){
@@ -48,8 +51,14 @@ public class LinearStrategy implements Strategy,InitializingBean{
 				callMember.setMetic(pos);
 			}
 			pos ++;
+			
+			CallAttemp callAttemp = new CallAttemp();
+			callAttemp.setStillGoing(true);
+			callAttemp.setCallMember(callMember);
+			attempList.add(callAttemp);
 		}
-		return memberList;
+		memberList = null;
+		return attempList;
 		
 	}
 

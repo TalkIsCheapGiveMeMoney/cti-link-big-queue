@@ -1,5 +1,6 @@
 package com.tinet.ctilink.bigqueue.strategy;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.tinet.ctilink.bigqueue.entity.CallAttemp;
 import com.tinet.ctilink.bigqueue.entity.CallMember;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
 @Component
@@ -22,10 +24,12 @@ public class RRMemoryStrategy implements Strategy, InitializingBean{
 	}
 	
 	@Override
-	public List<CallMember> calcMetric(String enterpriseId, String qno, String uniqueId){
+	public List<CallAttemp> calcMetric(String enterpriseId, String qno, String uniqueId){
+		List<CallAttemp> attempList = new ArrayList<CallAttemp>();
+		
 		List<CallMember> memberList = queueService.getMembers(enterpriseId, qno);
 		if(memberList.size() == 0){
-			return memberList; 
+			return attempList; 
 		}
 		Collections.sort(memberList,new Comparator<CallMember>(){
             public int compare(CallMember arg0, CallMember arg1) {
@@ -36,6 +40,7 @@ public class RRMemoryStrategy implements Strategy, InitializingBean{
 		Integer rrpos = queueService.getQueueStatistic(enterpriseId, qno, "rrpos");
 		rrpos = rrpos % memberList.size();
 		Integer pos = 0;
+		
 		for(CallMember callMember: memberList){
 			Integer metric;
 			if(pos < rrpos){
@@ -45,8 +50,14 @@ public class RRMemoryStrategy implements Strategy, InitializingBean{
 			}
 			metric += callMember.getPenalty() * 1000000;
 			callMember.setMetic(metric);
+			
+			CallAttemp callAttemp = new CallAttemp();
+			callAttemp.setStillGoing(true);
+			callAttemp.setCallMember(callMember);
+			attempList.add(callAttemp);
 		}
-		return memberList;
+		memberList = null;
+		return attempList;
 		
 	}
 
