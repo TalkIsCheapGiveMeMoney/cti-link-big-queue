@@ -17,7 +17,7 @@ import com.tinet.ctilink.conf.model.Queue;
 import com.tinet.ctilink.json.JSONObject;
 import com.tinet.ctilink.util.ContextUtil;
 
-@WebServlet("/test/agent/login")
+@WebServlet("/interface/agent/login")
 public class AgentLogin extends HttpServlet {
 
 	AgentServiceImp agentService;

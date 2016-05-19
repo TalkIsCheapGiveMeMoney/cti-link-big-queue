@@ -48,6 +48,7 @@ public class RRMemoryStrategy implements Strategy, InitializingBean{
 			}else{
 				metric = pos;
 			}
+			pos ++;
 			metric += callMember.getPenalty() * 1000000;
 			callMember.setMetic(metric);
 			

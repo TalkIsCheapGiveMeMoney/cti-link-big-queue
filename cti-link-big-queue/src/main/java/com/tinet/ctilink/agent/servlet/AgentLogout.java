@@ -17,7 +17,7 @@ import com.tinet.ctilink.conf.model.Queue;
 import com.tinet.ctilink.json.JSONObject;
 import com.tinet.ctilink.util.ContextUtil;
 
-@WebServlet("/test/agent/logout")
+@WebServlet("/interface/agent/logout")
 public class AgentLogout extends HttpServlet {
 
 	AgentServiceImp agentService;
