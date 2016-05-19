@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.tinet.ctilink.ami.inc.AmiEventTypeConst;
 import com.tinet.ctilink.bigqueue.ami.EventHandler;
 import com.tinet.ctilink.bigqueue.ami.EventHandlerFactory;
 import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
@@ -32,7 +33,7 @@ public class AmiEventListener extends Thread{
     
     public void run(){
     	while(!terminate){
-    		String popRes = redisService.brpop(Const.REDIS_DB_CTI_INDEX, BigQueueCacheKey.AMI_EVENT_LIST, AMI_EVENT_TIMEOUT, TimeUnit.MILLISECONDS);
+    		String popRes = redisService.brpop(Const.REDIS_DB_CTI_INDEX, AmiEventTypeConst.AMI_EVENT_LIST, AMI_EVENT_TIMEOUT, TimeUnit.MILLISECONDS);
     		if(StringUtils.isNotEmpty(popRes)){
     			JSONObject jsonObject = JSONObject.fromObject(popRes);
     			if(jsonObject != null){

@@ -49,6 +49,13 @@ public class MemberServiceImp {
     	Object value = redisService.hget(Const.REDIS_DB_CTI_INDEX, deviceStatusKey, cno, Integer.class);
     	return (Integer) value;
     }
+    public boolean isPaused(String enterpriseId, String cno){
+    	Integer deviceStatus = getLoginStatus(enterpriseId, cno);
+    	if(deviceStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE)){
+    		return true;
+    	}
+    	return false;
+    }
     public Integer getDeviceStatusStartTime(String enterpriseId, String cno){
     	String deviceStatusKey = String.format(BigQueueCacheKey.MEMBER_DEVICE_STATUS_ENTERPRISE_ID, enterpriseId);
     	Object value = redisService.hget(Const.REDIS_DB_CTI_INDEX, deviceStatusKey, "start_" + cno, Integer.class);

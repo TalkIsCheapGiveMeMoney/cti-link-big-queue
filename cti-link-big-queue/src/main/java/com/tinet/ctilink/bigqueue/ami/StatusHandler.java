@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.tinet.ctilink.ami.inc.AmiEventConst;
+import com.tinet.ctilink.ami.inc.AmiEventTypeConst;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
 import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
@@ -30,7 +30,7 @@ public class StatusHandler implements EventHandler, InitializingBean{
     
 	@Override
 	public void afterPropertiesSet() throws Exception{
-		EventHandlerFactory.register(AmiEventConst.STATUS, this);
+		EventHandlerFactory.register(AmiEventTypeConst.STATUS, this);
 	}
 	
 	public boolean handle(JSONObject event){

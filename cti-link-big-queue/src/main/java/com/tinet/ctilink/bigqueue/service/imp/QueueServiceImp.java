@@ -184,15 +184,15 @@ public class QueueServiceImp {
     	return true;
     }
     
-    public CallMember findBest(String enterpriseId, String qno, String uniqueId, String customerNumber, String queueRemeberMember){
+    public CallMember findBest(String enterpriseId, String qno, String uniqueId, String customerNumber, String queueRemeberCno){
     	Queue queue = getFromConfCache(enterpriseId, qno);
     	if(queue != null){
     		Strategy strategy = StrategyFactory.getInstance(queue.getStrategy());
 
     		List<CallAttemp> attempList = strategy.calcMetric(enterpriseId, qno, uniqueId);
     		CallAttemp callAttemp = null;
-			if(StringUtils.isNotEmpty(queueRemeberMember)){
-				callAttemp = findRemember(attempList, queueRemeberMember);
+			if(StringUtils.isNotEmpty(queueRemeberCno)){
+				callAttemp = findRemember(attempList, queueRemeberCno);
 				if(callAttemp != null){
 					callAttemp.setStillGoing(false);
 					if(memberService.isAvalibleLock(enterpriseId, callAttemp.getCallMember().getCno())){

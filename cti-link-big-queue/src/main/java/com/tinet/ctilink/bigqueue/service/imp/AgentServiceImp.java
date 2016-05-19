@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.github.pagehelper.StringUtil;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
@@ -25,6 +26,7 @@ import com.tinet.ctilink.conf.model.Agent;
 import com.tinet.ctilink.conf.model.AgentTel;
 import com.tinet.ctilink.conf.model.Queue;
 import com.tinet.ctilink.conf.model.QueueMember;
+import com.tinet.ctilink.conf.util.ClidUtil;
 import com.tinet.ctilink.inc.Const;
 import com.tinet.ctilink.json.JSONObject;
 import com.tinet.ctilink.util.RedisLock;
@@ -43,6 +45,8 @@ public class AgentServiceImp implements AgentService {
 	@Autowired
 	private ChannelServiceImp channelService;
 	
+	@Reference
+	AmiActionService amiActionService;
 	
 	public ActionResponse login(Map params){
 		ActionResponse response = null;
@@ -552,6 +556,338 @@ public class AgentServiceImp implements AgentService {
 		return response;
 	}
 	
+	public ActionResponse barge(Map params){
+		ActionResponse response = null;
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+		String bargedCno = params.get("bargedCno").toString();
+		String bargeObject = params.get("bargeObject").toString();
+		String bargeType = params.get("bargeType").toString();
+		
+		Boolean paused;
+		String location;
+		String bindTel;
+		Integer bindType;
+		//先获取lock memberService.lockMember(enterpriseId, cno);
+		RedisLock memberLock = memberService.lockMember(enterpriseId, cno);
+		if(memberLock != null){
+			try{
+				CallAgent callAgent = getCallAgent(enterpriseId, cno);
+				if(callAgent != null){
+					paused = memberService.isPaused(enterpriseId, bargedCno);
+	                location = callAgent.getInterface();
+	                bindTel = callAgent.getBindTel();
+	                bindType = callAgent.getBindType();
+				}
+			}catch(Exception e){
+				e.printStackTrace();
+				response = ActionResponse.createFailResponse(-1, "exception");
+				return response;
+			}finally{
+				memberService.unlockMember(memberLock);
+			}
+		}else{
+			response = ActionResponse.createFailResponse(-1, "fail to get lock");
+			return response;
+		}
+		String bargedChannel;
+        Integer bargedDeviceStatus;
+        String customerNumber;
+        Integer customerNumberType;
+        String customerAreaCode;
+        String numberTrunk;
+        String curQueue;
+        Integer callType; 
+		//先获取lock memberService.lockMember(enterpriseId, cno);
+		RedisLock bargedMemberLock = memberService.lockMember(enterpriseId, bargedCno);
+		if(memberLock != null){
+			try{
+				CallAgent callAgent = getCallAgent(enterpriseId, cno);
+				if(callAgent != null){
+					bargedChannel = callAgent.getCurrentChannel();
+			        bargedDeviceStatus = memberService.getDeviceStatus(enterpriseId, bargedCno);
+			        customerNumber = callAgent.getCurrentCustomerNumber();
+			        customerNumberType = callAgent.getCurrentCustomerNumberType();
+			        customerAreaCode = callAgent.getCurrentCustomerNumberAreaCode();
+			        numberTrunk = callAgent.getCurrentNumberTrunk();
+			        curQueue = callAgent.getCurrentQueue();
+			        callType = callAgent.getCurrentCallType(); 
+				}
+			}catch(Exception e){
+				e.printStackTrace();
+				response = ActionResponse.createFailResponse(-1, "exception");
+				return response;
+			}finally{
+				memberService.unlockMember(memberLock);
+			}
+		}else{
+			response = ActionResponse.createFailResponse(-1, "fail to get lock");
+			return response;
+		}
+					
+	    if (StringUtil.isEmpty(bargedChannel) || !bargedDeviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_INUSE)) {
+	        response = ActionResponse.createFailResponse(-1, "no barged channel");
+			return response;
+	    }
+	    int routerClidType = 0;
+        if (callType == Const.CDR_CALL_TYPE_IB || callType ==Const.CDR_CALL_TYPE_OB_WEBCALL ){//呼入
+            routerClidType = Const.ROUTER_CLID_CALL_TYPE_IB_RIGHT;
+        }else if(callType == Const.CDR_CALL_TYPE_OB || callType == Const.CDR_CALL_TYPE_DIRECT_OB || callType == Const.CDR_CALL_TYPE_PREVIEW_OB){//点击外呼
+            routerClidType = Const.ROUTER_CLID_CALL_TYPE_PREVIEW_OB_RIGHT;
+        }else if(callType == Const.CDR_CALL_TYPE_PREDICTIVE_OB){//预测外呼
+            routerClidType = Const.ROUTER_CLID_CALL_TYPE_PREDICTIVE_OB_RIGHT;
+        }
+        ClidUtil.getClid(enterpriseId, routerClidCallType, customerNumber, clidBack)
+        //获取外显号码
+        EnterpriseClidService enterpriseClidService=(EnterpriseClidService) ContextUtil.getContext().getBean("enterpriseClidService");
+        String clid = enterpriseClidService.getClid(enterpriseId, routerClidType, customerNumber, numberTrunk);
+        
+        long timeout = 30000;
+
+        String destInterface = "";
+        String gwIp = "";
+        if (objectType.equals(Const.OBJECT_TYPE_TEL)) {
+            AreaCodeService areaCodeService = (AreaCodeService) ContextUtil.getContext().getBean("areaCodeService");
+            Caller caller =areaCodeService.updateGetAreaCode(bargeObject, "");
+            EnterpriseRouterService enterpriseRouterService = (EnterpriseRouterService) ContextUtil.getContext()
+                    .getBean("enterpriseRouterService");
+            Router router = enterpriseRouterService.getRouter(enterpriseId, routerClidType, caller);
+            if (router != null) {
+                destInterface = "SIP/" + router.getGateway().getPrefix() + caller.getCallerNumber() + "@"
+                        + router.getGateway().getIpAddr();
+                gwIp = router.getGateway().getIpAddr();
+            }
+        } else if (objectType.equals(Const.OBJECT_TYPE_EXTEN)) {
+            destInterface = "SIP/" + enterpriseId + "-" + bargeObject;
+            SipConfService sipConfService = (SipConfService) ContextUtil.getContext().getBean("sipConfService");
+            List<SipConf> sipConfs = (List<SipConf>)sipConfService.findBy("name", enterpriseId + "-" + bargeObject);
+            if(sipConfs.size() > 0){
+                gwIp = sipConfs.get(0).getIpAddr();
+            }
+        } else if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
+            destInterface = location;
+            if(bindType == Const.BIND_TYPE_TEL){//座席绑定固话
+                SipConfService sipConfService = (SipConfService) ContextUtil.getContext().getBean("sipConfService");
+                List<SipConf> sipConfs = (List<SipConf>)sipConfService.findBy("name", enterpriseId + cno);
+                if(sipConfs.size() > 0){
+                    gwIp = sipConfs.get(0).getIpAddr();
+                }
+            }else{//座席绑定分机或软电话
+                SipConfService sipConfService = (SipConfService) ContextUtil.getContext().getBean("sipConfService");
+                List<SipConf> sipConfs = (List<SipConf>)sipConfService.findBy("name", enterpriseId + "-" + bindTel);
+                if(sipConfs.size() > 0){
+                    gwIp = sipConfs.get(0).getIpAddr();
+                }
+            }
+        }
+        if (destInterface.isEmpty()) {
+	        response = ActionResponse.createFailResponse(-1, "bad param");
+			return response;
+        } else {
+                                  
+                Map<String, String> varMap = new HashMap<String, String>();
+                varMap.put(AmiChanVarNameConst.BARGE_CHAN, bargedChannel); 
+                varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_NUMBER, customerNumber); //客户号码
+                varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_NUMBER_TYPE, customerNumberType); //电话类型
+                varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_AREA_CODE, customerAreaCode); //区号
+                varMap.put("__" + AmiChanVarNameConst.CUR_QUEUE, curQueue); //
+                varMap.put("__" + AmiChanVarNameConst.ENTERPRISE_ID, String.valueOf(enterpriseId));
+                varMap.put("__" + AmiChanVarNameConst.BARGER_CNO, cno);
+                varMap.put("__" + AmiChanVarNameConst.BARGED_CNO, bargedCno);
+                varMap.put("__" + AmiChanVarNameConst.BARGER_INTERFACE, destInterface);
+                
+                varMap.put(AmiChanVarNameConst.CDR_DETAIL_GW_IP, gwIp);
+                if(routerClidType == Const.ROUTER_CLID_CALL_TYPE_IB_RIGHT){
+                	varMap.put(AmiChanVarNameConst.CDR_DETAIL_CALL_TYPE, String.valueOf(Const.CDR_CALL_TYPE_IB_BARGE));
+                }else{
+                	varMap.put(AmiChanVarNameConst.CDR_DETAIL_CALL_TYPE, String.valueOf(Const.CDR_CALL_TYPE_OB_BARGE));
+                }
+                varMap.put(AmiChanVarNameConst.CDR_NUMBER_TRUNK, clid);
+                varMap.put(AmiChanVarNameConst.CDR_STATUS, String.valueOf(Const.CDR_STATUS_DETAIL_CALL_FAIL));
+                
+                varMap.put(AmiChanVarNameConst.CDR_ENTERPRISE_ID, String.valueOf(enterpriseId));
+                varMap.put(AmiChanVarNameConst.CDR_START_TIME, String.valueOf(new Date().getTime() / 1000));
+                varMap.put(AmiChanVarNameConst.CDR_DETAIL_CNO, cno);
+                try {
+                    GetVarAction getVarAction = new GetVarAction(bargedChannel, AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID);
+                    amiActionService.handleAction("getVar",context, exten, priority, clid, location, actionObject, varMap);
+                    GetVarResponse re = (GetVarResponse) AmiManager.getManager(Integer.valueOf(ctiId)).sendAction(getVarAction, 1000);
+                    varMap.put(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID, re.getValue());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                varMap.put(AmiChanVarNameConst.BARGE_OBJECT, bargeObject);
+                varMap.put(AmiChanVarNameConst.OBJECT_TYPE, objectType);
+                
+                JSONObject actionObject = new JSONObject();
+                actionObject.put("type", "barge");
+                
+                
+                amiActionService.handleAction("originate", actionMap, actionObject, varMap);
+                
+                originateAction.setChannel(destInterface); // set
+                // channel
+                originateAction.setContext(Const.DIALPLAN_CONTEXT_BARGE); // set
+                // context
+                originateAction.setExten(enterpriseId + cno);
+                originateAction.setVariables(variables);
+                originateAction.setTimeout(timeout);
+                originateAction.setPriority(new Integer(1)); // set
+                originateAction.setCallerId(clid);
+                ManagerResponse res = AmiManager.getManager(member.getCti().getId()).sendAction(
+                        originateAction, 60000);
+                if (res.getResponse().equals("Success")) // call success
+                {
+                
+                } else // call failed
+                {
+                    // generate an event consult_link
+                    Event event = new Event(Action.VARIABLE_EVENT);
+                    event.putResponse(Action.VARIABLE_NAME, Event.BARGE_ERROR);
+                    event.putResponse(Action.VARIABLE_ENTERPRISE_ID, enterpriseId);
+                    event.putResponse(Action.VARIABLE_CNO, cno);
+                    event.putResponse(Action.VARIABLE_BARGED_CNO, bargedCno);
+                    event.putResponse(Action.VARIABLE_BARGE_OBJECT, bargeObject);
+                    event.putResponse(Action.VARIABLE_OBJECT_TYPE, objectType);
+                    AmiEventEngine.pushEvent(event);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                // broadcast to all other jwsClients
+                Event event = new Event(Action.VARIABLE_EVENT);
+                event.putResponse(Action.VARIABLE_NAME, Event.BARGE_ERROR);
+                event.putResponse(Action.VARIABLE_ENTERPRISE_ID, enterpriseId);
+                event.putResponse(Action.VARIABLE_CNO, cno);
+                event.putResponse(Action.VARIABLE_BARGED_CNO, bargedCno);
+                event.putResponse(Action.VARIABLE_BARGE_OBJECT, bargeObject);
+                event.putResponse(Action.VARIABLE_OBJECT_TYPE, objectType);
+                AmiEventEngine.pushEvent(event);
+            }
+					
+				}
+	}
+	public ActionResponse hangup(Map params){
+		String uniqueId = params.get("uniqueId").toString();
+		
+	}
+	public ActionResponse consultCancel(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse consult(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse consultThreeway(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse consultTransfer(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse directCallStart(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse disconnect(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse hold(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse interact(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse investigation(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse ivrOutcall(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse mute(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse pickup(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse previewOutcall(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse previewOutcallCancel(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse refuse(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse setPause(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse setUnpause(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse spy(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse threeway(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse transfer(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse unconsult(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse unhold(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse unlink(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse unspy(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse unthreeway(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	public ActionResponse unwhisper(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}		
+	public ActionResponse whisper(Map params){
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = params.get("cno").toString();
+	}
+	
+	/**
+	 * 其他方法
+	 */
+	/**
+	 * 
+	 * @param enterpriseId
+	 * @param cno
+	 * @return
+	 */
 	public Agent getAgent(String enterpriseId, String cno){
 		String agentKey = String.format(CacheKey.AGENT_ENTERPRISE_ID_CNO, Integer.parseInt(enterpriseId), cno);
 		Agent agent = redisService.get(Const.REDIS_DB_CONF_INDEX, agentKey, Agent.class);

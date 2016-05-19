@@ -42,10 +42,10 @@ public class QueueFindBest extends HttpServlet {
         String qno = req.getParameter("qno");
         String uniqueId = req.getParameter("uniqueId");
         String customerNumber = req.getParameter("customerNumber");
-        String queueRemeberMember = req.getParameter("queueRemeberMember");
+        String queueRemeberCno = req.getParameter("queueRemeberCno");
         JSONObject res = new JSONObject();
         
-        CallMember callMember = queueService.findBest(enterpriseId, qno, uniqueId, customerNumber, queueRemeberMember);
+        CallMember callMember = queueService.findBest(enterpriseId, qno, uniqueId, customerNumber, queueRemeberCno);
         if(callMember != null){
 	        res.put(BigQueueChannelVar.QUEUE_CODE, BigQueueConst.QUEUE_CODE_ROUTE_OK);
 			res.put(BigQueueChannelVar.QUEUE_DIAL_INTERFACE, callMember.getInterface());
