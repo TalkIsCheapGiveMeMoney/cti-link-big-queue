@@ -36,7 +36,11 @@
             <artifactId>cti-link-ami-api</artifactId>
             <version>0.0.1</version>
         </dependency>   
-        
+		<dependency>
+            <groupId>com.tinet.ctilink</groupId>
+            <artifactId>cti-link-control-api</artifactId>
+            <version>0.0.1</version>
+        </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>dubbo</artifactId>

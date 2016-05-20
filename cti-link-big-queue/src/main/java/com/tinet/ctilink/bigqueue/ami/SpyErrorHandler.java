@@ -17,7 +17,7 @@ public class SpyErrorHandler implements EventHandler, InitializingBean{
 	
 	@Override
 	public void afterPropertiesSet() throws Exception{
-		EventHandlerFactory.register(AmiEventTypeConst.SPY_ERROR, this);
+		//EventHandlerFactory.register(AmiEventTypeConst.SPY_ERROR, this);
 	}
 	
 	public boolean handle(JSONObject event){

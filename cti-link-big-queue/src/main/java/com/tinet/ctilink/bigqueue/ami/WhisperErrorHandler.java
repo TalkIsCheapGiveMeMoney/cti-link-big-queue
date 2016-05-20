@@ -17,7 +17,7 @@ public class WhisperErrorHandler implements EventHandler, InitializingBean{
 	
 	@Override
 	public void afterPropertiesSet() throws Exception{
-		EventHandlerFactory.register(AmiEventTypeConst.WHISPER_ERROR, this);
+		//EventHandlerFactory.register(AmiEventTypeConst.WHISPER_ERROR, this);
 	}
 	
 	public boolean handle(JSONObject event){

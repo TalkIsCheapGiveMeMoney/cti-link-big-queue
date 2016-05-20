@@ -17,7 +17,7 @@ public class PreviewOutcallErrorHandler implements EventHandler, InitializingBea
 	
 	@Override
 	public void afterPropertiesSet() throws Exception{
-		EventHandlerFactory.register(AmiEventTypeConst.PREVIEW_OUTCALL_ERROR, this);
+		//EventHandlerFactory.register(AmiEventTypeConst.PREVIEW_OUTCALL_ERROR, this);
 	}
 	
 	public boolean handle(JSONObject event){

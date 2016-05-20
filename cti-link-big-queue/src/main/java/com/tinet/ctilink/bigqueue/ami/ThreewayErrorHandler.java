@@ -17,7 +17,7 @@ public class ThreewayErrorHandler implements EventHandler, InitializingBean{
 	
 	@Override
 	public void afterPropertiesSet() throws Exception{
-		EventHandlerFactory.register(AmiEventTypeConst.THREEWAY_ERROR, this);
+		//EventHandlerFactory.register(AmiEventTypeConst.THREEWAY_ERROR, this);
 	}
 	
 	public boolean handle(JSONObject event){

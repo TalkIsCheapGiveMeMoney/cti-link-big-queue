@@ -23,7 +23,7 @@ public class HoldHandler implements EventHandler, InitializingBean{
     private MemberServiceImp memberService;
     @Override
 	public void afterPropertiesSet() throws Exception{
-		EventHandlerFactory.register(AmiEventTypeConst.HOLD, this);
+		//EventHandlerFactory.register(AmiEventTypeConst.HOLD, this);
 	}
 	
 	public boolean handle(JSONObject event){

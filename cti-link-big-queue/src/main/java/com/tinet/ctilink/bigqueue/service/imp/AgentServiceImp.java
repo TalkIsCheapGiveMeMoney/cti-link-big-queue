@@ -1,3 +1,4 @@
+
 package com.tinet.ctilink.bigqueue.service.imp;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import com.tinet.ctilink.conf.model.AgentTel;
 import com.tinet.ctilink.conf.model.Queue;
 import com.tinet.ctilink.conf.model.QueueMember;
 import com.tinet.ctilink.conf.util.ClidUtil;
+import com.tinet.ctilink.control.service.v1.ControlActionService;
 import com.tinet.ctilink.inc.Const;
 import com.tinet.ctilink.json.JSONObject;
 import com.tinet.ctilink.util.RedisLock;
@@ -46,7 +48,7 @@ public class AgentServiceImp implements AgentService {
 	private ChannelServiceImp channelService;
 	
 	@Reference
-	AmiActionService amiActionService;
+	ControlActionService controlActionService;
 	
 	public ActionResponse login(Map params){
 		ActionResponse response = null;
@@ -558,6 +560,7 @@ public class AgentServiceImp implements AgentService {
 	
 	public ActionResponse barge(Map params){
 		ActionResponse response = null;
+		
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
 		String bargedCno = params.get("bargedCno").toString();
@@ -590,14 +593,14 @@ public class AgentServiceImp implements AgentService {
 			response = ActionResponse.createFailResponse(-1, "fail to get lock");
 			return response;
 		}
-		String bargedChannel;
-        Integer bargedDeviceStatus;
-        String customerNumber;
-        Integer customerNumberType;
-        String customerAreaCode;
-        String numberTrunk;
-        String curQueue;
-        Integer callType; 
+		String bargedChannel = null;
+        Integer bargedDeviceStatus = 0;
+        String customerNumber = null;
+        Integer customerNumberType = 0;
+        String customerAreaCode = null;
+        String numberTrunk = null;
+        String curQueue = null;
+        Integer callType = 0; 
 		//先获取lock memberService.lockMember(enterpriseId, cno);
 		RedisLock bargedMemberLock = memberService.lockMember(enterpriseId, bargedCno);
 		if(memberLock != null){
@@ -637,6 +640,7 @@ public class AgentServiceImp implements AgentService {
         }else if(callType == Const.CDR_CALL_TYPE_PREDICTIVE_OB){//预测外呼
             routerClidType = Const.ROUTER_CLID_CALL_TYPE_PREDICTIVE_OB_RIGHT;
         }
+        /* 
         ClidUtil.getClid(enterpriseId, routerClidCallType, customerNumber, clidBack)
         //获取外显号码
         EnterpriseClidService enterpriseClidService=(EnterpriseClidService) ContextUtil.getContext().getBean("enterpriseClidService");
@@ -765,118 +769,203 @@ public class AgentServiceImp implements AgentService {
             }
 					
 				}
+				*/
+        return response;
 	}
 	public ActionResponse hangup(Map params){
+		ActionResponse response = null;
 		String uniqueId = params.get("uniqueId").toString();
 		
+		return response;
 	}
 	public ActionResponse consultCancel(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse consult(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse consultThreeway(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse consultTransfer(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse directCallStart(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse disconnect(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse hold(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse interact(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse investigation(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse ivrOutcall(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse mute(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse pickup(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse previewOutcall(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse previewOutcallCancel(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse refuse(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse setPause(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse setUnpause(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse spy(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse threeway(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse transfer(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse unconsult(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse unhold(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse unlink(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse unspy(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse unthreeway(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	public ActionResponse unwhisper(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}		
 	public ActionResponse whisper(Map params){
+		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
+		
+		return response;
 	}
 	
 	/**
