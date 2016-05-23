@@ -8,7 +8,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 import com.tinet.ctilink.bigqueue.eventlistener.AmiEventListener;
-import com.tinet.ctilink.bigqueue.trigger.StatusScanTaskTriggerListener;
+import com.tinet.ctilink.bigqueue.trigger.StatusScanTaskTrigger;
 import com.tinet.ctilink.scheduler.RedisTaskScheduler;
 import com.tinet.ctilink.scheduler.TaskSchedulerGroup;
 
@@ -25,7 +25,7 @@ public class ApplicationStarter implements ApplicationListener<ContextRefreshedE
 	@Autowired
 	AmiEventListener amiEventListener;
 	@Autowired
-	StatusScanTaskTriggerListener statusScanTaskTriggerListener;
+	StatusScanTaskTrigger statusScanTaskTriggerListener;
 	@Autowired
 	private RedisTaskScheduler redisTaskScheduler;
 	
@@ -40,27 +40,10 @@ public class ApplicationStarter implements ApplicationListener<ContextRefreshedE
 		redisTaskScheduler.registerTaskSchedulerGroup(new TaskSchedulerGroup("warpupTaskSchedulerGroup", 10));
 				
 		//启动statusScanTask
-		redisTaskScheduler.schedulePeriod("statusScanTask", "statusScanTaskTriggerListener", 1000, 1);
+		redisTaskScheduler.schedulePeriod("statusScanTask", "statusScanTaskTrigger", null, 1000, 1);
 
 		//启动statusCheckScanTask
-		redisTaskScheduler.schedulePeriod("statusCheckScanTask", "statusCheckScanTaskTriggerListener", 5000, 1);
-		
-		/*
-		new Thread(new Runnable(){
-			@Override
-			public void run(){
-				while(true){
-					statusScanTaskTriggerListener.taskTriggered("");
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-		}).start();
-		*/
+		redisTaskScheduler.schedulePeriod("statusCheckScanTask", "statusCheckScanTaskTrigger", null, 5000, 1);
 		
 		amiEventListener.start();
 		

@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.tinet.ctilink.ami.inc.AmiEventTypeConst;
-import com.tinet.ctilink.bigqueue.ami.EventHandler;
-import com.tinet.ctilink.bigqueue.ami.EventHandlerFactory;
+import com.tinet.ctilink.bigqueue.ami.event.EventHandler;
+import com.tinet.ctilink.bigqueue.ami.event.EventHandlerFactory;
 import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.cache.RedisService;
 import com.tinet.ctilink.inc.Const;

@@ -200,12 +200,13 @@ public class BargeService {
         varMap.put(AmiChanVarNameConst.BARGE_OBJECT, bargeObject);
         varMap.put(AmiChanVarNameConst.OBJECT_TYPE, objectType);
 
+        String mainUniqueId = null;
         Map getVarMap = new HashMap();
     	getVarMap.put("var", AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID);
     	Map getVarResponse = getVarActionService.getVar(sipId, bargedChannel, getVarMap);
     	if(getVarResponse != null){
     		if(getVarResponse.get(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID) != null){
-    			varMap.put(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID, getVarResponse.get(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID).toString());
+    			mainUniqueId = getVarResponse.get(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID).toString();
     		}else{
     			response = ActionResponse.createFailResponse(-1, "get var fail");
     			return response;
@@ -217,6 +218,7 @@ public class BargeService {
         actionMap.put("context", Const.DIALPLAN_CONTEXT_BARGE);
         actionMap.put("exten", enterpriseId + bargedCno);
         actionMap.put("priority", 1);
+        actionMap.put("otherChannelId", mainUniqueId);
         actionMap.put("channel", destInterface);
         actionMap.put("originateType", "barge");
         actionMap.put("timeout", 30000);
