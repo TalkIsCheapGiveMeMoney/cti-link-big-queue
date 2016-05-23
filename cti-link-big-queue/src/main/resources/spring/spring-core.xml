@@ -43,6 +43,16 @@
 
 	<bean id="redisService" class="com.tinet.ctilink.cache.RedisService" />
 	
+	<bean id="redisClock" class="com.tinet.ctilink.scheduler.clock.RedisClock">
+		<property name="redisService" ref="redisService" />
+	</bean>
+	<bean id="redisTaskScheduler" class="com.tinet.ctilink.scheduler.RedisTaskScheduler">
+		<property name="redisService" ref="redisService"/>
+		<property name="pollingDelayMillis" value="100"/>
+		<property name="maxRetriesOnConnectionFailure" value="3"/>
+		<property name="clock" ref="redisClock" />
+		<property name="schedulerName" value="bigQueueScheduler"/>
+	</bean>
 	<!-- 定义接收事件的Redis消息监听器 
 	<bean id="eventListener" class="com.tinet.ctilink.bigqueue.RedisEventListener" />
 	-->
@@ -51,8 +61,7 @@
 		<redis:listener ref="eventListener" serializer="jsonRedisSerializer" method="handleMessage" topic="channel:xxxevent" />
 	</redis:listener-container>
 	-->
-	<bean id="amiEventListener" class="com.tinet.ctilink.bigqueue.AmiEventListener">
-	</bean>
+	<bean id="amiEventListener" class="com.tinet.ctilink.bigqueue.eventlistener.AmiEventListener"></bean>
 	<!-- 注入Spring上下文 -->
 	<bean id="contextUtil" class="com.tinet.ctilink.util.ContextUtil" />
 

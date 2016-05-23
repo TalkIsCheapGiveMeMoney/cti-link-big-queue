@@ -25,8 +25,6 @@ public class ApplicationStarter implements ApplicationListener<ContextRefreshedE
 	@Autowired
 	AmiEventListener amiEventListener;
 	@Autowired
-	StatusScanTaskTrigger statusScanTaskTriggerListener;
-	@Autowired
 	private RedisTaskScheduler redisTaskScheduler;
 	
 	@Override
