@@ -15,7 +15,7 @@ public class TransferActionService {
 	@Reference
 	ControlActionService controlActionService;
 	
-	public Map transfer(Integer sipId, String channel, String context, String exten){
+	public AmiActionResponse transfer(Integer sipId, String channel, String context, String exten){
 		Map paramsMap = new HashMap();
 		paramsMap.put("channel", channel);
 		paramsMap.put("context", context);
@@ -23,10 +23,6 @@ public class TransferActionService {
 		paramsMap.put("feature", "blindxfer");
 		paramsMap.put("sipId", sipId);
 		
-	    AmiActionResponse response =controlActionService.handleAction("transfer", paramsMap);
-		if(response != null){
-			return response.getValues();
-		}
-		return null;
+	    return controlActionService.handleAction("transfer", paramsMap);
 	}
 }

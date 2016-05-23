@@ -15,7 +15,7 @@ public class RedirectActionService {
 	@Reference
 	ControlActionService controlActionService;
 	
-	public Map redirect(Integer sipId, String channel, String context, String exten, Integer priority){
+	public AmiActionResponse redirect(Integer sipId, String channel, String context, String exten, Integer priority){
 		Map paramsMap = new HashMap();
 		paramsMap.put("channel", channel);
 		paramsMap.put("context", context);
@@ -23,10 +23,6 @@ public class RedirectActionService {
 		paramsMap.put("priority", priority);
 		paramsMap.put("sipId", sipId);
 		
-	    AmiActionResponse response =controlActionService.handleAction("redirect", paramsMap);
-		if(response != null){
-			return response.getValues();
-		}
-		return null;
+	    return controlActionService.handleAction("redirect", paramsMap);
 	}
 }

@@ -15,16 +15,12 @@ public class IndicateActionService {
 	@Reference
 	ControlActionService controlActionService;
 	
-	public Map indicate(Integer sipId, String channel, Integer code){
+	public AmiActionResponse indicate(Integer sipId, String channel, Integer code){
 		Map paramsMap = new HashMap();
 		paramsMap.put("channel", channel);
 		paramsMap.put("code", code);
 		paramsMap.put("sipId", sipId);
 		
-	    AmiActionResponse response =controlActionService.handleAction("indicate", paramsMap);
-		if(response != null){
-			return response.getValues();
-		}
-		return null;
+	    return controlActionService.handleAction("indicate", paramsMap);
 	}
 }

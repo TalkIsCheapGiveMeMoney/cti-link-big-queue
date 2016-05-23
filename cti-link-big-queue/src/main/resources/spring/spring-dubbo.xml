@@ -8,7 +8,7 @@
 	<dubbo:application name="cti-link-big-queue" version="${application.version}" />
 	<dubbo:registry address="${dubbo.registry.address}" />
 	<dubbo:provider version="${application.version}" timeout="3000" retries="0" />
-	<dubbo:consumer version="${application.version}" check="true" />
+	<dubbo:consumer version="${application.version}" check="false" />
 	<dubbo:protocol name="dubbo" serialization="kryo" port="${dubbo.protocol.port}" />
 	<dubbo:monitor protocol="registry" />
 

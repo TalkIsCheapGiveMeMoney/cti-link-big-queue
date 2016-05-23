@@ -21,7 +21,7 @@ public class GetVarActionService {
 		paramsMap.put("varMap", varMap);
 		paramsMap.put("sipId", sipId);
 		
-	    AmiActionResponse response =controlActionService.handleAction("getVar", paramsMap);
+	    AmiActionResponse response = controlActionService.handleAction("getVar", paramsMap);
 		if(response != null){
 			return response.getValues();
 		}

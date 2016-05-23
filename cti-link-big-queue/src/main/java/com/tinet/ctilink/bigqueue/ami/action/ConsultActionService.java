@@ -15,17 +15,13 @@ public class ConsultActionService {
 	@Reference
 	ControlActionService controlActionService;
 	
-	public Map consult(Integer sipId, String channel, String context, String exten){
+	public AmiActionResponse consult(Integer sipId, String channel, String context, String exten){
 		Map paramsMap = new HashMap();
 		paramsMap.put("channel", channel);
 		paramsMap.put("context", context);
 		paramsMap.put("exten", exten);
 		paramsMap.put("sipId", sipId);
 		
-	    AmiActionResponse response =controlActionService.handleAction("consult", paramsMap);
-		if(response != null){
-			return response.getValues();
-		}
-		return null;
+	    return controlActionService.handleAction("consult", paramsMap);
 	}
 }

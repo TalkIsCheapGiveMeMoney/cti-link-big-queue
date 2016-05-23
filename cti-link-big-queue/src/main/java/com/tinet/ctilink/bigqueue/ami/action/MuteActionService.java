@@ -15,17 +15,13 @@ public class MuteActionService {
 	@Reference
 	ControlActionService controlActionService;
 	
-	public Map mute(Integer sipId, String channel, String direction, String state){
+	public AmiActionResponse mute(Integer sipId, String channel, String direction, String state){
 		Map paramsMap = new HashMap();
 		paramsMap.put("channel", channel);
 		paramsMap.put("direction", direction);
 		paramsMap.put("state", state);
 		paramsMap.put("sipId", sipId);
 		
-	    AmiActionResponse response =controlActionService.handleAction("mute", paramsMap);
-		if(response != null){
-			return response.getValues();
-		}
-		return null;
+	    return controlActionService.handleAction("mute", paramsMap);
 	}
 }

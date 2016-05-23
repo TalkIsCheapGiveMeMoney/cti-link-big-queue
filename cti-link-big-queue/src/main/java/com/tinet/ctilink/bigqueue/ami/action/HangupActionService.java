@@ -15,16 +15,12 @@ public class HangupActionService {
 	@Reference
 	ControlActionService controlActionService;
 	
-	public Map hangup(Integer sipId, String channel, Integer cause){
+	public AmiActionResponse hangup(Integer sipId, String channel, Integer cause){
 		Map paramsMap = new HashMap();
 		paramsMap.put("channel", channel);
 		paramsMap.put("cause", cause);
 		paramsMap.put("sipId", sipId);
 		
-	    AmiActionResponse response =controlActionService.handleAction("hangup", paramsMap);
-		if(response != null){
-			return response.getValues();
-		}
-		return null;
+		return controlActionService.handleAction("hangup", paramsMap);
 	}
 }

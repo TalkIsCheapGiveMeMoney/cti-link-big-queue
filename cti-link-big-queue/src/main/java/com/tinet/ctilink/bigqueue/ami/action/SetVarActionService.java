@@ -15,16 +15,12 @@ public class SetVarActionService {
 	@Reference
 	ControlActionService controlActionService;
 	
-	public Map getVar(Integer sipId, String channel, Map varMap){
+	public AmiActionResponse getVar(Integer sipId, String channel, Map varMap){
 		Map paramsMap = new HashMap();
 		paramsMap.put("channel", channel);
 		paramsMap.put("varMap", varMap);
 		paramsMap.put("sipId", sipId);
 		
-	    AmiActionResponse response =controlActionService.handleAction("setVar", paramsMap);
-		if(response != null){
-			return response.getValues();
-		}
-		return null;
+	    return controlActionService.handleAction("setVar", paramsMap);
 	}
 }
