@@ -5,19 +5,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.tinet.ctilink.ami.inc.AmiEventTypeConst;
 import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.cache.RedisService;
 import com.tinet.ctilink.json.JSONObject;
 
-public class WhisperErrorHandler implements EventHandler, InitializingBean{
+public class BargeResponseHandler implements EventHandler, InitializingBean{
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	@Autowired
     private RedisService redisService;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception{
-		//EventHandlerFactory.register(AmiEventTypeConst.WHISPER_ERROR, this);
+		OriginateResponseHandlerFactory.register("barge", this);
 	}
 	
 	public boolean handle(JSONObject event){

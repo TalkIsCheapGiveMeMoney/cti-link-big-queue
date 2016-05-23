@@ -60,7 +60,7 @@ public class BargeService {
 	@Autowired
 	OriginateActionService originateActionService;
 	
-	public ActionResponse barge(Map params){
+	public ActionResponse barge(Map<String,Object> params){
 		ActionResponse response = null;
 		
 		String enterpriseId = params.get("enterpriseId").toString();
@@ -171,7 +171,7 @@ public class BargeService {
 	        response = ActionResponse.createFailResponse(-1, "bad param");
 			return response;
         }                         
-        Map<String, String> varMap = new HashMap<String, String>();
+        Map<String, Object> varMap = new HashMap<String, Object>();
         varMap.put(AmiChanVarNameConst.BARGE_CHAN, bargedChannel); 
         varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_NUMBER, customerNumber); //客户号码
         varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_NUMBER_TYPE, String.valueOf(customerNumberType)); //电话类型
@@ -201,9 +201,9 @@ public class BargeService {
         varMap.put(AmiChanVarNameConst.OBJECT_TYPE, objectType);
 
         String mainUniqueId = null;
-        Map getVarMap = new HashMap();
-    	getVarMap.put("var", AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID);
-    	Map getVarResponse = getVarActionService.getVar(sipId, bargedChannel, getVarMap);
+        Map<String, Object> getVarMap = new HashMap<String, Object>();
+    	getVarMap.put(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID, AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID);
+    	Map<String, Object> getVarResponse = getVarActionService.getVar(sipId, bargedChannel, getVarMap);
     	if(getVarResponse != null){
     		if(getVarResponse.get(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID) != null){
     			mainUniqueId = getVarResponse.get(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID).toString();
@@ -211,22 +211,22 @@ public class BargeService {
     			response = ActionResponse.createFailResponse(-1, "get var fail");
     			return response;
     		}
-    		
     	}
         	
-        Map actionMap = new HashMap();
+        Map<String, Object> actionMap = new HashMap<String, Object>();
         actionMap.put("context", Const.DIALPLAN_CONTEXT_BARGE);
         actionMap.put("exten", enterpriseId + bargedCno);
         actionMap.put("priority", 1);
         actionMap.put("otherChannelId", mainUniqueId);
         actionMap.put("channel", destInterface);
-        actionMap.put("originateType", "barge");
         actionMap.put("timeout", 30000);
         actionMap.put("clid", clid);     
                        
-        JSONObject actionEvent = new JSONObject();
+        JSONObject actionEvent = null;
         if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
-        	actionEvent.put("event", "bargeError");
+        	actionEvent = new JSONObject();
+        	actionEvent.put("event", "originateResponse");
+        	actionEvent.put("originateType", "barge");
         	actionEvent.put("enterpriseId", enterpriseId);
         	actionEvent.put("cno", bargeObject);
         	actionEvent.put("bargedCno", bargedCno);
@@ -238,16 +238,21 @@ public class BargeService {
         	AmiActionResponse amiResponse = originateActionService.originate(sipId, actionMap, actionEvent, varMap);
         	if(amiResponse != null && (amiResponse.getCode() == 0)){
             	response = ActionResponse.createSuccessResponse();
+            }else{
+            	response = ActionResponse.createFailResponse(-1, "originate fail");
             	return response;
-            } 
+            }
         }catch(Exception e){
         	e.printStackTrace();
+        	response = ActionResponse.createFailResponse(-1, "originate exception");
+        	return response;
         }
         
        
         if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
         	redisService.convertAndSend(BigQueueCacheKey.AGENT_GATEWAY_EVENT_TOPIC, actionEvent);
         }
+        response = ActionResponse.createSuccessResponse();
         return response;
 	}
 }

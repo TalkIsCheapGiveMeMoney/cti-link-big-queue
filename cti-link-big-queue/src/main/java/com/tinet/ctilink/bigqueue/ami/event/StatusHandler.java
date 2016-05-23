@@ -156,7 +156,7 @@ public class StatusHandler implements EventHandler, InitializingBean{
 										}
 									}
 									if(wrapupTime > 0){
-										Map wrapupParams = new HashMap();
+										Map<String, Object> wrapupParams = new HashMap<String, Object>();
 										wrapupParams.put("enterpriseId", enterpriseId);
 										wrapupParams.put("cno", cno);
 										
@@ -179,6 +179,15 @@ public class StatusHandler implements EventHandler, InitializingBean{
 
 										queueEventService.publishEvent(queueEvent);
 									}
+								}
+								if(callAgent.getBusyDescription().equals("hold")){
+									JSONObject queueEvent = new JSONObject();
+									queueEvent.put("event", "unhold");
+									queueEvent.put("enterpriseId", enterpriseId);
+									queueEvent.put("qno", callAgent.getCurrentQueue());
+									queueEvent.put("callType", callAgent.getCurrentCallType());
+	
+									queueEventService.publishEvent(queueEvent);
 								}
 								deviceStatus = BigQueueConst.MEMBER_DEVICE_STATUS_IDLE;
 								callAgent.clearCall();

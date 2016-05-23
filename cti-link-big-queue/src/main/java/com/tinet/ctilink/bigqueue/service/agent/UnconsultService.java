@@ -46,7 +46,7 @@ public class UnconsultService {
 	GetVarActionService getVarActionService;
 	@Autowired
 	OriginateActionService originateActionService;
-	public ActionResponse unconsult(Map params){
+	public ActionResponse unconsult(Map<String,Object> params){
 		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
@@ -63,6 +63,8 @@ public class UnconsultService {
 				}
 			}catch(Exception e){
 				e.printStackTrace();
+				response = ActionResponse.createFailResponse(-1, "exception");
+				return response;
 			}finally{
 				memberService.unlockMember(memberLock);
 			}

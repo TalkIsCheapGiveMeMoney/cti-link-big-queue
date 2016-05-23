@@ -16,7 +16,7 @@ public class HangupActionService {
 	ControlActionService controlActionService;
 	
 	public AmiActionResponse hangup(Integer sipId, String channel, Integer cause){
-		Map paramsMap = new HashMap();
+		Map<String, Object> paramsMap = new HashMap<String, Object>();
 		paramsMap.put("channel", channel);
 		paramsMap.put("cause", cause);
 		paramsMap.put("sipId", sipId);

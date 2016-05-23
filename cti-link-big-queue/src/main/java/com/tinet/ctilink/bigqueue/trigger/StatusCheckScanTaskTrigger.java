@@ -37,7 +37,7 @@ public class StatusCheckScanTaskTrigger implements TaskSchedulerTrigger {
 	private ChannelServiceImp channelService;
 
     
-    public void taskTriggered(String taskId, Map param) {
+    public void taskTriggered(String taskId, Map<String, Object> param) {
 
         List<Entity> enterpriseList = enterpriseService.getAllActive();
         

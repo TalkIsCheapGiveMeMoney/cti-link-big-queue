@@ -30,7 +30,6 @@ public class ConsultErrorHandler implements EventHandler, InitializingBean{
 		try{
 			String enterpriseId = event.getString("enterpriseId");
 			String cno = event.getString("cno");
-			String channel = event.getString("channel");
 			
 			//先获取lock memberService.lockMember(enterpriseId, cno);
 			RedisLock memberLock = memberService.lockMember(enterpriseId, cno);

@@ -16,7 +16,7 @@ public class IndicateActionService {
 	ControlActionService controlActionService;
 	
 	public AmiActionResponse indicate(Integer sipId, String channel, Integer code){
-		Map paramsMap = new HashMap();
+		Map<String, Object> paramsMap = new HashMap<String, Object>();
 		paramsMap.put("channel", channel);
 		paramsMap.put("code", code);
 		paramsMap.put("sipId", sipId);

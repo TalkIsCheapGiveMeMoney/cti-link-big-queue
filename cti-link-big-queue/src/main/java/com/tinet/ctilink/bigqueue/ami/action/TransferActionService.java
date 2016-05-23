@@ -16,7 +16,7 @@ public class TransferActionService {
 	ControlActionService controlActionService;
 	
 	public AmiActionResponse transfer(Integer sipId, String channel, String context, String exten){
-		Map paramsMap = new HashMap();
+		Map<String, Object> paramsMap = new HashMap<String, Object>();
 		paramsMap.put("channel", channel);
 		paramsMap.put("context", context);
 		paramsMap.put("exten", exten);

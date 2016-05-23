@@ -16,8 +16,8 @@ public class OriginateActionService {
 	@Reference
 	ControlActionService controlActionService;
 	
-	public AmiActionResponse originate(Integer sipId, Map actionMap, JSONObject actionEvent, Map varMap){
-		Map paramsMap = new HashMap();
+	public AmiActionResponse originate(Integer sipId, Map<String, Object> actionMap, JSONObject actionEvent, Map<String, Object> varMap){
+		Map<String, Object> paramsMap = new HashMap<String, Object>();
 		paramsMap.put("actionMap", actionMap);
 		paramsMap.put("varMap", varMap);
 		paramsMap.put("actionEvent", actionEvent);

@@ -36,7 +36,7 @@ public class StatusScanTaskTrigger implements TaskSchedulerTrigger {
 	
 	
 	
-    public void taskTriggered(String taskId, Map param) {
+    public void taskTriggered(String taskId, Map<String, Object> param) {
         memberDeviceStatusMap.clear();
         memberLoginStatusMap.clear();
         

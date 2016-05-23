@@ -35,9 +35,9 @@ public class ConsultThreewayLinkHandler implements EventHandler, InitializingBea
 			if (StringUtils.isNotEmpty(cno)) {
 				JSONObject consulteeEvent = new JSONObject();
 				consulteeEvent.put("event", event.getString("event"));
-				consulteeEvent.put("enterpriseId", event.getString("enterpriseId"));
-				consulteeEvent.put("cno", event.getString("cno"));
-				consulteeEvent.put("consulterCno", event.getString("consulterCno"));
+				consulteeEvent.put("enterpriseId", enterpriseId);
+				consulteeEvent.put("cno", cno);
+				consulteeEvent.put("consulterCno", consulterCno);
 				redisService.convertAndSend(BigQueueCacheKey.AGENT_GATEWAY_EVENT_TOPIC, event);
 			}
 
@@ -45,7 +45,7 @@ public class ConsultThreewayLinkHandler implements EventHandler, InitializingBea
 			JSONObject consulteeEvent = new JSONObject();
 			consulteeEvent.put("event", event.getString("event"));
 			consulteeEvent.put("enterpriseId", event.getString("enterpriseId"));
-			consulteeEvent.put("cno", event.getString("consulterCno"));
+			consulteeEvent.put("cno", consulterCno);
 			redisService.convertAndSend(BigQueueCacheKey.AGENT_GATEWAY_EVENT_TOPIC, event);
 		}catch(Exception e){
 			e.printStackTrace();

@@ -10,14 +10,14 @@ import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.cache.RedisService;
 import com.tinet.ctilink.json.JSONObject;
 
-public class PreviewOutcallErrorHandler implements EventHandler, InitializingBean{
+public class WhisperResponseHandler implements EventHandler, InitializingBean{
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	@Autowired
     private RedisService redisService;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception{
-		//EventHandlerFactory.register(AmiEventTypeConst.PREVIEW_OUTCALL_ERROR, this);
+		OriginateResponseHandlerFactory.register("whisper", this);
 	}
 	
 	public boolean handle(JSONObject event){

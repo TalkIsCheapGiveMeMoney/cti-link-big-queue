@@ -164,7 +164,7 @@ public class QueueStatusService {
 
 	}
 	
-	public ActionResponse queueStatus(Map params){
+	public ActionResponse queueStatus(Map<String,Object> params){
 		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String qno = params.get("qno").toString();

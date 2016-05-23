@@ -47,7 +47,7 @@ public class PauseService {
 	@Autowired
 	OriginateActionService originateActionService;
 	
-	public ActionResponse pause(Map params){
+	public ActionResponse pause(Map<String,Object> params){
 		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
@@ -114,6 +114,8 @@ public class PauseService {
 				}	
 			}catch(Exception e){
 				e.printStackTrace();
+				response = ActionResponse.createFailResponse(-1, "exception");
+				return response;
 			}finally{
 				memberService.unlockMember(memberLock);
 			}

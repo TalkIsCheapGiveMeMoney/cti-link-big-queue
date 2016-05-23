@@ -10,14 +10,14 @@ import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.cache.RedisService;
 import com.tinet.ctilink.json.JSONObject;
 
-public class ThreewayErrorHandler implements EventHandler, InitializingBean{
+public class ThreewayResponseHandler implements EventHandler, InitializingBean{
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	@Autowired
     private RedisService redisService;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception{
-		//EventHandlerFactory.register(AmiEventTypeConst.THREEWAY_ERROR, this);
+		OriginateResponseHandlerFactory.register("threeway", this);
 	}
 	
 	public boolean handle(JSONObject event){

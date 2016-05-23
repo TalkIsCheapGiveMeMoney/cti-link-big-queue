@@ -36,7 +36,7 @@ public class WrapupEndTaskTrigger implements TaskSchedulerTrigger {
 	@Autowired
 	QueueEventServiceImp queueEventService;
 	
-    public void taskTriggered(String taskId, Map param) {
+    public void taskTriggered(String taskId, Map<String, Object> param) {
     	String enterpriseId = param.get("enterpriseId").toString();
     	String cno = param.get("cno").toString();
     	

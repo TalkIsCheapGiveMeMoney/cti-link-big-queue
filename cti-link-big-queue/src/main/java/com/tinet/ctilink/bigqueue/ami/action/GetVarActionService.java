@@ -15,8 +15,8 @@ public class GetVarActionService {
 	@Reference
 	ControlActionService controlActionService;
 	
-	public Map getVar(Integer sipId, String channel, Map varMap){
-		Map paramsMap = new HashMap();
+	public Map<String, Object> getVar(Integer sipId, String channel, Map<String, Object> varMap){
+		Map<String, Object> paramsMap = new HashMap<String, Object>();
 		paramsMap.put("channel", channel);
 		paramsMap.put("varMap", varMap);
 		paramsMap.put("sipId", sipId);

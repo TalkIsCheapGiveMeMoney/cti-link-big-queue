@@ -36,6 +36,8 @@ public class ApplicationStarter implements ApplicationListener<ContextRefreshedE
 
 		//注册整理任务的group
 		redisTaskScheduler.registerTaskSchedulerGroup(new TaskSchedulerGroup("warpupTaskSchedulerGroup", 10));
+		//注册整理任务的group
+		redisTaskScheduler.registerTaskSchedulerGroup(new TaskSchedulerGroup("limitTimeTaskSchedulerGroup", 3));
 				
 		//启动statusScanTask
 		redisTaskScheduler.schedulePeriod("statusScanTask", "statusScanTaskTrigger", null, 1000, 1);

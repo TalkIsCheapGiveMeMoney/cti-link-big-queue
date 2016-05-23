@@ -2,11 +2,15 @@ package com.tinet.ctilink.bigqueue.service.agent;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.tinet.ctilink.ami.action.AmiActionResponse;
+import com.tinet.ctilink.ami.inc.AmiChanVarNameConst;
+import com.tinet.ctilink.bigqueue.ami.action.ConsultActionService;
 import com.tinet.ctilink.bigqueue.ami.action.GetVarActionService;
 import com.tinet.ctilink.bigqueue.ami.action.OriginateActionService;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
@@ -46,7 +50,10 @@ public class ConsultService {
 	GetVarActionService getVarActionService;
 	@Autowired
 	OriginateActionService originateActionService;
-	public ActionResponse consult(Map params){
+	@Autowired
+	ConsultActionService consultActionService;
+	
+	public ActionResponse consult(Map<String,Object> params){
 		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
@@ -57,12 +64,49 @@ public class ConsultService {
 			try{
 				CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
 				if(callAgent != null){
+					String channel = callAgent.getCurrentChannel();
+					Integer sipId = callAgent.getCurrentSipId();
+					
+					if(StringUtils.isEmpty(channel)){
+						response = ActionResponse.createFailResponse(-1, "no channel");
+						return response;
+					}
+					String consultObject = params.get("consultObject").toString();     //电话号码    座席号    分机号
+		            String objectType = params.get("objectType").toString();           //0.电话  1.座席号  2.分机
+		            String extension = objectType + consultObject + "#";
+		            if(objectType.equals("1")){
+		        		CallAgent consultedCallAgent = agentService.getCallAgent(enterpriseId, consultObject);
+		        		if(consultedCallAgent != null){
+		        			Integer consultedDeviceStatus = memberService.getDeviceStatus(enterpriseId, consultObject);
+		        			Integer consultedLoginStatus = memberService.getLoginStatus(enterpriseId, consultObject);
+		        			if(consultedDeviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_IDLE) && consultedLoginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_READY)){
+		        				
+		        			}else{
+		        				response = ActionResponse.createFailResponse(-1, "consulted agent busy");
+		        				return response;
+		        			}
+		        		}else{
+		        			response = ActionResponse.createFailResponse(-1, "no such consult agent");
+							return response;
+		        		}
+		            }
+		            AmiActionResponse amiResponse = consultActionService.consult(sipId, channel, "web_consult", extension);
+    				if(amiResponse != null && (amiResponse.getCode() == 0)){
+    					response = ActionResponse.createSuccessResponse();
+    	            	return response;
+    	            }else{
+    	            	response = ActionResponse.createFailResponse(-1, "originate fail");
+    	            	return response;
+    	            }
 					
 				}else {
 					response = ActionResponse.createFailResponse(-1, "no such agent");
+					return response;
 				}
 			}catch(Exception e){
 				e.printStackTrace();
+				response = ActionResponse.createFailResponse(-1, "exception");
+				return response;
 			}finally{
 				memberService.unlockMember(memberLock);
 			}

@@ -51,7 +51,7 @@ public class ChangeBindTelService {
 	GetVarActionService getVarActionService;
 	@Autowired
 	OriginateActionService originateActionService;
-	public ActionResponse changeBindTel(Map params){
+	public ActionResponse changeBindTel(Map<String,Object> params){
 		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();

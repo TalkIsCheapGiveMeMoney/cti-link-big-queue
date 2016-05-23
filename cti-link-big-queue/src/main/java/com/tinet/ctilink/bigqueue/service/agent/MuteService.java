@@ -2,12 +2,16 @@ package com.tinet.ctilink.bigqueue.service.agent;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.tinet.ctilink.ami.action.AmiActionResponse;
+import com.tinet.ctilink.ami.inc.AmiParamConst;
 import com.tinet.ctilink.bigqueue.ami.action.GetVarActionService;
+import com.tinet.ctilink.bigqueue.ami.action.MuteActionService;
 import com.tinet.ctilink.bigqueue.ami.action.OriginateActionService;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
@@ -46,7 +50,10 @@ public class MuteService {
 	GetVarActionService getVarActionService;
 	@Autowired
 	OriginateActionService originateActionService;
-	public ActionResponse mute(Map params){
+	@Autowired
+	MuteActionService muteActionService;
+	
+	public ActionResponse mute(Map<String,Object> params){
 		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
@@ -57,12 +64,37 @@ public class MuteService {
 			try{
 				CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
 				if(callAgent != null){
+					String channel = callAgent.getCurrentChannel();
+					Integer sipId = callAgent.getCurrentSipId();
 					
+					if(StringUtils.isEmpty(channel)){
+						response = ActionResponse.createFailResponse(-1, "no channel");
+						return response;
+					}
+					String state;
+					String busyDescription = callAgent.getBusyDescription();
+					if(busyDescription.equals("mute")){
+						state = "off";
+					}else{
+						state = "on";
+					}
+					String direction = params.get("cno").toString();
+					AmiActionResponse amiResponse = muteActionService.mute(sipId, channel, direction, state);
+					if(amiResponse != null && (amiResponse.getCode() == 0)){
+						response = ActionResponse.createSuccessResponse();
+						return response;
+					}else{
+						response = ActionResponse.createFailResponse(-1, "mute fail");
+						return response;
+					}
 				}else {
 					response = ActionResponse.createFailResponse(-1, "no such agent");
+					return response;
 				}
 			}catch(Exception e){
 				e.printStackTrace();
+				response = ActionResponse.createFailResponse(-1, "exception");
+				return response;
 			}finally{
 				memberService.unlockMember(memberLock);
 			}

@@ -34,10 +34,6 @@ public class BargeLinkHandler implements EventHandler, InitializingBean{
 			String enterpriseId = event.getString("enterpriseId");
 			String cno = event.getString("cno");
 			String channel = event.getString("channel");
-			String bargedCno = event.getString("bargedCno");
-			String bargeObject = event.getString("bargeObject");
-			String objectType = event.getString("objectType");
-			
 			
 			//先获取lock memberService.lockMember(enterpriseId, cno);
 			RedisLock memberLock = memberService.lockMember(enterpriseId, cno);
