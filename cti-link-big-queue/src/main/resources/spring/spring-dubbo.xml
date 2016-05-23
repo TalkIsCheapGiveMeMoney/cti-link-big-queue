@@ -19,6 +19,6 @@
 	</context:component-scan>
 
 	<!-- 调用dubbo服务 -->
-	<!--<dubbo:reference id="cdrObService" interface="com.tinet.ccic.wm.ob.service.CdrObService" />-->
+	<dubbo:reference id="controlActionService" interface="com.tinet.ctilink.control.service.ControlActionService" />
 
 </beans>

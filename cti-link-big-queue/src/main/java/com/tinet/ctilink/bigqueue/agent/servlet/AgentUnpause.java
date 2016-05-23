@@ -1,4 +1,4 @@
-package com.tinet.ctilink.agent.servlet;
+package com.tinet.ctilink.bigqueue.agent.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -17,8 +17,8 @@ import com.tinet.ctilink.conf.model.Queue;
 import com.tinet.ctilink.json.JSONObject;
 import com.tinet.ctilink.util.ContextUtil;
 
-@WebServlet("/interface/agent/logout")
-public class AgentLogout extends HttpServlet {
+@WebServlet("/interface/agent/unpause")
+public class AgentUnpause extends HttpServlet {
 
 	AgentServiceImp agentService;
 	@Override
@@ -45,7 +45,7 @@ public class AgentLogout extends HttpServlet {
         params.put("cno", req.getParameter("cno"));
 
 
-        ActionResponse res = agentService.logout(params);
+        ActionResponse res = agentService.unpause(params);
         if(res != null){
         	out.print(res.toString());
         }

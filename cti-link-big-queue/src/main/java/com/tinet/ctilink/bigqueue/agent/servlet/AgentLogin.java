@@ -1,4 +1,4 @@
-package com.tinet.ctilink.agent.servlet;
+package com.tinet.ctilink.bigqueue.agent.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -17,8 +17,8 @@ import com.tinet.ctilink.conf.model.Queue;
 import com.tinet.ctilink.json.JSONObject;
 import com.tinet.ctilink.util.ContextUtil;
 
-@WebServlet("/interface/agent/unpause")
-public class AgentUnpause extends HttpServlet {
+@WebServlet("/interface/agent/login")
+public class AgentLogin extends HttpServlet {
 
 	AgentServiceImp agentService;
 	@Override
@@ -43,9 +43,13 @@ public class AgentUnpause extends HttpServlet {
         Map params = new HashMap();
         params.put("enterpriseId", req.getParameter("enterpriseId"));
         params.put("cno", req.getParameter("cno"));
+        params.put("bindTel", req.getParameter("bindTel"));
+        params.put("bindType", req.getParameter("bindType"));
+        params.put("loginType", req.getParameter("loginType"));
+        params.put("loginStatus", req.getParameter("loginStatus"));
+        params.put("pauseDescription", req.getParameter("pauseDescription"));
 
-
-        ActionResponse res = agentService.unpause(params);
+        ActionResponse res = agentService.login(params);
         if(res != null){
         	out.print(res.toString());
         }

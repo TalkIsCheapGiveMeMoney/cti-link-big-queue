@@ -24,8 +24,6 @@ import com.tinet.ctilink.conf.model.Queue;
 public class StatusScanTaskTriggerListener {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	@Autowired
-	private RedisService redisService;
-	@Autowired
 	private QueueServiceImp queueService;
 	@Autowired
 	private MemberServiceImp memberService;

@@ -46,6 +46,7 @@ public class StatusHandler implements EventHandler, InitializingBean{
 				try{
 					CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
 					if(callAgent != null){
+						JSONObject ringingEvent = null;
 						Integer oldDeviceStatus = memberService.getDeviceStatus(enterpriseId, cno);
 						Integer statusInt = Integer.parseInt(status);
 						Integer deviceStatus;
@@ -56,6 +57,16 @@ public class StatusHandler implements EventHandler, InitializingBean{
 									return false;
 								}
 								deviceStatus = BigQueueConst.MEMBER_DEVICE_STATUS_INVITE;
+								
+								
+								break;
+							case 2:
+								if(oldDeviceStatus != BigQueueConst.MEMBER_DEVICE_STATUS_INVITE){
+									logger.error(String.format("bad status received, new=%d old=%d", statusInt, oldDeviceStatus));
+									return false;
+								}
+								deviceStatus = BigQueueConst.MEMBER_DEVICE_STATUS_RINGING;
+								
 								String channel = event.getString("channel");
 								String uniqueId = event.getString("uniqueId");
 								Integer callType = event.getInt("callType");
@@ -82,13 +93,13 @@ public class StatusHandler implements EventHandler, InitializingBean{
 								callAgent.setCurrentNumberTrunk(numberTrunk);
 								callAgent.setCurrentQueue(queue);
 								
-								break;
-							case 2:
-								if(oldDeviceStatus != BigQueueConst.MEMBER_DEVICE_STATUS_INVITE){
-									logger.error(String.format("bad status received, new=%d old=%d", statusInt, oldDeviceStatus));
-									return false;
-								}
-								deviceStatus = BigQueueConst.MEMBER_DEVICE_STATUS_RINGING;
+								ringingEvent = new JSONObject();
+								ringingEvent.put("event", "ringing");
+								ringingEvent.put("enterpriseId", enterpriseId);
+								ringingEvent.put("cno", cno);
+								
+								JSONObject variables = event.getJSONObject("variables");
+								ringingEvent.put("variables", variables);
 								break;
 							case 3:
 								deviceStatus = BigQueueConst.MEMBER_DEVICE_STATUS_IDLE;
@@ -126,6 +137,10 @@ public class StatusHandler implements EventHandler, InitializingBean{
 							statusEvent.put("busyDescription", callAgent.getBusyDescription());
 						}
 						redisService.convertAndSend(BigQueueCacheKey.AGENT_GATEWAY_EVENT_TOPIC, statusEvent);
+						if(ringingEvent != null){
+							
+						}
+						
 					}else{
 						return false;
 					}

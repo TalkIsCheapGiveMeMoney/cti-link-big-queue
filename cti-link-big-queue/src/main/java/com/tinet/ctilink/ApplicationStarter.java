@@ -7,8 +7,10 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
-import com.tinet.ctilink.bigqueue.AmiEventListener;
+import com.tinet.ctilink.bigqueue.eventlistener.AmiEventListener;
 import com.tinet.ctilink.bigqueue.trigger.StatusScanTaskTriggerListener;
+import com.tinet.ctilink.scheduler.RedisTaskScheduler;
+import com.tinet.ctilink.scheduler.TaskSchedulerGroup;
 
 /**
  * 应用程序启动器
@@ -24,6 +26,8 @@ public class ApplicationStarter implements ApplicationListener<ContextRefreshedE
 	AmiEventListener amiEventListener;
 	@Autowired
 	StatusScanTaskTriggerListener statusScanTaskTriggerListener;
+	@Autowired
+	private RedisTaskScheduler redisTaskScheduler;
 	
 	@Override
 	public void onApplicationEvent(final ContextRefreshedEvent event) {
@@ -32,8 +36,16 @@ public class ApplicationStarter implements ApplicationListener<ContextRefreshedE
 		// http://docs.amazonaws.cn/AWSSdkDocsJava/latest/DeveloperGuide/java-dg-jvm-ttl.html
 		java.security.Security.setProperty("networkaddress.cache.ttl", "60");
 
-		//statusScanScheduler.schedule("queueMemberStatusScan", null);
-		//statusCheckScanScheduler.schedule("queueMemberStatusCheckScan", null);
+		//注册整理任务的group
+		redisTaskScheduler.registerTaskSchedulerGroup(new TaskSchedulerGroup("warpupTaskSchedulerGroup", 10));
+				
+		//启动statusScanTask
+		redisTaskScheduler.schedulePeriod("statusScanTask", "statusScanTaskTriggerListener", 1000, 1);
+
+		//启动statusCheckScanTask
+		redisTaskScheduler.schedulePeriod("statusCheckScanTask", "statusCheckScanTaskTriggerListener", 5000, 1);
+		
+		/*
 		new Thread(new Runnable(){
 			@Override
 			public void run(){
@@ -48,6 +60,7 @@ public class ApplicationStarter implements ApplicationListener<ContextRefreshedE
 				}
 			}
 		}).start();
+		*/
 		
 		amiEventListener.start();
 		

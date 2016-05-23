@@ -1,4 +1,4 @@
-package com.tinet.ctilink.agent.servlet;
+package com.tinet.ctilink.bigqueue.agent.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;

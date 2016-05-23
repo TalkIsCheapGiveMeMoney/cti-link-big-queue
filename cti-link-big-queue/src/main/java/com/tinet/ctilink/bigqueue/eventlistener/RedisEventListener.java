@@ -1,4 +1,4 @@
-package com.tinet.ctilink.bigqueue;
+package com.tinet.ctilink.bigqueue.eventlistener;
 
 import java.util.Map;
 
