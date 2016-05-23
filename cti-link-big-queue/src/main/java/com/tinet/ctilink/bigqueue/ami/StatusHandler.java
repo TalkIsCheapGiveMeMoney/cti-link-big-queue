@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.tinet.ctilink.ami.inc.AmiChannelStatusConst;
 import com.tinet.ctilink.ami.inc.AmiEventTypeConst;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
 import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
@@ -51,7 +52,7 @@ public class StatusHandler implements EventHandler, InitializingBean{
 						Integer statusInt = Integer.parseInt(status);
 						Integer deviceStatus;
 						switch(statusInt){
-							case 1:
+							case AmiChannelStatusConst.TRYING:
 								if(oldDeviceStatus != BigQueueConst.MEMBER_DEVICE_STATUS_IDLE){
 									logger.error(String.format("bad status received, new=%d old=%d", statusInt, oldDeviceStatus));
 									return false;
@@ -60,7 +61,7 @@ public class StatusHandler implements EventHandler, InitializingBean{
 								
 								
 								break;
-							case 2:
+							case AmiChannelStatusConst.RING:
 								if(oldDeviceStatus != BigQueueConst.MEMBER_DEVICE_STATUS_INVITE){
 									logger.error(String.format("bad status received, new=%d old=%d", statusInt, oldDeviceStatus));
 									return false;
@@ -101,11 +102,11 @@ public class StatusHandler implements EventHandler, InitializingBean{
 								JSONObject variables = event.getJSONObject("variables");
 								ringingEvent.put("variables", variables);
 								break;
-							case 3:
+							case AmiChannelStatusConst.IDLE:
 								deviceStatus = BigQueueConst.MEMBER_DEVICE_STATUS_IDLE;
 								callAgent.clearCall();
 								break;
-							case 4:
+							case AmiChannelStatusConst.UP:
 								if(oldDeviceStatus == BigQueueConst.MEMBER_DEVICE_STATUS_IDLE){
 									logger.error(String.format("bad status received, new=%d old=%d", statusInt, oldDeviceStatus));
 									return false;

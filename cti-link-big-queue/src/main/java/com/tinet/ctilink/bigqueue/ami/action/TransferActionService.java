@@ -10,18 +10,20 @@ import com.tinet.ctilink.ami.action.AmiActionResponse;
 import com.tinet.ctilink.control.service.v1.ControlActionService;
 
 @Service
-public class GetVarActionService {
+public class TransferActionService {
 	
 	@Reference
 	ControlActionService controlActionService;
 	
-	public Map getVar(Integer sipId, String channel, Map varMap){
+	public Map transfer(Integer sipId, String channel, String context, String exten){
 		Map paramsMap = new HashMap();
 		paramsMap.put("channel", channel);
-		paramsMap.put("varMap", varMap);
+		paramsMap.put("context", context);
+		paramsMap.put("exten", exten);
+		paramsMap.put("feature", "blindxfer");
 		paramsMap.put("sipId", sipId);
 		
-	    AmiActionResponse response =controlActionService.handleAction("getVar", paramsMap);
+	    AmiActionResponse response =controlActionService.handleAction("transfer", paramsMap);
 		if(response != null){
 			return response.getValues();
 		}

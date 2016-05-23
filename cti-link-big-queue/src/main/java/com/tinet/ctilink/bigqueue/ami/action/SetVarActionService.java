@@ -10,7 +10,7 @@ import com.tinet.ctilink.ami.action.AmiActionResponse;
 import com.tinet.ctilink.control.service.v1.ControlActionService;
 
 @Service
-public class GetVarActionService {
+public class SetVarActionService {
 	
 	@Reference
 	ControlActionService controlActionService;
@@ -21,7 +21,7 @@ public class GetVarActionService {
 		paramsMap.put("varMap", varMap);
 		paramsMap.put("sipId", sipId);
 		
-	    AmiActionResponse response =controlActionService.handleAction("getVar", paramsMap);
+	    AmiActionResponse response =controlActionService.handleAction("setVar", paramsMap);
 		if(response != null){
 			return response.getValues();
 		}

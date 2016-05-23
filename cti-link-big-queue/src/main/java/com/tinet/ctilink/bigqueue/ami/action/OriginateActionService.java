@@ -16,12 +16,14 @@ public class OriginateActionService {
 	@Reference
 	ControlActionService controlActionService;
 	
-	public AmiActionResponse originate(Map actionMap, JSONObject actionEvent, Map varMap){
+	public AmiActionResponse originate(Integer sipId, Map actionMap, JSONObject actionEvent, Map varMap){
 		Map paramsMap = new HashMap();
 		paramsMap.put("actionMap", actionMap);
 		paramsMap.put("varMap", varMap);
 		paramsMap.put("actionEvent", actionEvent);
-		
+		if(sipId != null){
+			paramsMap.put("sipId", sipId);
+		}
 	    return controlActionService.handleAction("originate", paramsMap);
 	}
 }

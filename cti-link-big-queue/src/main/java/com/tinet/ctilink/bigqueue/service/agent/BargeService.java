@@ -77,6 +77,7 @@ public class BargeService {
         String numberTrunk = null;
         String curQueue = null;
         Integer callType = 0; 
+        Integer sipId = null;
         
 				
 		//先获取lock memberService.lockMember(enterpriseId, cno);
@@ -93,6 +94,7 @@ public class BargeService {
 			        numberTrunk = callAgent.getCurrentNumberTrunk();
 			        curQueue = callAgent.getCurrentQueue();
 			        callType = callAgent.getCurrentCallType(); 
+			        sipId = callAgent.getCurrentSipId();
 				}
 			}catch(Exception e){
 				e.printStackTrace();
@@ -200,7 +202,7 @@ public class BargeService {
 
         Map getVarMap = new HashMap();
     	getVarMap.put("var", AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID);
-    	Map getVarResponse = getVarActionService.getVar(bargedChannel, getVarMap);
+    	Map getVarResponse = getVarActionService.getVar(sipId, bargedChannel, getVarMap);
     	if(getVarResponse != null){
     		if(getVarResponse.get(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID) != null){
     			varMap.put(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID, getVarResponse.get(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID).toString());
@@ -231,7 +233,7 @@ public class BargeService {
         }
         
         try{
-        	AmiActionResponse amiResponse = originateActionService.originate(actionMap, actionEvent, varMap);
+        	AmiActionResponse amiResponse = originateActionService.originate(sipId, actionMap, actionEvent, varMap);
         	if(amiResponse != null && (amiResponse.getCode() == 0)){
             	response = ActionResponse.createSuccessResponse();
             	return response;

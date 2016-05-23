@@ -57,6 +57,9 @@ public class ConsultCancelService {
 			try{
 				CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
 				if(callAgent != null){
+					String consultCancelChannel = callAgent.getConsultChannel();
+					Integer sipId = callAgent.getCurrentSipId();
+					
 					
 				}else {
 					response = ActionResponse.createFailResponse(-1, "no such agent");

@@ -10,18 +10,19 @@ import com.tinet.ctilink.ami.action.AmiActionResponse;
 import com.tinet.ctilink.control.service.v1.ControlActionService;
 
 @Service
-public class GetVarActionService {
+public class MuteActionService {
 	
 	@Reference
 	ControlActionService controlActionService;
 	
-	public Map getVar(Integer sipId, String channel, Map varMap){
+	public Map mute(Integer sipId, String channel, String direction, String state){
 		Map paramsMap = new HashMap();
 		paramsMap.put("channel", channel);
-		paramsMap.put("varMap", varMap);
+		paramsMap.put("direction", direction);
+		paramsMap.put("state", state);
 		paramsMap.put("sipId", sipId);
 		
-	    AmiActionResponse response =controlActionService.handleAction("getVar", paramsMap);
+	    AmiActionResponse response =controlActionService.handleAction("mute", paramsMap);
 		if(response != null){
 			return response.getValues();
 		}
