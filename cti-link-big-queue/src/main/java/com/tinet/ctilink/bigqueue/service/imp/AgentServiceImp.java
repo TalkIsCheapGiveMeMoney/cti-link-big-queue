@@ -39,6 +39,7 @@ import com.tinet.ctilink.bigqueue.service.agent.RefuseService;
 import com.tinet.ctilink.bigqueue.service.agent.SetPauseService;
 import com.tinet.ctilink.bigqueue.service.agent.SetUnpauseService;
 import com.tinet.ctilink.bigqueue.service.agent.SpyService;
+import com.tinet.ctilink.bigqueue.service.agent.StatusService;
 import com.tinet.ctilink.bigqueue.service.agent.ThreewayService;
 import com.tinet.ctilink.bigqueue.service.agent.TransferService;
 import com.tinet.ctilink.bigqueue.service.agent.UnconsultService;
@@ -144,12 +145,17 @@ public class AgentServiceImp implements AgentService {
 	UnwhisperService unwhisperService;
 	@Autowired
 	WhisperService whisperService;
+	@Autowired
+	StatusService statusService;
 	
 	public ActionResponse login(Map<String, Object> params){
 		return loginService.login(params);
 	}
 	public ActionResponse logout(Map<String, Object> params){
 		return logoutService.logout(params);
+	}	
+	public ActionResponse status(Map<String, Object> params){
+		return statusService.status(params);
 	}
 	public ActionResponse pause(Map<String, Object> params){
 		return pauseService.pause(params);

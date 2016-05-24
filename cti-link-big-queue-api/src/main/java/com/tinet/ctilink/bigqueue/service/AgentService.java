@@ -12,6 +12,7 @@ public interface AgentService {
 
 	public ActionResponse login(Map<String, Object> params);
 	public ActionResponse logout(Map<String, Object> params);
+	public ActionResponse status(Map<String, Object> params);
 	public ActionResponse pause(Map<String, Object> params);
 	public ActionResponse unpause(Map<String, Object> params);
 	public ActionResponse changeBindTel(Map<String, Object> params);

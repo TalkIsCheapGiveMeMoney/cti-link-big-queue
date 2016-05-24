@@ -111,53 +111,57 @@ public class QueueStatusService {
 		return queueParamsMap;
 	}
 	
+	public Map<String, Object> getMemberStatusMap(String enterpriseId, String cno){
+		CallAgent agent = agentService.getCallAgent(enterpriseId, cno);
+		Map<String, Object> memberStatusMap = new HashMap<String, Object>();
+		memberStatusMap.put("cno", cno);
+		memberStatusMap.put("bindTel", agent.getBindTel());
+		Integer loginStatus = memberService.getLoginStatus(enterpriseId, cno);
+		memberStatusMap.put("loginStatus", loginStatus);
+		Integer loginStatusStartTime = memberService.getDeviceStatusStartTime(enterpriseId, cno);
+		Integer duration = new Long(new Date().getTime()/1000).intValue() - loginStatusStartTime;
+		if(duration < 0){duration = 0;}
+		memberStatusMap.put("loginStatusDuration", duration);
+		if(loginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_OFFLINE)){
+			
+		}else{
+			Integer deviceStatus = memberService.getDeviceStatus(enterpriseId, cno);
+			memberStatusMap.put("deviceStatus", deviceStatus);
+			Integer deviceStatusStartTime = memberService.getDeviceStatusStartTime(enterpriseId, cno);
+			duration = new Long(new Date().getTime()/1000).intValue() - deviceStatusStartTime;
+			if(duration < 0){duration = 0;}
+			memberStatusMap.put("deviceStatusDuration", duration);
+			if(loginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE)){
+				memberStatusMap.put("pauseType", agent.getPauseType());
+				memberStatusMap.put("pauseDescription", agent.getPauseDescription());
+			}
+			if(StringUtil.isNotEmpty(agent.getMonitoredType())){
+				memberStatusMap.put("monitoredType", agent.getMonitoredType());
+				memberStatusMap.put("monitoredObject", agent.getMonitoredObject());
+				memberStatusMap.put("monitoredObjectType", agent.getMonitoredObjectType());
+			}
+			if(deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_INUSE)){
+				memberStatusMap.put("busyDescription", agent.getBusyDescription());
+				memberStatusMap.put("customerNumber", agent.getCurrentCustomerNumber());
+				memberStatusMap.put("customerNumberType", agent.getCurrentCustomerNumberType());//通话号码
+				memberStatusMap.put("customerNumberAreaCode", agent.getCurrentCustomerNumberAreaCode());//通话号码类型
+				memberStatusMap.put("numberTrunk", agent.getCurrentNumberTrunk());
+				memberStatusMap.put("hotline", agent.getCurrentHotline());
+				memberStatusMap.put("callType", agent.getCurrentCallType());
+				memberStatusMap.put("qno", agent.getCurrentQueue());
+			}
+			memberStatusMap.put("loginTime", agent.getLoginTime());
+		}
+		return memberStatusMap;
+	}
     	
 	private List<Map<String, Object>> memberStatus(String enterpriseId, String qno){
 		List<Map<String, Object>> memberStatusList = new ArrayList<Map<String, Object>>();
 		List<CallMember> memberList = queueService.getMembers(enterpriseId, qno);
 		for(CallMember member: memberList){
-			String cno = member.getCno();
-			CallAgent agent = agentService.getCallAgent(enterpriseId, cno);
-			Map<String, Object> memberStatusMap = new HashMap<String, Object>();
-			memberStatusMap.put("cno", cno);
-			memberStatusMap.put("bindTel", agent.getBindTel());
-			Integer loginStatus = memberService.getLoginStatus(enterpriseId, cno);
-			memberStatusMap.put("loginStatus", loginStatus);
-			Integer loginStatusStartTime = memberService.getDeviceStatusStartTime(enterpriseId, cno);
-			Integer duration = new Long(new Date().getTime()/1000).intValue() - loginStatusStartTime;
-			if(duration < 0){duration = 0;}
-			memberStatusMap.put("loginStatusDuration", duration);
+			
+			Map<String, Object> memberStatusMap = getMemberStatusMap(enterpriseId, member.getCno());
 			memberStatusMap.put("calls", member.getCalls());
-			if(loginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_OFFLINE)){
-				
-			}else{
-				Integer deviceStatus = memberService.getDeviceStatus(enterpriseId, cno);
-				memberStatusMap.put("deviceStatus", deviceStatus);
-				Integer deviceStatusStartTime = memberService.getDeviceStatusStartTime(enterpriseId, cno);
-				duration = new Long(new Date().getTime()/1000).intValue() - deviceStatusStartTime;
-				if(duration < 0){duration = 0;}
-				memberStatusMap.put("deviceStatusDuration", duration);
-				if(loginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE)){
-					memberStatusMap.put("pauseType", agent.getPauseType());
-					memberStatusMap.put("pauseDescription", agent.getPauseDescription());
-				}
-				if(StringUtil.isNotEmpty(agent.getMonitoredType())){
-					memberStatusMap.put("monitoredType", agent.getMonitoredType());
-					memberStatusMap.put("monitoredObject", agent.getMonitoredObject());
-					memberStatusMap.put("monitoredObjectType", agent.getMonitoredObjectType());
-				}
-				if(deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_INUSE)){
-					memberStatusMap.put("busyDescription", agent.getBusyDescription());
-					memberStatusMap.put("customerNumber", agent.getCurrentCustomerNumber());
-					memberStatusMap.put("customerNumberType", agent.getCurrentCustomerNumberType());//通话号码
-					memberStatusMap.put("customerNumberAreaCode", agent.getCurrentCustomerNumberAreaCode());//通话号码类型
-					memberStatusMap.put("numberTrunk", agent.getCurrentNumberTrunk());
-					memberStatusMap.put("hotline", agent.getCurrentHotline());
-					memberStatusMap.put("callType", agent.getCurrentCallType());
-					memberStatusMap.put("qno", agent.getCurrentQueue());
-				}
-				memberStatusMap.put("loginTime", agent.getLoginTime());
-			}
 			memberStatusList.add(memberStatusMap);
 		}
 		return memberStatusList;
