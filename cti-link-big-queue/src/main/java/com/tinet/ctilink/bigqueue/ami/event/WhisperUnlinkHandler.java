@@ -25,7 +25,7 @@ public class WhisperUnlinkHandler implements EventHandler, InitializingBean{
     private MemberServiceImp memberService;
     @Override
 	public void afterPropertiesSet() throws Exception{
-		EventHandlerFactory.register(AmiEventTypeConst.INCOMING, this);
+		EventHandlerFactory.register(AmiEventTypeConst.WHISPER_UNLINK, this);
 	}
 	
 	public boolean handle(JSONObject event){

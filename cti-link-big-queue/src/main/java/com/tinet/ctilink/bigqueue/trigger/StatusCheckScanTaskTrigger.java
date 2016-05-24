@@ -42,8 +42,11 @@ public class StatusCheckScanTaskTrigger implements TaskSchedulerTrigger {
         List<Entity> enterpriseList = enterpriseService.getAllActive();
         
         for(Entity entity: enterpriseList){
-        	
-        	scanStatusCheck(String.valueOf(entity.getEnterpriseId()));
+        	try{
+        		scanStatusCheck(String.valueOf(entity.getEnterpriseId()));
+        	}catch(Exception e){
+        		e.printStackTrace();
+        	}
         }
     }
     private void scanStatusCheck(String enterpriseId){
@@ -57,9 +60,9 @@ public class StatusCheckScanTaskTrigger implements TaskSchedulerTrigger {
     		}
     		String cno = field;
     		//获取deviceStatus
-    		Integer deviceStatus = (Integer)map.get(cno);
+    		Integer deviceStatus = Integer.parseInt(map.get(cno).toString());
     		String startTimeField = "start_" + field;
-    		Integer startTime = (Integer)map.get(startTimeField);
+    		Integer startTime = Integer.parseInt(map.get(startTimeField).toString());
     		switch(deviceStatus){
 	    		case BigQueueConst.MEMBER_DEVICE_STATUS_INVALID:
 	    			break;

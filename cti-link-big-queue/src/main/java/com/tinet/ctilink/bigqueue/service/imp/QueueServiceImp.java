@@ -17,6 +17,7 @@ import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
 import com.tinet.ctilink.bigqueue.strategy.Strategy;
 import com.tinet.ctilink.bigqueue.strategy.StrategyFactory;
+import com.tinet.ctilink.bigqueue.trigger.StatusScanTaskTrigger;
 import com.tinet.ctilink.cache.CacheKey;
 import com.tinet.ctilink.cache.RedisService;
 import com.tinet.ctilink.conf.model.Queue;
@@ -39,6 +40,8 @@ public class QueueServiceImp {
 	AgentServiceImp agentService;
 	@Autowired
 	QueueEventServiceImp queueEventService;
+	@Autowired
+	StatusScanTaskTrigger statusScanTaskTrigger;
 	
     public Queue getFromConfCache(String enterpriseId, String qno){
     	String key = String.format(CacheKey.QUEUE_ENTERPRISE_ID_QNO, Integer.parseInt(enterpriseId), qno);
@@ -50,6 +53,7 @@ public class QueueServiceImp {
     	Integer res = BigQueueConst.QUEUE_CODE_JOIN_EMPTY;
     	Queue queue = getFromConfCache(enterpriseId, qno);
     	if(queue != null){
+    		addScan(enterpriseId, qno);
     		Integer avalibleCount = getQueueAvalibleCount(enterpriseId, qno);
     		if(avalibleCount <= 0){
     			res = BigQueueConst.QUEUE_CODE_JOIN_EMPTY;
@@ -62,7 +66,6 @@ public class QueueServiceImp {
     		}
     		
     		insertQueueEntry(enterpriseId, qno, uniqueId, priority, joinTime, startTime, overflow);
-    		addScan(enterpriseId, qno);
     		
     		Strategy strategy = StrategyFactory.getInstance(queue.getStrategy());
     		strategy.joinHandle(enterpriseId, qno, uniqueId, customerNumber);
@@ -445,6 +448,7 @@ public class QueueServiceImp {
     
     public void addScan(String enterpriseId, String qno){
     	redisService.sadd(Const.REDIS_DB_CTI_INDEX, BigQueueCacheKey.QUEUE_SCAN_LIST, enterpriseId + qno);
+    	statusScanTaskTrigger.taskTriggered("", null);
     }
     
     public void removeScan(String enterpriseId, String qno){

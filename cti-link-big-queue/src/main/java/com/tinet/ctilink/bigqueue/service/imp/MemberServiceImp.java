@@ -42,7 +42,7 @@ public class MemberServiceImp {
     public void setDeviceStatus(String enterpriseId, String cno, Integer deviceStatus){
     	String deviceStatusKey = String.format(BigQueueCacheKey.MEMBER_DEVICE_STATUS_ENTERPRISE_ID, enterpriseId);
     	redisService.hset(Const.REDIS_DB_CTI_INDEX, deviceStatusKey, cno, deviceStatus);
-    	redisService.hset(Const.REDIS_DB_CTI_INDEX, deviceStatusKey, "start_" + cno, redisService.time());
+    	redisService.hset(Const.REDIS_DB_CTI_INDEX, deviceStatusKey, "start_" + cno, redisService.time()/1000);
     }
     public Integer getDeviceStatus(String enterpriseId, String cno){
     	String deviceStatusKey = String.format(BigQueueCacheKey.MEMBER_DEVICE_STATUS_ENTERPRISE_ID, enterpriseId);
@@ -75,7 +75,7 @@ public class MemberServiceImp {
     public void setLoginStatus(String enterpriseId, String cno, Integer loginStatus){
     	String loginStatusKey = String.format(BigQueueCacheKey.MEMBER_LOGIN_STATUS_ENTERPRISE_ID, enterpriseId);
     	redisService.hset(Const.REDIS_DB_CTI_INDEX, loginStatusKey, cno, loginStatus);
-    	redisService.hset(Const.REDIS_DB_CTI_INDEX, loginStatusKey, "start_" + cno, redisService.time());
+    	redisService.hset(Const.REDIS_DB_CTI_INDEX, loginStatusKey, "start_" + cno, redisService.time()/1000);
     }
     public Integer getLoginStatus(String enterpriseId, String cno){
     	String loginStatusKey = String.format(BigQueueCacheKey.MEMBER_LOGIN_STATUS_ENTERPRISE_ID, enterpriseId);
