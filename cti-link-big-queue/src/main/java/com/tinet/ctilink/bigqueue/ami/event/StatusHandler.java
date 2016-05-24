@@ -164,9 +164,9 @@ public class StatusHandler implements EventHandler, InitializingBean{
 										Date triggerTime = DateUtil.addSecond(new Date(), wrapupTime);
 										redisTaskScheduler.scheduleTimed("warpupTaskSchedulerGroup",
 												String.format(BigQueueConst.WRAPUP_END_TASK_ID, enterpriseId, cno), 
-												"WrapupEndTaskTrigger", 
+												"wrapupEndTaskTrigger", 
 												wrapupParams,
-												triggerTime.getTime()/1000);
+												triggerTime.getTime());
 										
 										memberService.setLoginStatus(enterpriseId, cno, BigQueueConst.MEMBER_LOGIN_STATUS_WRAPUP);
 										

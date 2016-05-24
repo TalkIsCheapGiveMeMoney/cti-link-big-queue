@@ -91,9 +91,9 @@ public class LimitTimeTaskTrigger implements TaskSchedulerTrigger {
 			Date triggerTime = DateUtil.addSecond(new Date(), alertSecond);
 			redisTaskScheduler.scheduleTimed("limitTimeTaskSchedulerGroup",
 					String.format(BigQueueConst.LIMIT_TIME_TASK_ID, uniqueId), 
-					"LimitTimeTaskTrigger", 
+					"limitTimeTaskTrigger", 
 					limitTimeParams,
-					triggerTime.getTime()/1000);
+					triggerTime.getTime());
 		}else{
 			hangupActionService.hangup(sipId, channel, new Integer(16));
 		}

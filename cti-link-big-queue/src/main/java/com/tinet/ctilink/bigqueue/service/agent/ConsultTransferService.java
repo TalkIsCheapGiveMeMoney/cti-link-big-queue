@@ -104,9 +104,9 @@ public class ConsultTransferService {
     							Date triggerTime = DateUtil.addSecond(new Date(), (limitSecond - alertSecond));
     							redisTaskScheduler.scheduleTimed("limitTimeTaskSchedulerGroup",
     									String.format(BigQueueConst.LIMIT_TIME_TASK_ID, uniqueId), 
-    									"LimitTimeTaskTrigger", 
+    									"limitTimeTaskTrigger", 
     									limitTimeParams,
-    									triggerTime.getTime()/1000);
+    									triggerTime.getTime());
     	    	            }
         	            }
     					
