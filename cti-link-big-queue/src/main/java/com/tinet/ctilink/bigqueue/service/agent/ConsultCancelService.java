@@ -78,12 +78,12 @@ public class ConsultCancelService {
 							 response = ActionResponse.createSuccessResponse();
 							 return response;
 						 }else{
-							 response = ActionResponse.createFailResponse(-1, "originate fail");
+							 response = ActionResponse.createFailResponse(-1, "hangup fail");
 							 return response;
 						 }
 					 }catch(Exception e){
 						 e.printStackTrace();
-						 response = ActionResponse.createFailResponse(-1, "originate exception");
+						 response = ActionResponse.createFailResponse(-1, "hangup exception");
 						 return response;
 					 }
 				}else {

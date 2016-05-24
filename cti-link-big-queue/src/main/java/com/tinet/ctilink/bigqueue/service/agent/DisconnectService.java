@@ -17,6 +17,7 @@ import com.tinet.ctilink.bigqueue.ami.action.OriginateActionService;
 import com.tinet.ctilink.bigqueue.ami.action.SetVarActionService;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
+import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
 import com.tinet.ctilink.bigqueue.service.imp.AgentServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.ChannelServiceImp;
@@ -85,8 +86,15 @@ public class DisconnectService {
 				     }
 					setVarActionService.setVar(sipId, destChannel, varMap);
 					
-					AmiActionResponse amiResponse = hangupActionService.hangup(sipId, channel, new Integer(3));
+					AmiActionResponse amiResponse = hangupActionService.hangup(sipId, channel, Const.CDR_HANGUP_CAUSE_DISCONNECT);
     				if(amiResponse != null && (amiResponse.getCode() == 0)){
+    					JSONObject event = new JSONObject();
+                        event.put("event", "disconnectUnlink");
+                        event.put("enterpriseId", enterpriseId);
+                        event.put("cno", disconnectedCno);
+                        event.put("disconnectorCno", cno);
+                        redisService.convertAndSend(BigQueueCacheKey.AGENT_GATEWAY_EVENT_TOPIC, event);
+                        
     					response = ActionResponse.createSuccessResponse();
     					return response;
     				}else{

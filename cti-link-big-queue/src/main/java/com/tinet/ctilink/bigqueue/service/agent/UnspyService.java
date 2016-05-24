@@ -2,12 +2,15 @@ package com.tinet.ctilink.bigqueue.service.agent;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.tinet.ctilink.ami.action.AmiActionResponse;
 import com.tinet.ctilink.bigqueue.ami.action.GetVarActionService;
+import com.tinet.ctilink.bigqueue.ami.action.HangupActionService;
 import com.tinet.ctilink.bigqueue.ami.action.OriginateActionService;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
@@ -45,19 +48,37 @@ public class UnspyService {
 	@Autowired
 	GetVarActionService getVarActionService;
 	@Autowired
-	OriginateActionService originateActionService;
+	HangupActionService hangupActionService;
 	public ActionResponse unspy(Map<String,Object> params){
 		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
-		String cno = params.get("cno").toString();
+		String spiedCno = params.get("spiedCno").toString();
 		
 		//先获取lock memberService.lockMember(enterpriseId, cno);
-		RedisLock memberLock = memberService.lockMember(enterpriseId, cno);
+		RedisLock memberLock = memberService.lockMember(enterpriseId, spiedCno);
 		if(memberLock != null){
 			try{
-				CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
+				CallAgent callAgent = agentService.getCallAgent(enterpriseId, spiedCno);
 				if(callAgent != null){
-					
+					Integer sipId = callAgent.getCurrentSipId();
+					String channel = callAgent.getSpyChannel();
+					if(StringUtils.isEmpty(channel)){
+						response = ActionResponse.createFailResponse(-1, "no channel");
+						return response;
+					}
+					Integer deviceStatus = memberService.getDeviceStatus(enterpriseId, spiedCno);
+					if(!deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_RINGING)){
+						 response = ActionResponse.createFailResponse(-1, "not on ring");
+						 return response;
+					}
+					AmiActionResponse amiResponse = hangupActionService.hangup(sipId, channel, new Integer(3));
+					if(amiResponse != null && (amiResponse.getCode() == 0)){
+						 response = ActionResponse.createSuccessResponse();
+						 return response;
+					 }else{
+						 response = ActionResponse.createFailResponse(-1, "hangup fail");
+						 return response;
+					 }
 				}else {
 					response = ActionResponse.createFailResponse(-1, "no such agent");
 				}

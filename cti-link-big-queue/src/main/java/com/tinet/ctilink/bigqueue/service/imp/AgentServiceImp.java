@@ -1,6 +1,7 @@
 
 package com.tinet.ctilink.bigqueue.service.imp;
 
+
 import java.util.List;
 import java.util.Map;
 
@@ -23,11 +24,9 @@ import com.tinet.ctilink.bigqueue.service.agent.ConsultThreewayService;
 import com.tinet.ctilink.bigqueue.service.agent.ConsultTransferService;
 import com.tinet.ctilink.bigqueue.service.agent.DirectCallStartService;
 import com.tinet.ctilink.bigqueue.service.agent.DisconnectService;
-import com.tinet.ctilink.bigqueue.service.agent.HangupService;
 import com.tinet.ctilink.bigqueue.service.agent.HoldService;
 import com.tinet.ctilink.bigqueue.service.agent.InteractService;
 import com.tinet.ctilink.bigqueue.service.agent.InvestigationService;
-import com.tinet.ctilink.bigqueue.service.agent.IvrOutcallService;
 import com.tinet.ctilink.bigqueue.service.agent.LoginService;
 import com.tinet.ctilink.bigqueue.service.agent.LogoutService;
 import com.tinet.ctilink.bigqueue.service.agent.MuteService;
@@ -105,15 +104,12 @@ public class AgentServiceImp implements AgentService {
 	@Autowired
 	DisconnectService disconnectService;
 	@Autowired
-	HangupService hangupService;
-	@Autowired
 	HoldService holdService;
 	@Autowired
 	InteractService interactService;
 	@Autowired
 	InvestigationService investigationService;
-	@Autowired
-	IvrOutcallService ivrOutcallService;
+
 	@Autowired
 	MuteService muteService;
 	@Autowired
@@ -149,112 +145,106 @@ public class AgentServiceImp implements AgentService {
 	@Autowired
 	WhisperService whisperService;
 	
-	public ActionResponse login(Map params){
+	public ActionResponse login(Map<String, Object> params){
 		return loginService.login(params);
 	}
-	public ActionResponse logout(Map params){
+	public ActionResponse logout(Map<String, Object> params){
 		return logoutService.logout(params);
 	}
-	public ActionResponse pause(Map params){
+	public ActionResponse pause(Map<String, Object> params){
 		return pauseService.pause(params);
 	}
-	public ActionResponse unpause(Map params){
+	public ActionResponse unpause(Map<String, Object> params){
 		return unpauseService.unpause(params);
 	}
-	public ActionResponse changeBindTel(Map params){
+	public ActionResponse changeBindTel(Map<String, Object> params){
 		return changeBindTelService.changeBindTel(params);
 	}
 	
-	public ActionResponse queueStatus(Map params){
+	public ActionResponse queueStatus(Map<String, Object> params){
 		return queueStatusService.queueStatus(params);
 	}
 	
-	public ActionResponse barge(Map params){
+	public ActionResponse barge(Map<String, Object> params){
 		return bargeService.barge(params);
 	}
 	
-	public ActionResponse hangup(Map params){
-		return hangupService.hangup(params);
-	}
-	public ActionResponse consultCancel(Map params){
+	public ActionResponse consultCancel(Map<String, Object> params){
 		return consultCancelService.consultCancel(params);
 	}
-	public ActionResponse consult(Map params){
+	public ActionResponse consult(Map<String, Object> params){
 		return consultService.consult(params);
 	}
-	public ActionResponse consultThreeway(Map params){
+	public ActionResponse consultThreeway(Map<String, Object> params){
 		return consultThreewayService.consultThreeway(params);
 	}
-	public ActionResponse consultTransfer(Map params){
+	public ActionResponse consultTransfer(Map<String, Object> params){
 		return consultTransferService.consultTransfer(params);
 	}
-	public ActionResponse directCallStart(Map params){
+	public ActionResponse directCallStart(Map<String, Object> params){
 		return directCallStartService.directCallStart(params);
 	}
-	public ActionResponse disconnect(Map params){
+	public ActionResponse disconnect(Map<String, Object> params){
 		return disconnectService.disconnect(params);
 	}
-	public ActionResponse hold(Map params){
+	public ActionResponse hold(Map<String, Object> params){
 		return holdService.hold(params);
 	}
-	public ActionResponse interact(Map params){
+	public ActionResponse interact(Map<String, Object> params){
 		return interactService.interact(params);
 	}
-	public ActionResponse investigation(Map params){
+	public ActionResponse investigation(Map<String, Object> params){
 		return investigationService.investigation(params);
 	}
-	public ActionResponse ivrOutcall(Map params){
-		return ivrOutcallService.ivrOutcall(params);
-	}
-	public ActionResponse mute(Map params){
+	public ActionResponse mute(Map<String, Object> params){
 		return muteService.mute(params);
 	}
-	public ActionResponse pickup(Map params){
+	public ActionResponse pickup(Map<String, Object> params){
 		return pickupService.pickup(params);
 	}
-	public ActionResponse previewOutcall(Map params){
+	public ActionResponse previewOutcall(Map<String, Object> params){
 		return previewOutcallService.previewOutcall(params);
 	}
-	public ActionResponse previewOutcallCancel(Map params){
+	public ActionResponse previewOutcallCancel(Map<String, Object> params){
 		return previewOutcallCancelService.previewOutcallCancel(params);
 	}
-	public ActionResponse refuse(Map params){
+	public ActionResponse refuse(Map<String, Object> params){
 		return refuseService.refuse(params);
 	}
-	public ActionResponse setPause(Map params){
+	public ActionResponse setPause(Map<String, Object> params){
 		return setPauseService.setPause(params);
 	}
-	public ActionResponse setUnpause(Map params){
+	public ActionResponse setUnpause(Map<String, Object> params){
 		return setUnpauseService.setUnpause(params);
 	}
-	public ActionResponse spy(Map params){
+	public ActionResponse spy(Map<String, Object> params){
 		return spyService.spy(params);
 	}
-	public ActionResponse threeway(Map params){
+	public ActionResponse threeway(Map<String, Object> params){
 		return threewayService.threeway(params);
 	}
-	public ActionResponse transfer(Map params){
+	public ActionResponse transfer(Map<String, Object> params){
 		return transferService.transfer(params);
 	}
-	public ActionResponse unconsult(Map params){
+	public ActionResponse unconsult(Map<String, Object> params){
 		return unconsultService.unconsult(params);
 	}
-	public ActionResponse unhold(Map params){
+	public ActionResponse unhold(Map<String, Object> params){
 		return unholdService.unhold(params);
 	}
-	public ActionResponse unlink(Map params){
+	public ActionResponse unlink(Map<String, Object> params){
 		return unlinkService.unlink(params);
 	}
-	public ActionResponse unspy(Map params){
+	public ActionResponse unspy(Map<String, Object> params){
 		return unspyService.unspy(params);
 	}
-	public ActionResponse unthreeway(Map params){
+	public ActionResponse unthreeway(Map<String, Object> params){
 		return unthreewayService.unthreeway(params);
 	}
-	public ActionResponse unwhisper(Map params){
+	public ActionResponse unwhisper(Map<String, Object> params){
 		return unwhisperService.unwhisper(params);
 	}		
-	public ActionResponse whisper(Map params){
+	public ActionResponse whisper(Map<String, Object> params){
 		return whisperService.whisper(params);
 	}
 	
