@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -395,6 +396,7 @@ public class QueueServiceImp {
     public void setQueueEntryInfo(String uniqueId, String field, Object value){
 		String key = String.format(BigQueueCacheKey.QUEUE_ENTRY_INFO_UNIQUE_ID, uniqueId);
 		redisService.hset(Const.REDIS_DB_CTI_INDEX, key, field, value);
+		redisService.expire(Const.REDIS_DB_CTI_INDEX, key, BigQueueConst.MAX_IN_QUEUE_TIME, TimeUnit.SECONDS);
     }
     public Integer getQueueEntryCount(String enterpriseId, String qno){
     	String queueEntryKey = String.format(BigQueueCacheKey.QUEUE_ENTRY_ENTERPRISE_ID_QNO, enterpriseId, qno);
@@ -414,6 +416,7 @@ public class QueueServiceImp {
 		setQueueEntryInfo(uniqueId, "start_time", startTime);
 		setQueueEntryInfo(uniqueId, "overflow", overflow);
 		setQueueEntryInfo(uniqueId, "priority", priority);
+		
     }
     public void removeQueueEntry(String enterpriseId, String qno, String uniqueId){
 		//删除queue_entry_7000001_0001

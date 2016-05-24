@@ -75,7 +75,7 @@ public class HoldService {
 						return response;
 					}
 					String busyDescription = callAgent.getBusyDescription();
-					if(busyDescription.equals("hold")){
+					if(busyDescription != null && busyDescription.equals("hold")){
 						response = ActionResponse.createFailResponse(-1, "already on hold");
 						return response;
 					}

@@ -43,7 +43,7 @@ public class ApplicationStarter implements ApplicationListener<ContextRefreshedE
 		redisTaskScheduler.schedulePeriod("statusScanTask", "statusScanTaskTrigger", null, 1000, 1);
 
 		//启动statusCheckScanTask
-		redisTaskScheduler.schedulePeriod("statusCheckScanTask", "statusCheckScanTaskTrigger", null, 5000, 1);
+		redisTaskScheduler.schedulePeriod("statusCheckScanTask", "statusCheckScanTaskTrigger", null, 10000, 1);
 		
 		amiEventListener.start();
 		

@@ -58,7 +58,7 @@ public class StatusScanTaskTrigger implements TaskSchedulerTrigger {
 			if(channelService.isAlive(uniqueId)){
 				
 			}else{
-				System.out.printf("发现宕机造成的通道不存在，%s %s %s", enterpriseId, qno, uniqueId);
+				logger.error("发现宕机造成的通道不存在，%s %s %s", enterpriseId, qno, uniqueId);
 				queueService.hangup(enterpriseId, qno, null,uniqueId);
 			}
 		}

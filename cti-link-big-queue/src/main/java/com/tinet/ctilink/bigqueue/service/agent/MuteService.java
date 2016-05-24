@@ -73,7 +73,7 @@ public class MuteService {
 					}
 					String state;
 					String busyDescription = callAgent.getBusyDescription();
-					if(busyDescription.equals("mute")){
+					if(busyDescription !=null && busyDescription.equals("mute")){
 						state = "off";
 					}else{
 						state = "on";
