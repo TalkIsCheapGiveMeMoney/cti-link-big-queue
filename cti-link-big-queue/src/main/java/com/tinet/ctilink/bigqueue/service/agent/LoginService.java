@@ -65,20 +65,6 @@ public class LoginService {
 		
 		Agent agent = agentService.getAgent(enterpriseId, cno);
 		if(agent != null){
-			//查询是bindTel否在绑定电话里
-			List<AgentTel> agentTelList = agentService.getAgentBindTel(enterpriseId, cno);
-			boolean validBindTel = false;
-			for(AgentTel agentTel :agentTelList){
-				if(agentTel.getTel().equals(bindTel) && agentTel.getTelType().equals(bindType)){
-					validBindTel = true;
-					break;
-				}
-			}
-			if(validBindTel == false){
-				response = ActionResponse.createFailResponse(-1, "invalid bindTel");
-				return response;
-			}
-			
 			
 			List<QueueMember> queueMemberList = agentService.getQueueMemberList(enterpriseId, cno);
 			if(queueMemberList.size() == 0){
