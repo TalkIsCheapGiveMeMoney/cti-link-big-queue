@@ -228,6 +228,12 @@ public class SpyService {
         }
         
         try{
+        	if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
+        		if(memberService.isAvalibleLock(enterpriseId, spyObject) == false){
+        			response = ActionResponse.createFailResponse(-1, "spy agent busy");
+                	return response;
+        		}
+            }
         	AmiActionResponse amiResponse = originateActionService.originate(sipId, actionMap, actionEvent, varMap);
         	if(amiResponse != null && (amiResponse.getCode() == 0)){
             	response = ActionResponse.createSuccessResponse();

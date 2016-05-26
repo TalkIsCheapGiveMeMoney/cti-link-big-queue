@@ -107,12 +107,6 @@ public class PickupService {
     				if(callAgent != null){
     					destInterface = callAgent.getInterface();
     	                gwIp = AgentUtil.getGwIp(destInterface);
-    	                Integer loginStatus = memberService.getLoginStatus(enterpriseId, cno);
-    	                Integer deviceStatus = memberService.getDeviceStatus(enterpriseId, cno);
-    	                if(!(loginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_READY) && deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_IDLE))){
-    	                	response = ActionResponse.createFailResponse(-1, "not idle");
-    						return response;
-    	                }
     				}else{
     					response = ActionResponse.createFailResponse(-1, "no agent");
 						return response;
@@ -181,6 +175,10 @@ public class PickupService {
 		        	actionEvent.put("pickupCno", pickupCno);
 			        
 			        try{
+    	                if(memberService.isAvalibleLock(enterpriseId, cno) == false){
+	        				response = ActionResponse.createFailResponse(-1, "pickup agent busy");
+	        				return response;
+	        			}
 			        	AmiActionResponse amiResponse = originateActionService.originate(sipId, actionMap, actionEvent, varMap);
 			        	if(amiResponse != null && (amiResponse.getCode() == 0)){
 			            	response = ActionResponse.createSuccessResponse();

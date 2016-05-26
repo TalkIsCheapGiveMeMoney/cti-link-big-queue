@@ -16,6 +16,7 @@ import com.tinet.ctilink.ami.inc.AmiEventTypeConst;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
 import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
+import com.tinet.ctilink.bigqueue.service.agent.PauseService;
 import com.tinet.ctilink.bigqueue.service.imp.AgentServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.MemberServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.QueueEventServiceImp;
@@ -45,6 +46,8 @@ public class StatusHandler implements EventHandler, InitializingBean{
 	private RedisTaskScheduler redisTaskScheduler;
 	@Autowired
 	QueueEventServiceImp queueEventService;
+	@Autowired
+	PauseService pauseService;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception{
@@ -119,6 +122,16 @@ public class StatusHandler implements EventHandler, InitializingBean{
 								break;
 							case AmiChannelStatusConst.IDLE:
 								if(oldDeviceStatus == BigQueueConst.MEMBER_DEVICE_STATUS_INUSE){//准备整理
+									if(callAgent.getBusyDescription() !=null && callAgent.getBusyDescription().equals("hold")){
+										JSONObject queueEvent = new JSONObject();
+										queueEvent.put("event", "unhold");
+										queueEvent.put("enterpriseId", enterpriseId);
+										queueEvent.put("qno", callAgent.getCurrentQueue());
+										queueEvent.put("callType", callAgent.getCurrentCallType());
+		
+										queueEventService.publishEvent(queueEvent);
+									}
+									
 									Integer wrapupTime = -1;
 									switch(callAgent.getCurrentCallType()){
 										case Const.CDR_CALL_TYPE_IB:
@@ -180,16 +193,18 @@ public class StatusHandler implements EventHandler, InitializingBean{
 
 										queueEventService.publishEvent(queueEvent);
 									}
+								}else{
+									if(callAgent.getRnaPause() == 1){
+										
+										pauseService.pauseNolock(enterpriseId, cno, callAgent.getRnaPauseDescription(), callAgent.getRnaPauseType());
+										
+										callAgent = agentService.getCallAgent(enterpriseId, cno);
+										callAgent.setRnaPause(0);
+										callAgent.setRnaPauseDescription("");
+										callAgent.setRnaPauseType(-1);
+									}
 								}
-								if(callAgent.getBusyDescription() !=null && callAgent.getBusyDescription().equals("hold")){
-									JSONObject queueEvent = new JSONObject();
-									queueEvent.put("event", "unhold");
-									queueEvent.put("enterpriseId", enterpriseId);
-									queueEvent.put("qno", callAgent.getCurrentQueue());
-									queueEvent.put("callType", callAgent.getCurrentCallType());
-	
-									queueEventService.publishEvent(queueEvent);
-								}
+								
 								deviceStatus = BigQueueConst.MEMBER_DEVICE_STATUS_IDLE;
 								callAgent.clearCall();
 								break;

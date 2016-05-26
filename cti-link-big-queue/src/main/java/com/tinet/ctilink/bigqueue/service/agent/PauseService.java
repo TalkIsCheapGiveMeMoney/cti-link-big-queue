@@ -51,67 +51,14 @@ public class PauseService {
 		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
-		String type = params.get("type").toString();
+		Integer type = Integer.parseInt(params.get("type").toString());
 		String description = params.get("description").toString();
-		JSONObject queueEvent;
 		
 		//先获取lock memberService.lockMember(enterpriseId, cno);
 		RedisLock memberLock = memberService.lockMember(enterpriseId, cno);
 		if(memberLock != null){
 			try{
-				CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
-				if(callAgent != null){
-				
-					Integer loginStatus = memberService.getLoginStatus(enterpriseId, cno);
-					switch(loginStatus){
-					case BigQueueConst.MEMBER_LOGIN_STATUS_OFFLINE:
-						response = ActionResponse.createFailResponse(-1, "not logined");
-						break;
-					case BigQueueConst.MEMBER_LOGIN_STATUS_READY:
-					case BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE:
-						memberService.setLoginStatus(enterpriseId, cno, BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE);
-						callAgent.setPauseDescription(description);
-						callAgent.setPauseType(Integer.parseInt(type));
-						response = ActionResponse.createSuccessResponse();
-						
-						queueEvent = new JSONObject();
-						queueEvent.put("event", "pause");
-						queueEvent.put("enterpriseId", enterpriseId);
-						queueEvent.put("cno", cno);
-						queueEvent.put("type", type);
-						queueEvent.put("description", description);
-
-						queueEventService.publishEvent(queueEvent);
-						break;
-					case BigQueueConst.MEMBER_LOGIN_STATUS_WRAPUP:
-						memberService.setLoginStatus(enterpriseId, cno, BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE);
-						callAgent.setPauseDescription(description);
-						callAgent.setPauseType(Integer.parseInt(type));
-						String taskId = String.format(BigQueueConst.WRAPUP_END_TASK_ID, enterpriseId, cno);
-						redisTaskScheduler.unschedule(taskId);
-						
-						response = ActionResponse.createSuccessResponse();
-						
-						queueEvent = new JSONObject();
-						queueEvent.put("event", "pause");
-						queueEvent.put("enterpriseId", enterpriseId);
-						queueEvent.put("cno", cno);
-						queueEvent.put("type", type);
-						queueEvent.put("description", description);
-						queueEventService.publishEvent(queueEvent);
-						
-						queueEvent = new JSONObject();
-						queueEvent.put("event", "wrapupEnd");
-						queueEvent.put("enterpriseId", enterpriseId);
-						queueEvent.put("cno", cno);
-						queueEventService.publishEvent(queueEvent);
-						break;
-					}
-					agentService.saveCallAgent(enterpriseId, cno, callAgent);
-					response = ActionResponse.createSuccessResponse();
-				}else{
-					response = ActionResponse.createFailResponse(-1, "no such agent");
-				}	
+				return pauseNolock(enterpriseId, cno, description, type);
 			}catch(Exception e){
 				e.printStackTrace();
 				response = ActionResponse.createFailResponse(-1, "exception");
@@ -121,6 +68,65 @@ public class PauseService {
 			}
 		}else{
 			response = ActionResponse.createFailResponse(-1, "fail to get lock");
+		}	
+		return response;
+	}
+	
+	public ActionResponse pauseNolock(String enterpriseId, String cno, String description, Integer type){
+		ActionResponse response = null;
+		JSONObject queueEvent;
+		CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
+		if(callAgent != null){
+		
+			Integer loginStatus = memberService.getLoginStatus(enterpriseId, cno);
+			switch(loginStatus){
+			case BigQueueConst.MEMBER_LOGIN_STATUS_OFFLINE:
+				response = ActionResponse.createFailResponse(-1, "not logined");
+				break;
+			case BigQueueConst.MEMBER_LOGIN_STATUS_READY:
+			case BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE:
+				memberService.setLoginStatus(enterpriseId, cno, BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE);
+				callAgent.setPauseDescription(description);
+				callAgent.setPauseType(type);
+				response = ActionResponse.createSuccessResponse();
+				
+				queueEvent = new JSONObject();
+				queueEvent.put("event", "pause");
+				queueEvent.put("enterpriseId", enterpriseId);
+				queueEvent.put("cno", cno);
+				queueEvent.put("type", type);
+				queueEvent.put("description", description);
+
+				queueEventService.publishEvent(queueEvent);
+				break;
+			case BigQueueConst.MEMBER_LOGIN_STATUS_WRAPUP:
+				memberService.setLoginStatus(enterpriseId, cno, BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE);
+				callAgent.setPauseDescription(description);
+				callAgent.setPauseType(type);
+				String taskId = String.format(BigQueueConst.WRAPUP_END_TASK_ID, enterpriseId, cno);
+				redisTaskScheduler.unschedule(taskId);
+				
+				response = ActionResponse.createSuccessResponse();
+				
+				queueEvent = new JSONObject();
+				queueEvent.put("event", "pause");
+				queueEvent.put("enterpriseId", enterpriseId);
+				queueEvent.put("cno", cno);
+				queueEvent.put("type", type);
+				queueEvent.put("description", description);
+				queueEventService.publishEvent(queueEvent);
+				
+				queueEvent = new JSONObject();
+				queueEvent.put("event", "wrapupEnd");
+				queueEvent.put("enterpriseId", enterpriseId);
+				queueEvent.put("cno", cno);
+				queueEventService.publishEvent(queueEvent);
+				break;
+			}
+			agentService.saveCallAgent(enterpriseId, cno, callAgent);
+			response = ActionResponse.createSuccessResponse();
+		}else{
+			response = ActionResponse.createFailResponse(-1, "no such agent");
 		}	
 		return response;
 	}

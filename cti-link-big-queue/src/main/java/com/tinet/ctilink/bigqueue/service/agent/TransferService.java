@@ -23,6 +23,7 @@ import com.tinet.ctilink.bigqueue.service.imp.MemberServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.QueueEventServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
 import com.tinet.ctilink.cache.RedisService;
+import com.tinet.ctilink.inc.Const;
 import com.tinet.ctilink.json.JSONObject;
 import com.tinet.ctilink.scheduler.RedisTaskScheduler;
 import com.tinet.ctilink.util.RedisLock;
@@ -76,14 +77,10 @@ public class TransferService {
 					if(objectType.equals("1")){
 		        		CallAgent tranferedCallAgent = agentService.getCallAgent(enterpriseId, transferObject);
 		        		if(tranferedCallAgent != null){
-		        			Integer consultedDeviceStatus = memberService.getDeviceStatus(enterpriseId, transferObject);
-		        			Integer consultedLoginStatus = memberService.getLoginStatus(enterpriseId, transferObject);
-		        			if(consultedDeviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_IDLE) && consultedLoginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_READY)){
-		        				
-		        			}else{
-		        				response = ActionResponse.createFailResponse(-1, "tranfered agent busy");
-		        				return response;
-		        			}
+	                		if(memberService.isAvalibleLock(enterpriseId, transferObject) == false){
+	                			response = ActionResponse.createFailResponse(-1, "transfer agent busy");
+	                        	return response;
+	                		}
 		        		}else{
 		        			response = ActionResponse.createFailResponse(-1, "no such transfer agent");
 							return response;

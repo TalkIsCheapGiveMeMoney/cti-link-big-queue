@@ -22,6 +22,7 @@ import com.tinet.ctilink.bigqueue.service.imp.MemberServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.QueueEventServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
 import com.tinet.ctilink.cache.RedisService;
+import com.tinet.ctilink.inc.Const;
 import com.tinet.ctilink.json.JSONObject;
 import com.tinet.ctilink.scheduler.RedisTaskScheduler;
 import com.tinet.ctilink.util.RedisLock;
@@ -77,11 +78,7 @@ public class ConsultService {
 		            if(objectType.equals("1")){
 		        		CallAgent consultedCallAgent = agentService.getCallAgent(enterpriseId, consultObject);
 		        		if(consultedCallAgent != null){
-		        			Integer consultedDeviceStatus = memberService.getDeviceStatus(enterpriseId, consultObject);
-		        			Integer consultedLoginStatus = memberService.getLoginStatus(enterpriseId, consultObject);
-		        			if(consultedDeviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_IDLE) && consultedLoginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_READY)){
-		        				
-		        			}else{
+	                		if(memberService.isAvalibleLock(enterpriseId, consultObject) == false){
 		        				response = ActionResponse.createFailResponse(-1, "consulted agent busy");
 		        				return response;
 		        			}

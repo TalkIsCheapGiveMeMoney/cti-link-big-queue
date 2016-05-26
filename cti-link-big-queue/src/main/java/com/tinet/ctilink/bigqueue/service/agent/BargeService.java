@@ -163,10 +163,8 @@ public class BargeService {
     			response = ActionResponse.createFailResponse(-1, "fail to get lock");
     			return response;
     		}
-
-        	
-        
         }
+        
         if (destInterface.isEmpty()) {
 	        response = ActionResponse.createFailResponse(-1, "bad param");
 			return response;
@@ -235,6 +233,12 @@ public class BargeService {
         }
         
         try{
+        	if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
+        		if(memberService.isAvalibleLock(enterpriseId, bargeObject) == false){
+        			response = ActionResponse.createFailResponse(-1, "barge agent busy");
+                	return response;
+        		}
+            }
         	AmiActionResponse amiResponse = originateActionService.originate(sipId, actionMap, actionEvent, varMap);
         	if(amiResponse != null && (amiResponse.getCode() == 0)){
             	response = ActionResponse.createSuccessResponse();

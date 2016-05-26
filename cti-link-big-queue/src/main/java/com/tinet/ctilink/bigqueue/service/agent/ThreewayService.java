@@ -228,6 +228,12 @@ public class ThreewayService {
         }
         
         try{
+        	if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
+        		if(memberService.isAvalibleLock(enterpriseId, threewayObject) == false){
+        			response = ActionResponse.createFailResponse(-1, "threeway agent busy");
+                	return response;
+        		}
+            }
         	AmiActionResponse amiResponse = originateActionService.originate(sipId, actionMap, actionEvent, varMap);
         	if(amiResponse != null && (amiResponse.getCode() == 0)){
             	response = ActionResponse.createSuccessResponse();
