@@ -65,6 +65,7 @@ public class LoginService {
 		
 		Agent agent = agentService.getAgent(enterpriseId, cno);
 		if(agent != null){
+			//查询是bindTel否在绑定电话里
 			List<AgentTel> agentTelList = agentService.getAgentBindTel(enterpriseId, cno);
 			boolean validBindTel = false;
 			for(AgentTel agentTel :agentTelList){
@@ -78,7 +79,7 @@ public class LoginService {
 				return response;
 			}
 			
-			//查询是bindTel否在绑定电话里
+			
 			List<QueueMember> queueMemberList = agentService.getQueueMemberList(enterpriseId, cno);
 			if(queueMemberList.size() == 0){
 				response = ActionResponse.createFailResponse(-1, "not in any queue");

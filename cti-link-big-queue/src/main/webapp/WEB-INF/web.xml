@@ -27,14 +27,4 @@
         <url-pattern>*</url-pattern>
     </filter-mapping>
 
-    <servlet>
-        <servlet-name>demoServlet</servlet-name>
-        <servlet-class>com.tinet.ctilink.web.DelegatingServletProxy</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>demoServlet</servlet-name>
-        <url-pattern>/interface/demo</url-pattern>
-    </servlet-mapping>
-
-
 </web-app>
