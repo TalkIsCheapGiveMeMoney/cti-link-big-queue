@@ -16,7 +16,6 @@ import com.tinet.ctilink.bigqueue.ami.action.GetVarActionService;
 import com.tinet.ctilink.bigqueue.ami.action.OriginateActionService;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
-import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
 import com.tinet.ctilink.bigqueue.service.imp.AgentServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.ChannelServiceImp;
@@ -31,6 +30,7 @@ import com.tinet.ctilink.conf.model.EnterpriseSetting;
 import com.tinet.ctilink.conf.model.Gateway;
 import com.tinet.ctilink.conf.util.AreaCodeUtil;
 import com.tinet.ctilink.conf.util.ClidUtil;
+import com.tinet.ctilink.conf.util.RestrictTelUtil;
 import com.tinet.ctilink.conf.util.RouterUtil;
 import com.tinet.ctilink.inc.Const;
 import com.tinet.ctilink.json.JSONObject;
@@ -82,9 +82,14 @@ public class PreviewOutcallService {
 	        			response = ActionResponse.createFailResponse(-1, "previewOutcall agent busy");
 	                	return response;
 	        		}
-	        		//检查传入的clid是否合法
-	        		String obClidLeftNumber = params.get("obClidLeftNumber").toString();
-	        		long timeout = 45000;
+
+	        		int timeout;
+	        		String timeoutStr = params.get("timeout").toString(); 
+	        		if(StringUtils.isNotEmpty(timeoutStr)){
+	        			timeout = Integer.parseInt(timeoutStr);
+	        		}else{
+	        			timeout = 45;
+	        		}
 	                String previewOutcallTel = params.get("previewOutcallTel").toString();//外呼要拨打的电话号码
 	                if (StringUtils.isNotEmpty(previewOutcallTel)) {
 	                    previewOutcallTel = previewOutcallTel.replaceAll("\\s","").replaceAll("-",""); //除去空格等特殊字符和中横线
@@ -93,16 +98,38 @@ public class PreviewOutcallService {
 	                	response = ActionResponse.createFailResponse(-1, "bad param");
 	                	return response;
 	                }
-	                //是否有外呼权限EnterpriseSetting里查
+	               
 	                //
 	                Caller caller = AreaCodeUtil.updateGetAreaCode(previewOutcallTel, "");
 	                if (caller.getCallerNumber().equals(Const.UNKNOWN_NUMBER) || caller.getAreaCode().equals("")) {
 	                	response = ActionResponse.createFailResponse(-1, "bad tel");
 	                	return response;
 	                }
-	                //检查黑名单 电话号码为黑名单
+	                //是否有外呼权限EnterpriseSetting里查
+	                if(!checkCallPower(Integer.parseInt(enterpriseId), cno, caller)){
+	                	response = ActionResponse.createFailResponse(-1, "permission denied");
+	                	return response;
+	                }
 	                
+	                //检查黑名单 电话号码为黑名单
+	                if(RestrictTelUtil.isRestrictTel(Integer.parseInt(enterpriseId), previewOutcallTel,Const.RESTRICT_TEL_TYPE_OB)){
+	                	response = ActionResponse.createFailResponse(-1, "restrict tel");
+	                	return response;
+	                }
 	                int routerClidCallType = Const.ROUTER_CLID_CALL_TYPE_PREVIEW_OB_RIGHT;
+	                
+	        		//检查传入的clid是否合法
+	                String obClidLeft;
+	        		String obClidLeftNumber = params.get("obClidLeftNumber").toString();
+	        		if(StringUtils.isNotEmpty(obClidLeftNumber)){
+		        		if(!ClidUtil.isClidValid(Integer.parseInt(enterpriseId), Const.ROUTER_CLID_CALL_TYPE_PREVIEW_OB_LEFT, previewOutcallTel, obClidLeftNumber)){
+		        			response = ActionResponse.createFailResponse(-1, "bad obClidLeftNumber");
+		                	return response;
+		        		}
+		        		obClidLeft = obClidLeftNumber;
+	        		}else{
+	        			obClidLeft = ClidUtil.getClid(Integer.parseInt(enterpriseId), Const.ROUTER_CLID_CALL_TYPE_PREVIEW_OB_LEFT, previewOutcallTel, "");
+	        		}
 	                String destInterface;
 	                String gwIp;
 	                Gateway gateway = RouterUtil.getRouterGateway(Integer.parseInt(enterpriseId), routerClidCallType, caller);
@@ -114,7 +141,7 @@ public class PreviewOutcallService {
 	                	response = ActionResponse.createFailResponse(-1, "no route");
 	                	return response;
 	                }
-	                String clid = ClidUtil.getClid(Integer.parseInt(enterpriseId), routerClidCallType, previewOutcallTel, "");
+	                String clidRight = ClidUtil.getClid(Integer.parseInt(enterpriseId), routerClidCallType, previewOutcallTel, "");
 	        		
 	                if(loginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE)  || 
 	                        (loginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_WRAPUP))){//置忙外呼就不再置忙preivewoutcalling,如果在整理要调用置忙让整理结束
@@ -156,8 +183,8 @@ public class PreviewOutcallService {
 	                varMap.put(AmiChanVarNameConst.CDR_START_TIME, String.valueOf(callStartTime));
 	                //member
 	                varMap.put(AmiChanVarNameConst.CDR_STATUS, String.valueOf(Const.CDR_STATUS_OB_CLIENT_NO_ANSWER));
-	                //获取obClid
-	                String obClid = "";
+	                
+	                String clid = ClidUtil.getClid(Integer.parseInt(enterpriseId), Const.ROUTER_CLID_CALL_TYPE_PREVIEW_OB_RIGHT, previewOutcallTel, "");
 	                //获取是否自动满意度调查
 	                Integer isInvestigationAuto = 0;
 	                enterpriseSettingKey = String.format(CacheKey.ENTERPRISE_SETTING_ENTERPRISE_ID_NAME, Integer.parseInt(enterpriseId), Const.ENTERPRISE_SETTING_NAME_AUTO_INVESTIGATION_OB);
@@ -167,9 +194,9 @@ public class PreviewOutcallService {
 	                }
 	                
 	                varMap.put(AmiChanVarNameConst.CDR_GW_IP, gwIp);
-	                varMap.put("__" + AmiChanVarNameConst.CDR_NUMBER_TRUNK, obClid);                 //座席侧外显号码
+	                varMap.put("__" + AmiChanVarNameConst.CDR_NUMBER_TRUNK, clidRight);                 //座席侧外显号码
 	                varMap.put("__" + AmiChanVarNameConst.IS_INVESTIGATION_AUTO, isInvestigationAuto);
-	                varMap.put(AmiChanVarNameConst.PREVIEW_OUTCALL_LEFT_CLID, obClid);               //客户侧外显号码
+	                varMap.put(AmiChanVarNameConst.PREVIEW_OUTCALL_LEFT_CLID, obClidLeft);               //客户侧外显号码
 	                
 	                varMap.put(AmiChanVarNameConst.DIAL_TIMEOUT, "60");                  //外呼等待时长  60秒
 	                
@@ -187,7 +214,7 @@ public class PreviewOutcallService {
 	                actionMap.put("exten", enterpriseId + cno);
 	                actionMap.put("priority", 1);
 	                actionMap.put("channel", destInterface);
-	                actionMap.put("timeout", 30000);
+	                actionMap.put("timeout", timeout);
 	                actionMap.put("clid", clid);     
 	                               
 	                JSONObject actionEvent = null;
@@ -233,5 +260,38 @@ public class PreviewOutcallService {
 		}
 
 		return response;
+	}
+	
+	public Boolean checkCallPower(Integer enterpriseId, String cno, Caller caller) {
+		
+		String agentKey = String.format(CacheKey.AGENT_ENTERPRISE_ID_CNO, enterpriseId, cno);
+		Agent agent = redisService.get(Const.REDIS_DB_CONF_INDEX, agentKey, Agent.class);
+
+		if (agent != null) {
+			
+			switch (agent.getCallPower()) {
+			case Const.CLIENT_CALL_POWER_ALL:
+				return true;
+			case Const.CLIENT_CALL_POWER_NATIONAL:
+				if (caller.getAreaCode().equals("00")) {
+					return false;
+				} else {
+					return true;
+				}
+			case Const.CLIENT_CALL_POWER_LOCAL:
+				if (caller.getAreaCode().equals(agent.getAreaCode())) {
+					return true;
+				} else {
+					return false;
+				}
+			case Const.CLIENT_CALL_POWER_INTERNAL:
+				if (caller.getAreaCode().equals("")) {// 取不到areaCode表示分机
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+		return false;
 	}
 }
