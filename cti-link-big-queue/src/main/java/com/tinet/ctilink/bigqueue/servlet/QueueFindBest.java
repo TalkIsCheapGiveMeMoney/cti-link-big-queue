@@ -9,10 +9,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.tinet.ctilink.bigqueue.entity.CallAgent;
 import com.tinet.ctilink.bigqueue.entity.CallMember;
 import com.tinet.ctilink.bigqueue.inc.BigQueueChannelVar;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
+import com.tinet.ctilink.bigqueue.service.imp.AgentServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
+import com.tinet.ctilink.conf.model.Agent;
 import com.tinet.ctilink.json.JSONObject;
 import com.tinet.ctilink.util.ContextUtil;
 
@@ -20,9 +23,11 @@ import com.tinet.ctilink.util.ContextUtil;
 public class QueueFindBest extends HttpServlet {
 
 	QueueServiceImp queueService;
+	AgentServiceImp agentService;
 	@Override
 	public void init() throws ServletException {
 		queueService = ContextUtil.getBean(QueueServiceImp.class);
+		agentService = ContextUtil.getBean(AgentServiceImp.class);
 	}
 	
     @Override
@@ -50,6 +55,10 @@ public class QueueFindBest extends HttpServlet {
 	        res.put(BigQueueChannelVar.QUEUE_CODE, BigQueueConst.QUEUE_CODE_ROUTE_OK);
 			res.put(BigQueueChannelVar.QUEUE_DIAL_INTERFACE, callMember.getInterface());
 			res.put(BigQueueChannelVar.QUEUE_DIAL_CNO, callMember.getCno());
+			Agent agent = agentService.getAgent(enterpriseId, callMember.getCno());
+			res.put(BigQueueChannelVar.AGENT_IS_RECORD, agent.getIbRecord());
+			CallAgent callAgent = agentService.getCallAgent(enterpriseId, callMember.getCno());
+			res.put(BigQueueChannelVar.QUEUE_DIAL_TEL, callAgent.getBindTel());
         }else{
         	res.put(BigQueueChannelVar.QUEUE_CODE, BigQueueConst.QUEUE_CODE_ROUTE_FAIL);
         }
