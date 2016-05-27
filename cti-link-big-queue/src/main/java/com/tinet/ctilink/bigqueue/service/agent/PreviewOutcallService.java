@@ -35,6 +35,7 @@ import com.tinet.ctilink.conf.util.RouterUtil;
 import com.tinet.ctilink.inc.Const;
 import com.tinet.ctilink.json.JSONObject;
 import com.tinet.ctilink.scheduler.RedisTaskScheduler;
+import com.tinet.ctilink.util.AgentUtil;
 import com.tinet.ctilink.util.RedisLock;
 
 @Component
@@ -130,17 +131,8 @@ public class PreviewOutcallService {
 	        		}else{
 	        			obClidLeft = ClidUtil.getClid(Integer.parseInt(enterpriseId), Const.ROUTER_CLID_CALL_TYPE_PREVIEW_OB_LEFT, previewOutcallTel, "");
 	        		}
-	                String destInterface;
-	                String gwIp;
-	                Gateway gateway = RouterUtil.getRouterGateway(Integer.parseInt(enterpriseId), routerClidCallType, caller);
-	                if (gateway != null) {
-	                    destInterface = "PJSIP/" + gateway.getName()+"/sip:"+gateway.getPrefix() + caller.getCallerNumber() + "@"
-	                            + gateway.getIpAddr() + ":" + gateway.getPort();
-	                    gwIp = gateway.getIpAddr();
-	                }else{
-	                	response = ActionResponse.createFailResponse(-1, "no route");
-	                	return response;
-	                }
+	        		
+	                String gwIp = AgentUtil.getGwIp(callAgent.getInterface());
 	                String clidRight = ClidUtil.getClid(Integer.parseInt(enterpriseId), routerClidCallType, previewOutcallTel, "");
 	        		
 	                if(loginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE)  || 
@@ -156,7 +148,7 @@ public class PreviewOutcallService {
 	                	}
 	                }
 	                Map<String, Object> varMap = new HashMap<String, Object>();
-	                varMap.put("dial_interface", destInterface);
+
 	                varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_NUMBER, caller.getCallerNumber()); //客户号码
 	                varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_NUMBER_TYPE, String.valueOf(caller.getTelType())); //电话类型
 	                varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_AREA_CODE, caller.getAreaCode()); //区号
@@ -184,7 +176,7 @@ public class PreviewOutcallService {
 	                //member
 	                varMap.put(AmiChanVarNameConst.CDR_STATUS, String.valueOf(Const.CDR_STATUS_OB_CLIENT_NO_ANSWER));
 	                
-	                String clid = ClidUtil.getClid(Integer.parseInt(enterpriseId), Const.ROUTER_CLID_CALL_TYPE_PREVIEW_OB_RIGHT, previewOutcallTel, "");
+
 	                //获取是否自动满意度调查
 	                Integer isInvestigationAuto = 0;
 	                enterpriseSettingKey = String.format(CacheKey.ENTERPRISE_SETTING_ENTERPRISE_ID_NAME, Integer.parseInt(enterpriseId), Const.ENTERPRISE_SETTING_NAME_AUTO_INVESTIGATION_OB);
@@ -200,10 +192,6 @@ public class PreviewOutcallService {
 	                
 	                varMap.put(AmiChanVarNameConst.DIAL_TIMEOUT, "60");                  //外呼等待时长  60秒
 	                
-	                String routeType="";
-	                if(callAgent.getBindType() == Const.BIND_TYPE_SOFT_PHONE){
-	                    routeType="softphone";
-	                }
 	                Map<String, Object> userFieldMap = (Map<String, Object>)(params.get("userField"));
 	                for(String key: userFieldMap.keySet()){
 	                	varMap.put(key, userFieldMap.get(key).toString()); 
@@ -213,9 +201,9 @@ public class PreviewOutcallService {
 	                actionMap.put("context", Const.DIALPLAN_CONTEXT_PREVIEW_OUTCALL);
 	                actionMap.put("exten", enterpriseId + cno);
 	                actionMap.put("priority", 1);
-	                actionMap.put("channel", destInterface);
+	                actionMap.put("channel", callAgent.getInterface());
 	                actionMap.put("timeout", timeout);
-	                actionMap.put("clid", clid);     
+	                actionMap.put("clid", clidRight);     
 	                               
 	                JSONObject actionEvent = null;
 
