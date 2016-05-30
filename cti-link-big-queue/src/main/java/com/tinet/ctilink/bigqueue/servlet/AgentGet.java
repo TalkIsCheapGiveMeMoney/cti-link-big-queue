@@ -25,8 +25,8 @@ import com.tinet.ctilink.util.AgentUtil;
 import com.tinet.ctilink.util.ContextUtil;
 import com.tinet.ctilink.util.RedisLock;
 
-@WebServlet("/interface/agent/getLock")
-public class AgentGetLock extends HttpServlet {
+@WebServlet("/interface/agent/get")
+public class AgentGet extends HttpServlet {
 
 	AgentServiceImp agentService;
 	MemberServiceImp memberService;
@@ -51,6 +51,7 @@ public class AgentGetLock extends HttpServlet {
         
         String enterpriseId = req.getParameter("enterpriseId");
         String cno = req.getParameter("cno");
+        
        
         //先获取lock memberService.lockMember(enterpriseId, cno);
   		RedisLock bargedMemberLock = memberService.lockMember(enterpriseId, cno);
@@ -58,18 +59,15 @@ public class AgentGetLock extends HttpServlet {
   			try{
   				CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
   				if(callAgent != null){
-  					Integer loginStatus = memberService.getLoginStatus(enterpriseId, cno);
   			        Integer deviceStatus = memberService.getDeviceStatus(enterpriseId, cno);
-  			        
-  			        if(loginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_READY) && deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_IDLE)){
-  			        	memberService.setDeviceStatus(enterpriseId, cno, BigQueueConst.MEMBER_DEVICE_STATUS_LOCKED);
+		        	if(deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_LOCKED)){
 		        		JSONObject object = new JSONObject();
   			        	object.put("dial_interface", callAgent.getInterface());
   			        	object.put("dial_tel", callAgent.getBindTel());
   			        	object.put("dial_gw_ip", AgentUtil.getGwIp(callAgent.getInterface()));
   			        	out.print(object.toString());
   			        	return;
-  			        }
+		        	}
   				}
   			}catch(Exception e){
   				e.printStackTrace();

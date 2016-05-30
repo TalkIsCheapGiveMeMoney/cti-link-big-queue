@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
+import com.tinet.ctilink.json.JSONObject;
 import com.tinet.ctilink.util.ContextUtil;
 
 @WebServlet("/interface/queue/leave")
@@ -43,6 +44,9 @@ public class QueueLeave extends HttpServlet {
         String cno = req.getParameter("cno");
         
         queueService.leave(enterpriseId, qno, uniqueId, leaveCode, cno);
+        JSONObject object = new JSONObject();
+        object.put("result", "0");
+        out.print(object.toString());
         out.flush();
         out.close();
     }

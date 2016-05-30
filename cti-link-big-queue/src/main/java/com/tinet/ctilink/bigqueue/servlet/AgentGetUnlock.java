@@ -59,6 +59,10 @@ public class AgentGetUnlock extends HttpServlet {
   			        Integer deviceStatus = memberService.getDeviceStatus(enterpriseId, cno);
   			        if(deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_LOCKED)){
   			        	memberService.setDeviceStatus(enterpriseId, cno, BigQueueConst.MEMBER_DEVICE_STATUS_IDLE);
+	  			        JSONObject object = new JSONObject();
+	  			        object.put("result", "0");
+	  			        out.print(object.toString());
+	  			        return;
   			        }
   				}
   			}catch(Exception e){
@@ -68,7 +72,9 @@ public class AgentGetUnlock extends HttpServlet {
   			}
   		}else{
   		}
-  					
+        JSONObject object = new JSONObject();
+        object.put("result", "-1");
+        out.print(object.toString());		
         out.flush();
         out.close();
     }

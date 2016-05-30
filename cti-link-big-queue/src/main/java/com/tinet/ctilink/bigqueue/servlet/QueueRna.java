@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
+import com.tinet.ctilink.json.JSONObject;
 import com.tinet.ctilink.util.ContextUtil;
 
 @WebServlet("/interface/queue/rna")
@@ -42,6 +43,9 @@ public class QueueRna extends HttpServlet {
         String cno = req.getParameter("cno");
         
         queueService.rna(enterpriseId, qno, cno, uniqueId);
+        JSONObject object = new JSONObject();
+        object.put("result", "0");
+        out.print(object.toString());
         out.flush();
         out.close();
     }
