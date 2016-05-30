@@ -179,6 +179,8 @@ public class BargeService {
         if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
         	varMap.put("__" + AmiChanVarNameConst.BARGER_CNO, bargeObject);
         	varMap.put(AmiChanVarNameConst.CDR_DETAIL_CNO, bargeObject);
+        	varMap.put(AmiChanVarNameConst.CHANNEL_CNO, bargeObject);
+        	varMap.put(AmiChanVarNameConst.PRE_DIAL_RUN, Const.DIALPLAN_CONTEXT_PREVIEW_OUTCALL_PREDIAL);
         }
         varMap.put("__" + AmiChanVarNameConst.BARGED_CNO, bargedCno);
         varMap.put("__" + AmiChanVarNameConst.BARGER_INTERFACE, destInterface);

@@ -125,6 +125,8 @@ public class PickupService {
 			        varMap.put("__" + AmiChanVarNameConst.CUR_QUEUE, curQueue); //
 			        varMap.put("__" + AmiChanVarNameConst.ENTERPRISE_ID, String.valueOf(enterpriseId));
 		        	varMap.put("__" + AmiChanVarNameConst.PICKUPER_CNO, cno);
+		        	varMap.put(AmiChanVarNameConst.CHANNEL_CNO, cno);
+		        	varMap.put(AmiChanVarNameConst.PRE_DIAL_RUN, Const.DIALPLAN_CONTEXT_PREVIEW_OUTCALL_PREDIAL);
 		        	varMap.put(AmiChanVarNameConst.PICKUPER_INTERFACE, destInterface);
 			       
 			        

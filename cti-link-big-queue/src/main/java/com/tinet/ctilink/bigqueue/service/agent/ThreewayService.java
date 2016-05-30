@@ -175,6 +175,9 @@ public class ThreewayService {
         if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
         	varMap.put("__" + AmiChanVarNameConst.THREEWAYER_CNO, threewayObject);
         	varMap.put(AmiChanVarNameConst.CDR_DETAIL_CNO, threewayObject);
+        	varMap.put(AmiChanVarNameConst.CHANNEL_CNO, threewayObject);
+        	varMap.put(AmiChanVarNameConst.PRE_DIAL_RUN, Const.DIALPLAN_CONTEXT_PREVIEW_OUTCALL_PREDIAL);
+        
         }
         varMap.put("__" + AmiChanVarNameConst.THREEWAYED_CNO, threewayedCno);
         varMap.put("__" + AmiChanVarNameConst.THREEWAY_OBJECT, threewayObject);

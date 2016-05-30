@@ -191,7 +191,7 @@ public class PreviewOutcallService {
 	                varMap.put(AmiChanVarNameConst.PREVIEW_OUTCALL_LEFT_CLID, obClidLeft);               //客户侧外显号码
 	                
 	                varMap.put(AmiChanVarNameConst.DIAL_TIMEOUT, "60");                  //外呼等待时长  60秒
-	                
+	                varMap.put(AmiChanVarNameConst.PRE_DIAL_RUN, Const.DIALPLAN_CONTEXT_PREVIEW_OUTCALL_PREDIAL);
 	                Map<String, Object> userFieldMap = (Map<String, Object>)(params.get("userField"));
 	                for(String key: userFieldMap.keySet()){
 	                	varMap.put(key, userFieldMap.get(key).toString()); 

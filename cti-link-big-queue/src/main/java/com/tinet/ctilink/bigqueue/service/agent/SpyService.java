@@ -175,6 +175,8 @@ public class SpyService {
         if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
         	varMap.put("__" + AmiChanVarNameConst.SPYER_CNO, spyObject);
         	varMap.put(AmiChanVarNameConst.CDR_DETAIL_CNO, spyObject);
+        	varMap.put(AmiChanVarNameConst.CHANNEL_CNO, spyObject);
+        	varMap.put(AmiChanVarNameConst.PRE_DIAL_RUN, Const.DIALPLAN_CONTEXT_PREVIEW_OUTCALL_PREDIAL);
         }
         varMap.put("__" + AmiChanVarNameConst.SPIED_CNO, spiedCno);
         varMap.put("__" + AmiChanVarNameConst.SPY_OBJECT, spyObject);
