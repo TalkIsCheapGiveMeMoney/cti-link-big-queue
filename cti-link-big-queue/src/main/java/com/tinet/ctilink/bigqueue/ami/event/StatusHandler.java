@@ -85,33 +85,35 @@ public class StatusHandler implements EventHandler, InitializingBean{
 									return false;
 								}
 								deviceStatus = BigQueueConst.MEMBER_DEVICE_STATUS_RINGING;
-								
+								try{
 								String channel = event.getString("channel");
-								String uniqueId = event.getString("uniqueId");
-								Integer callType = event.getInt("callType");
-								String customerNumber = event.getString("customerNumber");
-								String customerNumberAreaCode = event.getString("customerNumberAreaCode");
-								Integer customerNumberType = event.getInt("customerNumberType");
-								Integer detailCallType = event.getInt("detailCallType");
-								String hotline = event.getString("hotline");
-								String numberTrunk = event.getString("numberTrunk");
-								String queue = event.getString("queue");
-								String bridgedChannel = event.getString("bridgedChannel");
-								String bridgedChannelUniqueId = event.getString("bridgedUniqueId");
-								
-								callAgent.setCurrentCallType(callType);
-								callAgent.setCurrentChannel(channel);
-								callAgent.setCurrentChannelUniqueId(uniqueId);
-								callAgent.setBridgedChannel(bridgedChannel);
-								callAgent.setBridgedChannelUniqueId(bridgedChannelUniqueId);
-								callAgent.setCurrentCustomerNumber(customerNumber);
-								callAgent.setCurrentCustomerNumberAreaCode(customerNumberAreaCode);
-								callAgent.setCurrentCustomerNumberType(customerNumberType);
-								callAgent.setCurrentDetailCallType(detailCallType);
-								callAgent.setCurrentHotline(hotline);
-								callAgent.setCurrentNumberTrunk(numberTrunk);
-								callAgent.setCurrentQueue(queue);
-								
+									String uniqueId = event.getString("uniqueId");
+									Integer callType = event.getInt("callType");
+									String customerNumber = event.getString("customerNumber");
+									String customerNumberAreaCode = event.getString("customerNumberAreaCode");
+									Integer customerNumberType = event.getInt("customerNumberType");
+									Integer detailCallType = event.getInt("detailCallType");
+									String hotline = event.getString("hotline");
+									String numberTrunk = event.getString("numberTrunk");
+									String queue = event.getString("queue");
+									String bridgedChannel = event.getString("bridgedChannel");
+									String bridgedChannelUniqueId = event.getString("bridgedUniqueId");
+									
+									callAgent.setCurrentCallType(callType);
+									callAgent.setCurrentChannel(channel);
+									callAgent.setCurrentChannelUniqueId(uniqueId);
+									callAgent.setBridgedChannel(bridgedChannel);
+									callAgent.setBridgedChannelUniqueId(bridgedChannelUniqueId);
+									callAgent.setCurrentCustomerNumber(customerNumber);
+									callAgent.setCurrentCustomerNumberAreaCode(customerNumberAreaCode);
+									callAgent.setCurrentCustomerNumberType(customerNumberType);
+									callAgent.setCurrentDetailCallType(detailCallType);
+									callAgent.setCurrentHotline(hotline);
+									callAgent.setCurrentNumberTrunk(numberTrunk);
+									callAgent.setCurrentQueue(queue);
+								}catch(Exception e){
+									
+								}
 								ringingEvent = new JSONObject();
 								ringingEvent.put("event", "ringing");
 								ringingEvent.put("enterpriseId", enterpriseId);
@@ -214,39 +216,43 @@ public class StatusHandler implements EventHandler, InitializingBean{
 									return false;
 								}
 								if(oldDeviceStatus != BigQueueConst.MEMBER_DEVICE_STATUS_RINGING){//补救在200时弹屏
-									channel = event.getString("channel");
-									uniqueId = event.getString("uniqueId");
-									callType = event.getInt("callType");
-									customerNumber = event.getString("customerNumber");
-									customerNumberAreaCode = event.getString("customerNumberAreaCode");
-									customerNumberType = event.getInt("customerNumberType");
-									detailCallType = event.getInt("detailCallType");
-									hotline = event.getString("hotline");
-									numberTrunk = event.getString("numberTrunk");
-									queue = event.getString("queue");
-									bridgedChannel = event.getString("bridgedChannel");
-									bridgedChannelUniqueId = event.getString("bridgedUniqueId");
-									
-									callAgent.setCurrentCallType(callType);
-									callAgent.setCurrentChannel(channel);
-									callAgent.setCurrentChannelUniqueId(uniqueId);
-									callAgent.setBridgedChannel(bridgedChannel);
-									callAgent.setBridgedChannelUniqueId(bridgedChannelUniqueId);
-									callAgent.setCurrentCustomerNumber(customerNumber);
-									callAgent.setCurrentCustomerNumberAreaCode(customerNumberAreaCode);
-									callAgent.setCurrentCustomerNumberType(customerNumberType);
-									callAgent.setCurrentDetailCallType(detailCallType);
-									callAgent.setCurrentHotline(hotline);
-									callAgent.setCurrentNumberTrunk(numberTrunk);
-									callAgent.setCurrentQueue(queue);
-									
-									ringingEvent = new JSONObject();
-									ringingEvent.put("event", "ringing");
-									ringingEvent.put("enterpriseId", enterpriseId);
-									ringingEvent.put("cno", cno);
-									
-									variables = event.getJSONObject("variables");
-									ringingEvent.put("variables", variables);
+									try{
+										String channel = event.getString("channel");
+										String uniqueId = event.getString("uniqueId");
+										Integer callType = event.getInt("callType");
+										String customerNumber = event.getString("customerNumber");
+										String customerNumberAreaCode = event.getString("customerNumberAreaCode");
+										Integer customerNumberType = event.getInt("customerNumberType");
+										Integer detailCallType = event.getInt("detailCallType");
+										String hotline = event.getString("hotline");
+										String numberTrunk = event.getString("numberTrunk");
+										String queue = event.getString("queue");
+										String bridgedChannel = event.getString("bridgedChannel");
+										String bridgedChannelUniqueId = event.getString("bridgedUniqueId");
+										
+										callAgent.setCurrentCallType(callType);
+										callAgent.setCurrentChannel(channel);
+										callAgent.setCurrentChannelUniqueId(uniqueId);
+										callAgent.setBridgedChannel(bridgedChannel);
+										callAgent.setBridgedChannelUniqueId(bridgedChannelUniqueId);
+										callAgent.setCurrentCustomerNumber(customerNumber);
+										callAgent.setCurrentCustomerNumberAreaCode(customerNumberAreaCode);
+										callAgent.setCurrentCustomerNumberType(customerNumberType);
+										callAgent.setCurrentDetailCallType(detailCallType);
+										callAgent.setCurrentHotline(hotline);
+										callAgent.setCurrentNumberTrunk(numberTrunk);
+										callAgent.setCurrentQueue(queue);
+										
+										ringingEvent = new JSONObject();
+										ringingEvent.put("event", "ringing");
+										ringingEvent.put("enterpriseId", enterpriseId);
+										ringingEvent.put("cno", cno);
+										
+										variables = event.getJSONObject("variables");
+										ringingEvent.put("variables", variables);
+									}catch(Exception e){
+										
+									}
 								}
 								deviceStatus = BigQueueConst.MEMBER_DEVICE_STATUS_INUSE;
 								break;
