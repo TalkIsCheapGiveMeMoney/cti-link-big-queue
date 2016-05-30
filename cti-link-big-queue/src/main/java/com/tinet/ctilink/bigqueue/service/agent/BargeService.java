@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.github.pagehelper.StringUtil;
 import com.tinet.ctilink.ami.action.AmiActionResponse;
 import com.tinet.ctilink.ami.inc.AmiChanVarNameConst;
+import com.tinet.ctilink.ami.inc.AmiParamConst;
 import com.tinet.ctilink.bigqueue.ami.action.GetVarActionService;
 import com.tinet.ctilink.bigqueue.ami.action.OriginateActionService;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
@@ -214,13 +215,13 @@ public class BargeService {
     	}
         	
         Map<String, Object> actionMap = new HashMap<String, Object>();
-        actionMap.put("context", Const.DIALPLAN_CONTEXT_BARGE);
-        actionMap.put("exten", enterpriseId + bargedCno);
-        actionMap.put("priority", 1);
-        actionMap.put("otherChannelId", mainUniqueId);
-        actionMap.put("channel", destInterface);
-        actionMap.put("timeout", 30000);
-        actionMap.put("clid", clid);     
+        actionMap.put(AmiParamConst.DIALPLAN_CONTEXT, Const.DIALPLAN_CONTEXT_BARGE);
+        actionMap.put(AmiParamConst.EXTENSION, enterpriseId + bargedCno);
+        actionMap.put(AmiParamConst.PRIORITY, 1);
+        actionMap.put(AmiParamConst.OTHER_CHANNEL_ID, mainUniqueId);
+        actionMap.put(AmiParamConst.CHANNEL, destInterface);
+        actionMap.put(AmiParamConst.ORIGINATE_TIMEOUT, 30000);
+        actionMap.put(AmiParamConst.CLID, clid);     
                        
         JSONObject actionEvent = null;
         if (objectType.equals(Const.OBJECT_TYPE_CNO)) {

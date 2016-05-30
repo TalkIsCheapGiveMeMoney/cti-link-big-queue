@@ -94,7 +94,8 @@ public class DirectCallStartService {
 	                    	varMap.put(AmiChanVarNameConst.CDR_CUSTOMER_NUMBER, customerNumber);
 	                    	setVarActionService.setVar(sipId, channel, varMap);
 	                    	  
-	                    	redirectActionService.redirect(sipId, channel, "direct_call_read", "~~s~~", 1);
+	                    	redirectActionService.redirect(sipId, channel, "direct_call_read", "~~s~~", 1,
+	                    			null,null,null,null);
 	                    	response = ActionResponse.createSuccessResponse();
 	                    	return response;
 		                } else {

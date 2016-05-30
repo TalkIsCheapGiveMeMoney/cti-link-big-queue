@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.tinet.ctilink.ami.action.AmiActionResponse;
+import com.tinet.ctilink.ami.inc.AmiParamConst;
+import com.tinet.ctilink.control.inc.ControlConst;
 import com.tinet.ctilink.control.service.v1.ControlActionService;
 import com.tinet.ctilink.json.JSONObject;
 
@@ -18,11 +20,11 @@ public class OriginateActionService {
 	
 	public AmiActionResponse originate(Integer sipId, Map<String, Object> actionMap, JSONObject actionEvent, Map<String, Object> varMap){
 		Map<String, Object> paramsMap = new HashMap<String, Object>();
-		paramsMap.put("actionMap", actionMap);
-		paramsMap.put("varMap", varMap);
-		paramsMap.put("actionEvent", actionEvent);
+		paramsMap.put(AmiParamConst.ACTION_MAP, actionMap);
+		paramsMap.put(AmiParamConst.VAR_MAP, varMap);
+		paramsMap.put(AmiParamConst.ACTION_EVENT, actionEvent);
 		if(sipId != null){
-			paramsMap.put("sipId", sipId);
+			paramsMap.put(ControlConst.PARAM_SIP_ID, sipId);
 		}
 	    return controlActionService.handleAction("originate", paramsMap);
 	}

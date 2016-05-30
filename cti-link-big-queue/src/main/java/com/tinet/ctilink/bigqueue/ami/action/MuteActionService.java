@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.tinet.ctilink.ami.action.AmiActionResponse;
+import com.tinet.ctilink.ami.inc.AmiParamConst;
+import com.tinet.ctilink.control.inc.ControlConst;
 import com.tinet.ctilink.control.service.v1.ControlActionService;
 
 @Service
@@ -17,11 +19,11 @@ public class MuteActionService {
 	
 	public AmiActionResponse mute(Integer sipId, String channel, String direction, String state){
 		Map<String, Object> paramsMap = new HashMap<String, Object>();
-		paramsMap.put("channel", channel);
-		paramsMap.put("direction", direction);
-		paramsMap.put("state", state);
-		paramsMap.put("sipId", sipId);
-		
+		paramsMap.put(AmiParamConst.CHANNEL, channel);
+		paramsMap.put(AmiParamConst.VARIABLE_MUTE_DIRECTION, direction);
+		paramsMap.put(AmiParamConst.VARIABLE_MUTE_STATE, state);
+		paramsMap.put(ControlConst.PARAM_SIP_ID, sipId);
+
 	    return controlActionService.handleAction("mute", paramsMap);
 	}
 }

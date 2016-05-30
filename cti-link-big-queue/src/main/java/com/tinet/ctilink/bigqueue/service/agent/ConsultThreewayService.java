@@ -81,7 +81,8 @@ public class ConsultThreewayService {
 					varMap.put(AmiChanVarNameConst.CONSULT_THREEWAY_CHAN, channel);
 					setVarActionService.setVar(sipId, consultChannel, varMap);
     				
-					AmiActionResponse amiResponse = redirectActionService.redirect(sipId, consultChannel, "consult_threeway", enterpriseId + cno, 1);
+					AmiActionResponse amiResponse = redirectActionService.redirect(sipId, consultChannel, "consult_threeway", enterpriseId + cno, 1,
+							null,null,null,null);
     				if(amiResponse != null && (amiResponse.getCode() == 0)){
         					if(params.get("limitTimeSecond") != null){
         	    	            String limitTimeSecond = params.get("limitTimeSecond").toString();
