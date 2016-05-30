@@ -46,7 +46,7 @@ public class CallAgent {
 	private String threewayChannel; // 三方channel
 	private String bargeChannel;
 	private Integer loginTime;
-	private Integer rnaPause;
+	private boolean rnaPause;
 	private Integer rnaPauseType;
 	private String rnaPauseDescription;
 	
@@ -249,10 +249,10 @@ public class CallAgent {
 		this.threewayChannel = threewayChannel;
 	}
 	
-	public Integer getRnaPause() {
+	public boolean getRnaPause() {
 		return rnaPause;
 	}
-	public void setRnaPause(Integer rnaPause) {
+	public void setRnaPause(boolean rnaPause) {
 		this.rnaPause = rnaPause;
 	}
 	public Integer getRnaPauseType() {

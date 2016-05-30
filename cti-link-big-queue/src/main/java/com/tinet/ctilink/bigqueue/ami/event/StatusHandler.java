@@ -196,12 +196,12 @@ public class StatusHandler implements EventHandler, InitializingBean{
 										queueEventService.publishEvent(queueEvent);
 									}
 								}else{
-									if(callAgent.getRnaPause() == 1){
+									if(callAgent.getRnaPause()){
 										
 										pauseService.pauseNolock(enterpriseId, cno, callAgent.getRnaPauseDescription(), callAgent.getRnaPauseType());
 										
 										callAgent = agentService.getCallAgent(enterpriseId, cno);
-										callAgent.setRnaPause(0);
+										callAgent.setRnaPause(false);
 										callAgent.setRnaPauseDescription("");
 										callAgent.setRnaPauseType(-1);
 									}

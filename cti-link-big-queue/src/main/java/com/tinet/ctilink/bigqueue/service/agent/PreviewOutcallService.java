@@ -141,7 +141,7 @@ public class PreviewOutcallService {
 	                	unpauseService.unpauseNolock(enterpriseId, cno);
 	                	
 	                	if(loginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE)){
-		                	callAgent.setRnaPause(1);
+		                	callAgent.setRnaPause(true);
 		                	callAgent.setRnaPauseDescription(pauseDescription);
 		                	callAgent.setRnaPauseType(pauseType);
 		                	agentService.saveCallAgent(enterpriseId, cno, callAgent);
