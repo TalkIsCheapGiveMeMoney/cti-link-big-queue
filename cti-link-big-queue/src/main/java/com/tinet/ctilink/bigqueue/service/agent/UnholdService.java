@@ -67,7 +67,7 @@ public class UnholdService {
 				if(callAgent != null){
 					String channel = callAgent.getCurrentChannel();
 					Integer sipId = callAgent.getCurrentSipId();
-					String queue = callAgent.getCurrentQueue();
+					String curQno = callAgent.getCurrentQno();
 					Integer callType = callAgent.getCurrentCallType();
 					
 					if(StringUtils.isEmpty(channel)){
@@ -88,7 +88,7 @@ public class UnholdService {
 						JSONObject queueEvent = new JSONObject();
 						queueEvent.put("event", "unhold");
 						queueEvent.put("enterpriseId", enterpriseId);
-						queueEvent.put("qno", queue);
+						queueEvent.put("qno", curQno);
 						queueEvent.put("callType", callType);
 						queueEventService.publishEvent(queueEvent);
 							

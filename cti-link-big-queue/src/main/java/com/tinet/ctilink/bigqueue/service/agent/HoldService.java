@@ -67,7 +67,7 @@ public class HoldService {
 				if(callAgent != null){
 					String channel = callAgent.getCurrentChannel();
 					Integer sipId = callAgent.getCurrentSipId();
-					String queue = callAgent.getCurrentQueue();
+					String queue = callAgent.getCurrentQno();
 					Integer callType = callAgent.getCurrentCallType();
 					
 					if(StringUtils.isEmpty(channel)){

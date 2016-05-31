@@ -119,7 +119,7 @@ public class StatusHandler implements EventHandler, InitializingBean{
 									callAgent.setCurrentDetailCallType(detailCallType);
 									callAgent.setCurrentHotline(hotline);
 									callAgent.setCurrentNumberTrunk(numberTrunk);
-									callAgent.setCurrentQueue(queue);
+									callAgent.setCurrentQno(queue);
 								}catch(Exception e){
 									
 								}
@@ -137,7 +137,7 @@ public class StatusHandler implements EventHandler, InitializingBean{
 										JSONObject queueEvent = new JSONObject();
 										queueEvent.put("event", "unhold");
 										queueEvent.put("enterpriseId", enterpriseId);
-										queueEvent.put("qno", callAgent.getCurrentQueue());
+										queueEvent.put("qno", callAgent.getCurrentQno());
 										queueEvent.put("callType", callAgent.getCurrentCallType());
 		
 										queueEventService.publishEvent(queueEvent);
@@ -146,32 +146,17 @@ public class StatusHandler implements EventHandler, InitializingBean{
 									Integer wrapupTime = -1;
 									switch(callAgent.getCurrentCallType()){
 										case Const.CDR_CALL_TYPE_IB:
-											if(StringUtils.isNotEmpty(callAgent.getCurrentQueue())){
-												 Queue queueConf = queueService.getFromConfCache(enterpriseId, callAgent.getCurrentQueue());
-											     if(queueConf != null){
-											    	 wrapupTime = queueConf.getWrapupTime();
-											     }
-											}
-											break;
 										case Const.CDR_CALL_TYPE_OB_WEBCALL:
-											if(StringUtils.isNotEmpty(callAgent.getCurrentQueue())){
-												 Queue queueConf = queueService.getFromConfCache(enterpriseId, callAgent.getCurrentQueue());
+										case Const.CDR_CALL_TYPE_OB_PREDICTIVE:
+											if(StringUtils.isNotEmpty(callAgent.getCurrentQno())){
+												 Queue queueConf = queueService.getFromConfCache(enterpriseId, callAgent.getCurrentQno());
 											     if(queueConf != null){
 											    	 wrapupTime = queueConf.getWrapupTime();
 											     }
 											}
 											break;
-										case Const.CDR_CALL_TYPE_DIRECT_OB:
-										case Const.CDR_CALL_TYPE_OB:
-										case Const.CDR_CALL_TYPE_PREVIEW_OB:
-											break;
-										case Const.CDR_CALL_TYPE_PREDICTIVE_OB:
-											if(StringUtils.isNotEmpty(callAgent.getCurrentQueue())){
-												 Queue queueConf = queueService.getFromConfCache(enterpriseId, callAgent.getCurrentQueue());
-											     if(queueConf != null){
-											    	 wrapupTime = queueConf.getWrapupTime();
-											     }
-											}
+										case Const.CDR_CALL_TYPE_OB_DIRECT:
+										case Const.CDR_CALL_TYPE_OB_PREVIEW:
 											break;
 									}
 									if(wrapupTime == -1){
@@ -197,7 +182,7 @@ public class StatusHandler implements EventHandler, InitializingBean{
 										JSONObject queueEvent = new JSONObject();
 										queueEvent.put("event", "wrapupStart");
 										queueEvent.put("enterpriseId", enterpriseId);
-										queueEvent.put("qno", callAgent.getCurrentQueue());
+										queueEvent.put("qno", callAgent.getCurrentQno());
 										queueEvent.put("wrapupTime", wrapupTime);
 										queueEvent.put("cno", callAgent.getCno());
 										queueEvent.put("uniqueId", callAgent.getCurrentChannelUniqueId());
@@ -235,7 +220,7 @@ public class StatusHandler implements EventHandler, InitializingBean{
 										Integer detailCallType = event.getInt("detailCallType");
 										String hotline = event.getString("hotline");
 										String numberTrunk = event.getString("numberTrunk");
-										String queue = event.getString("queue");
+										String qno = event.getString("qno");
 										String bridgedChannel = event.getString("bridgedChannel");
 										String bridgedChannelUniqueId = event.getString("bridgedUniqueId");
 										
@@ -250,7 +235,7 @@ public class StatusHandler implements EventHandler, InitializingBean{
 										callAgent.setCurrentDetailCallType(detailCallType);
 										callAgent.setCurrentHotline(hotline);
 										callAgent.setCurrentNumberTrunk(numberTrunk);
-										callAgent.setCurrentQueue(queue);
+										callAgent.setCurrentQno(qno);
 										
 										ringingEvent = new JSONObject();
 										ringingEvent.put("event", "ringing");

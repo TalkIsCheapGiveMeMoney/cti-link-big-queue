@@ -76,7 +76,7 @@ public class BargeService {
         Integer customerNumberType = 0;
         String customerAreaCode = null;
         String numberTrunk = null;
-        String curQueue = null;
+        String curQno = null;
         Integer callType = 0; 
         Integer sipId = null;
         
@@ -93,7 +93,7 @@ public class BargeService {
 			        customerNumberType = callAgent.getCurrentCustomerNumberType();
 			        customerAreaCode = callAgent.getCurrentCustomerNumberAreaCode();
 			        numberTrunk = callAgent.getCurrentNumberTrunk();
-			        curQueue = callAgent.getCurrentQueue();
+			        curQno = callAgent.getCurrentQno();
 			        callType = callAgent.getCurrentCallType(); 
 			        sipId = callAgent.getCurrentSipId();
 				}
@@ -116,9 +116,9 @@ public class BargeService {
 	    int routerClidCallType = 0;
         if (callType == Const.CDR_CALL_TYPE_IB || callType ==Const.CDR_CALL_TYPE_OB_WEBCALL ){//呼入
         	routerClidCallType = Const.ROUTER_CLID_CALL_TYPE_IB_RIGHT;
-        }else if(callType == Const.CDR_CALL_TYPE_OB || callType == Const.CDR_CALL_TYPE_DIRECT_OB || callType == Const.CDR_CALL_TYPE_PREVIEW_OB){//点击外呼
+        }else if(callType == Const.CDR_CALL_TYPE_OB_DIRECT || callType == Const.CDR_CALL_TYPE_OB_PREVIEW){//点击外呼
         	routerClidCallType = Const.ROUTER_CLID_CALL_TYPE_PREVIEW_OB_RIGHT;
-        }else if(callType == Const.CDR_CALL_TYPE_PREDICTIVE_OB){//预测外呼
+        }else if(callType == Const.CDR_CALL_TYPE_OB_PREDICTIVE){//预测外呼
         	routerClidCallType = Const.ROUTER_CLID_CALL_TYPE_PREDICTIVE_OB_RIGHT;
         }
       //获取外显号码
@@ -175,7 +175,7 @@ public class BargeService {
         varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_NUMBER, customerNumber); //客户号码
         varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_NUMBER_TYPE, String.valueOf(customerNumberType)); //电话类型
         varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_AREA_CODE, customerAreaCode); //区号
-        varMap.put("__" + AmiChanVarNameConst.CUR_QUEUE, curQueue); //
+        varMap.put("__" + AmiChanVarNameConst.CUR_QNO, curQno); //
         if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
         	varMap.put("__" + AmiChanVarNameConst.BARGER_CNO, bargeObject);
         	varMap.put(AmiChanVarNameConst.CDR_DETAIL_CNO, bargeObject);

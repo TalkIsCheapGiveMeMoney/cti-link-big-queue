@@ -79,9 +79,9 @@ public class DisconnectService {
 					String destChannel = callAgent.getCurrentChannel();;
 					Map<String, String> varMap = new HashMap<String,String>();
 					varMap.put(AmiChanVarNameConst.CDR_FORCE_DISCONNECT, "1");
-					 if (callType == Const.CDR_CALL_TYPE_IB || callType ==Const.CDR_CALL_TYPE_OB_WEBCALL || callType == Const.CDR_CALL_TYPE_PREDICTIVE_OB){//呼入
+					 if (callType == Const.CDR_CALL_TYPE_IB || callType ==Const.CDR_CALL_TYPE_OB_WEBCALL || callType == Const.CDR_CALL_TYPE_OB_PREDICTIVE){//呼入
 						 destChannel = callAgent.getBridgedChannel();
-				     }else if(callType == Const.CDR_CALL_TYPE_OB || callType == Const.CDR_CALL_TYPE_DIRECT_OB || callType == Const.CDR_CALL_TYPE_PREVIEW_OB){//点击外呼
+				     }else if(callType == Const.CDR_CALL_TYPE_OB_DIRECT || callType == Const.CDR_CALL_TYPE_OB_PREVIEW){//点击外呼
 				    	 destChannel = callAgent.getCurrentChannel();
 				     }
 					setVarActionService.setVar(sipId, destChannel, varMap);

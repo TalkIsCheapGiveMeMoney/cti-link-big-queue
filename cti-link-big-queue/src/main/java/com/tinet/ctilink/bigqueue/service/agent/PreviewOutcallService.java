@@ -156,7 +156,7 @@ public class PreviewOutcallService {
 	           
 	                varMap.put("__" + AmiChanVarNameConst.CDR_ENTERPRISE_ID, String.valueOf(enterpriseId));
 	                varMap.put("__" + AmiChanVarNameConst.CDR_BRIDGED_CNO, cno);
-	                varMap.put("__" + AmiChanVarNameConst.CDR_CALL_TYPE, String.valueOf(Const.CDR_CALL_TYPE_PREVIEW_OB));
+	                varMap.put("__" + AmiChanVarNameConst.CDR_CALL_TYPE, String.valueOf(Const.CDR_CALL_TYPE_OB_PREVIEW));
 	                //判断是否打开号码状态语音识别
 	                String enterpriseSettingKey = String.format(CacheKey.ENTERPRISE_SETTING_ENTERPRISE_ID_NAME, Integer.parseInt(enterpriseId), Const.ENTERPRISE_SETTING_NAME_TEL_STATUS_IDENTIFICATION);
 	        		EnterpriseSetting setting = redisService.get(Const.REDIS_DB_CONF_INDEX, enterpriseSettingKey, EnterpriseSetting.class);
@@ -175,7 +175,7 @@ public class PreviewOutcallService {
 	                long callStartTime =startDate.getTime()/1000;
 	                varMap.put(AmiChanVarNameConst.CDR_START_TIME, String.valueOf(callStartTime));
 	                //member
-	                varMap.put(AmiChanVarNameConst.CDR_STATUS, String.valueOf(Const.CDR_STATUS_OB_CLIENT_NO_ANSWER));
+	                varMap.put(AmiChanVarNameConst.CDR_STATUS, String.valueOf(Const.CDR_STATUS_OB_PREVIEW_AGENT_NO_ANSWER));
 	                
 
 	                //获取是否自动满意度调查

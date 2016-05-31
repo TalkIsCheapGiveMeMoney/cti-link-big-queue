@@ -77,7 +77,7 @@ public class PickupService {
 					String customerNumber = pickupCallAgent.getCurrentCustomerNumber();
 					Integer customerNumberType = pickupCallAgent.getCurrentCustomerNumberType();
 					String customerAreaCode = pickupCallAgent.getCurrentCustomerNumberAreaCode();
-					String curQueue = pickupCallAgent.getCurrentQueue();
+					String curQno = pickupCallAgent.getCurrentQno();
 					String numberTrunk = pickupCallAgent.getCurrentNumberTrunk();
 					if(StringUtils.isEmpty(channel)){
 						response = ActionResponse.createFailResponse(-1, "no channel");
@@ -91,7 +91,7 @@ public class PickupService {
 					int routerClidCallType = 0;
 			        if (callType == Const.CDR_CALL_TYPE_IB || callType ==Const.CDR_CALL_TYPE_OB_WEBCALL ){//呼入
 			        	routerClidCallType = Const.ROUTER_CLID_CALL_TYPE_IB_RIGHT;
-			        }else if(callType == Const.CDR_CALL_TYPE_PREDICTIVE_OB){//预测外呼
+			        }else if(callType == Const.CDR_CALL_TYPE_OB_PREDICTIVE){//预测外呼
 			        	routerClidCallType = Const.ROUTER_CLID_CALL_TYPE_PREDICTIVE_OB_RIGHT;
 			        }else{
 			        	response = ActionResponse.createFailResponse(-1, "callType not allowed");
@@ -123,7 +123,7 @@ public class PickupService {
 			        varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_NUMBER, customerNumber); //客户号码
 			        varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_NUMBER_TYPE, String.valueOf(customerNumberType)); //电话类型
 			        varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_AREA_CODE, customerAreaCode); //区号
-			        varMap.put("__" + AmiChanVarNameConst.CUR_QUEUE, curQueue); //
+			        varMap.put("__" + AmiChanVarNameConst.CUR_QNO, curQno); //
 		        	varMap.put("__" + AmiChanVarNameConst.PICKUPER_CNO, cno);
 		        	varMap.put(AmiChanVarNameConst.CDR_CNO, cno);
 		        	varMap.put(AmiChanVarNameConst.PRE_DIAL_RUN, "\"" + Const.DIALPLAN_CONTEXT_PREVIEW_OUTCALL_PREDIAL + "," + enterpriseId +",1\"");

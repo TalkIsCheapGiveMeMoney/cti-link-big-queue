@@ -148,7 +148,7 @@ public class QueueStatusService {
 				memberStatusMap.put("numberTrunk", agent.getCurrentNumberTrunk());
 				memberStatusMap.put("hotline", agent.getCurrentHotline());
 				memberStatusMap.put("callType", agent.getCurrentCallType());
-				memberStatusMap.put("qno", agent.getCurrentQueue());
+				memberStatusMap.put("qno", agent.getCurrentQno());
 			}
 			memberStatusMap.put("loginTime", agent.getLoginTime());
 		}

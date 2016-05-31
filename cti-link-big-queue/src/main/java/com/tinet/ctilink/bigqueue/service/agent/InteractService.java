@@ -79,7 +79,7 @@ public class InteractService {
 		            Map<String, String> varMap = new HashMap<String, String>();
 		            
 	                String setVarChannel;
-	                if(callType.equals(Const.CDR_CALL_TYPE_PREVIEW_OB) || callType.equals(Const.CDR_CALL_TYPE_OB)){
+	                if(callType.equals(Const.CDR_CALL_TYPE_OB_PREVIEW)){
 	                	setVarChannel = channel;
             			varMap.put("interact_channel", channel);
             			varMap.put("interact_cno", cno);

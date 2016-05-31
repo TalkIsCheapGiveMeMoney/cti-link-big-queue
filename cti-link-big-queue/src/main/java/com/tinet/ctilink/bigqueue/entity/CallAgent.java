@@ -33,7 +33,7 @@ public class CallAgent {
 	private String currentCustomerNumberAreaCode;
 	private String currentNumberTrunk;
 	private String currentHotline;
-	private String currentQueue;
+	private String currentQno;
 	private Integer pauseType;
 	private String pauseDescription;
 	private String busyDescription;
@@ -166,11 +166,12 @@ public class CallAgent {
 	public void setCurrentHotline(String currentHotline) {
 		this.currentHotline = currentHotline;
 	}
-	public String getCurrentQueue() {
-		return currentQueue;
+	
+	public String getCurrentQno() {
+		return currentQno;
 	}
-	public void setCurrentQueue(String currentQueue) {
-		this.currentQueue = currentQueue;
+	public void setCurrentQno(String currentQno) {
+		this.currentQno = currentQno;
 	}
 	public String getPauseDescription() {
 		return pauseDescription;
@@ -295,7 +296,7 @@ public class CallAgent {
 		currentCustomerNumberAreaCode = "";
 		currentNumberTrunk = "";
 		currentHotline = "";
-		currentQueue = "";
+		currentQno = "";
 		busyDescription = "";
 		monitoredObject = "";
 		monitoredObjectType = 0;
