@@ -17,7 +17,7 @@ public class SetVarActionService {
 	@Reference
 	ControlActionService controlActionService;
 	
-	public AmiActionResponse setVar(Integer sipId, String channel, Map<String, Object> varMap){
+	public AmiActionResponse setVar(Integer sipId, String channel, Map<String, String> varMap){
 		Map<String, Object> paramsMap = new HashMap<String, Object>();
 		paramsMap.put(AmiParamConst.CHANNEL, channel);
 		paramsMap.put(AmiParamConst.VAR_MAP, varMap);

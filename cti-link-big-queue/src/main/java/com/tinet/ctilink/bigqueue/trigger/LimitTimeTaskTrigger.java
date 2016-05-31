@@ -47,13 +47,13 @@ public class LimitTimeTaskTrigger implements TaskSchedulerTrigger {
     	Integer alertSecond = Integer.parseInt(param.get("alertSecond").toString());
     	String file = param.get("file").toString();
     	
-    	Map<String, Object> varParam = new HashMap<String, Object>();
+    	Map<String, String> varParam = new HashMap<String, String>();
     	varParam.put("CHANNEL(state)", "1");
     	
-    	Map<String, Object> getVarResponse = getVarActionService.getVar(sipId, channel, varParam);
+    	Map<String, String> getVarResponse = getVarActionService.getVar(sipId, channel, varParam);
     	if(getVarResponse != null){
     		if(getVarResponse.get("CHANNEL(state)") != null){
-    			String channelState = getVarResponse.get("CHANNEL(state)").toString();
+    			String channelState = getVarResponse.get("CHANNEL(state)");
     			if(!channelState.equals("Up")){
     				return;
     			}
@@ -66,7 +66,7 @@ public class LimitTimeTaskTrigger implements TaskSchedulerTrigger {
 			String extension = "s";
 			String targetContext = "global_channel_spy";
 			String targetExtension = "s";
-			Map<String, Object> varMap = new HashMap<String, Object>();
+			Map<String, String> varMap = new HashMap<String, String>();
 			varMap.put("mix_sound", file);
 			varMap.put("spied_channel", channel);
 			varMap.put("spied_unique_id", uniqueId);

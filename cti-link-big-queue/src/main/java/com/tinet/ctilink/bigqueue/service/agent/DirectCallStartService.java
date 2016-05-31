@@ -77,19 +77,19 @@ public class DirectCallStartService {
 					}
 					
 					String directCallReadWaitStatus = null;
-			        Map<String, Object> getVarMap = new HashMap<String, Object>();
+			        Map<String, String> getVarMap = new HashMap<String, String>();
 			    	getVarMap.put(AmiChanVarNameConst.DIRECT_CALL_READ_STATUS, "1");
-			    	Map<String, Object> getVarResponse = getVarActionService.getVar(sipId, channel, getVarMap);
+			    	Map<String, String> getVarResponse = getVarActionService.getVar(sipId, channel, getVarMap);
 			    	if(getVarResponse != null){
 			    		if(getVarResponse.get(AmiChanVarNameConst.DIRECT_CALL_READ_STATUS) != null){
-			    			directCallReadWaitStatus = getVarResponse.get(AmiChanVarNameConst.DIRECT_CALL_READ_STATUS).toString();
+			    			directCallReadWaitStatus = getVarResponse.get(AmiChanVarNameConst.DIRECT_CALL_READ_STATUS);
 			    		}else{
 			    			response = ActionResponse.createFailResponse(-1, "get var fail");
 			    			return response;
 			    		}
 			    	}
 	                if ("1".equals(directCallReadWaitStatus)) {
-	                    	Map<String, Object> varMap = new HashMap<String, Object>();
+	                    	Map<String, String> varMap = new HashMap<String, String>();
 	                    	varMap.put(AmiChanVarNameConst.DIRECT_CALL_READ_DONE, "1");
 	                    	varMap.put(AmiChanVarNameConst.CDR_CUSTOMER_NUMBER, customerNumber);
 	                    	setVarActionService.setVar(sipId, channel, varMap);

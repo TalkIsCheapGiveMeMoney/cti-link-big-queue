@@ -76,7 +76,7 @@ public class InteractService {
 		            String interactObject = params.get("interactObject").toString();       //ivrId,ivrNode
 		            String extension = interactObject + "#";
 		            
-		            Map<String, Object> varMap = new HashMap<String, Object>();
+		            Map<String, String> varMap = new HashMap<String, String>();
 		            
 	                String setVarChannel;
 	                if(callType.equals(Const.CDR_CALL_TYPE_PREVIEW_OB) || callType.equals(Const.CDR_CALL_TYPE_OB)){

@@ -68,7 +68,7 @@ public class ConsultCancelService {
 					Integer sipId = callAgent.getCurrentSipId();
 					
 					 try{
-						 Map<String, Object> varMap = new HashMap<String,Object>();
+						 Map<String, String> varMap = new HashMap<String,String>();
 						 varMap.put(AmiChanVarNameConst.CONSULT_CANCEL, AmiChanVarNameConst.CONSULT_CANCEL_UNCONSULT_VALUE);
 						 
 						 setVarActionService.setVar(sipId, consultCancelChannel, varMap);

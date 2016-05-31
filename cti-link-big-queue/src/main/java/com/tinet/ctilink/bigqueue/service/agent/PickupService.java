@@ -116,7 +116,7 @@ public class PickupService {
 				        response = ActionResponse.createFailResponse(-1, "bad param");
 						return response;
 			        }                         
-			        Map<String, Object> varMap = new HashMap<String, Object>();
+			        Map<String, String> varMap = new HashMap<String, String>();
 			        varMap.put("__" + AmiChanVarNameConst.MAIN_CHANNEL, bridgeChannel);
 			        varMap.put(AmiChanVarNameConst.PICKUP_CHAN, channel); 
 			        varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_NUMBER, customerNumber); //客户号码
@@ -145,12 +145,12 @@ public class PickupService {
 			        varMap.put(AmiChanVarNameConst.CDR_DETAIL_GW_IP, gwIp);
 			        
 			        String mainUniqueId = null;
-			        Map<String, Object> getVarMap = new HashMap<String, Object>();
+			        Map<String, String> getVarMap = new HashMap<String, String>();
 			    	getVarMap.put(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID, "0");
-			    	Map<String, Object> getVarResponse = getVarActionService.getVar(sipId, channel, getVarMap);
+			    	Map<String, String> getVarResponse = getVarActionService.getVar(sipId, channel, getVarMap);
 			    	if(getVarResponse != null){
 			    		if(getVarResponse.get(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID) != null){
-			    			mainUniqueId = getVarResponse.get(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID).toString();
+			    			mainUniqueId = getVarResponse.get(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID);
 			    		}else{
 			    			response = ActionResponse.createFailResponse(-1, "get var fail");
 			    			return response;

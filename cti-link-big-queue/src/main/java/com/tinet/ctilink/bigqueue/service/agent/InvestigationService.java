@@ -73,7 +73,7 @@ public class InvestigationService {
 						response = ActionResponse.createFailResponse(-1, "no bridge channel");
 						return response;
 					}
-					Map<String, Object> varMap = new HashMap<String, Object>();
+					Map<String, String> varMap = new HashMap<String, String>();
 					varMap.put(AmiChanVarNameConst.IS_INVESTIGATION, "1");
 	                setVarActionService.setVar(sipId, bridgeChannel, varMap);
 	                

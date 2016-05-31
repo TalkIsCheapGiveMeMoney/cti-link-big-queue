@@ -77,7 +77,7 @@ public class ConsultThreewayService {
 						response = ActionResponse.createFailResponse(-1, "no consult channel");
 						return response;
 					}
-					Map<String, Object> varMap = new HashMap<String, Object>();
+					Map<String, String> varMap = new HashMap<String, String>();
 					varMap.put(AmiChanVarNameConst.CONSULT_THREEWAY_CHAN, channel);
 					setVarActionService.setVar(sipId, consultChannel, varMap);
     				

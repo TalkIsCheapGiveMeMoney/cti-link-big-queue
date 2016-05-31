@@ -17,7 +17,7 @@ public class GetVarActionService {
 	@Reference
 	ControlActionService controlActionService;
 	
-	public Map<String, Object> getVar(Integer sipId, String channel, Map<String, Object> varMap){
+	public Map<String, String> getVar(Integer sipId, String channel, Map<String, String> varMap){
 		Map<String, Object> paramsMap = new HashMap<String, Object>();
 		paramsMap.put(AmiParamConst.CHANNEL, channel);
 		paramsMap.put(AmiParamConst.VAR_MAP, varMap);

@@ -170,7 +170,7 @@ public class BargeService {
 	        response = ActionResponse.createFailResponse(-1, "bad param");
 			return response;
         }                         
-        Map<String, Object> varMap = new HashMap<String, Object>();
+        Map<String, String> varMap = new HashMap<String, String>();
         varMap.put(AmiChanVarNameConst.BARGE_CHAN, bargedChannel); 
         varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_NUMBER, customerNumber); //客户号码
         varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_NUMBER_TYPE, String.valueOf(customerNumberType)); //电话类型
@@ -202,12 +202,12 @@ public class BargeService {
         varMap.put(AmiChanVarNameConst.OBJECT_TYPE, objectType);
 
         String mainUniqueId = null;
-        Map<String, Object> getVarMap = new HashMap<String, Object>();
+        Map<String, String> getVarMap = new HashMap<String, String>();
     	getVarMap.put(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID, "0");
-    	Map<String, Object> getVarResponse = getVarActionService.getVar(sipId, bargedChannel, getVarMap);
+    	Map<String, String> getVarResponse = getVarActionService.getVar(sipId, bargedChannel, getVarMap);
     	if(getVarResponse != null){
     		if(getVarResponse.get(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID) != null){
-    			mainUniqueId = getVarResponse.get(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID).toString();
+    			mainUniqueId = getVarResponse.get(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID);
     		}else{
     			response = ActionResponse.createFailResponse(-1, "get var fail");
     			return response;
@@ -217,10 +217,10 @@ public class BargeService {
         Map<String, Object> actionMap = new HashMap<String, Object>();
         actionMap.put(AmiParamConst.DIALPLAN_CONTEXT, Const.DIALPLAN_CONTEXT_BARGE);
         actionMap.put(AmiParamConst.EXTENSION, enterpriseId + bargedCno);
-        actionMap.put(AmiParamConst.PRIORITY, 1);
+        actionMap.put(AmiParamConst.PRIORITY, "1");
         actionMap.put(AmiParamConst.OTHER_CHANNEL_ID, mainUniqueId);
         actionMap.put(AmiParamConst.CHANNEL, destInterface);
-        actionMap.put(AmiParamConst.ORIGINATE_TIMEOUT, 30000);
+        actionMap.put(AmiParamConst.ORIGINATE_TIMEOUT, "30");
         actionMap.put(AmiParamConst.CLID, clid);     
                        
         JSONObject actionEvent = null;

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import com.tinet.ctilink.ami.action.AmiActionResponse;
 import com.tinet.ctilink.ami.inc.AmiChanVarNameConst;
+import com.tinet.ctilink.ami.inc.AmiParamConst;
 import com.tinet.ctilink.bigqueue.ami.action.GetVarActionService;
 import com.tinet.ctilink.bigqueue.ami.action.OriginateActionService;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
@@ -84,7 +85,7 @@ public class PreviewOutcallService {
 	                	return response;
 	        		}
 
-	        		int timeout;
+	        		Integer timeout;
 	        		String timeoutStr = params.get("timeout").toString(); 
 	        		if(StringUtils.isNotEmpty(timeoutStr)){
 	        			timeout = Integer.parseInt(timeoutStr);
@@ -147,7 +148,7 @@ public class PreviewOutcallService {
 		                	agentService.saveCallAgent(enterpriseId, cno, callAgent);
 	                	}
 	                }
-	                Map<String, Object> varMap = new HashMap<String, Object>();
+	                Map<String, String> varMap = new HashMap<String, String>();
 
 	                varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_NUMBER, caller.getCallerNumber()); //客户号码
 	                varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_NUMBER_TYPE, String.valueOf(caller.getTelType())); //电话类型
@@ -155,7 +156,7 @@ public class PreviewOutcallService {
 	                varMap.put("__" + AmiChanVarNameConst.ENTERPRISE_ID, String.valueOf(enterpriseId));
 	                varMap.put("__" + AmiChanVarNameConst.CDR_ENTERPRISE_ID, String.valueOf(enterpriseId));
 	                varMap.put("__" + AmiChanVarNameConst.CDR_BRIDGED_CNO, cno);
-	                varMap.put("__" + AmiChanVarNameConst.CDR_CALL_TYPE, Const.CDR_CALL_TYPE_PREVIEW_OB);
+	                varMap.put("__" + AmiChanVarNameConst.CDR_CALL_TYPE, String.valueOf(Const.CDR_CALL_TYPE_PREVIEW_OB));
 	                //判断是否打开号码状态语音识别
 	                String enterpriseSettingKey = String.format(CacheKey.ENTERPRISE_SETTING_ENTERPRISE_ID_NAME, Integer.parseInt(enterpriseId), Const.ENTERPRISE_SETTING_NAME_TEL_STATUS_IDENTIFICATION);
 	        		EnterpriseSetting setting = redisService.get(Const.REDIS_DB_CONF_INDEX, enterpriseSettingKey, EnterpriseSetting.class);
@@ -187,7 +188,7 @@ public class PreviewOutcallService {
 	                
 	                varMap.put(AmiChanVarNameConst.CDR_GW_IP, gwIp);
 	                varMap.put("__" + AmiChanVarNameConst.CDR_NUMBER_TRUNK, clidRight);                 //座席侧外显号码
-	                varMap.put("__" + AmiChanVarNameConst.IS_INVESTIGATION_AUTO, isInvestigationAuto);
+	                varMap.put("__" + AmiChanVarNameConst.IS_INVESTIGATION_AUTO, String.valueOf(isInvestigationAuto));
 	                varMap.put(AmiChanVarNameConst.PREVIEW_OUTCALL_LEFT_CLID, obClidLeft);               //客户侧外显号码
 	                
 	                varMap.put(AmiChanVarNameConst.DIAL_TIMEOUT, "60");                  //外呼等待时长  60秒
@@ -198,12 +199,12 @@ public class PreviewOutcallService {
 	                }
 	                
 	                Map<String, Object> actionMap = new HashMap<String, Object>();
-	                actionMap.put("context", Const.DIALPLAN_CONTEXT_PREVIEW_OUTCALL);
-	                actionMap.put("exten", enterpriseId + cno);
-	                actionMap.put("priority", 1);
-	                actionMap.put("channel", callAgent.getInterface());
-	                actionMap.put("timeout", timeout);
-	                actionMap.put("clid", clidRight);     
+	                actionMap.put(AmiParamConst.DIALPLAN_CONTEXT, Const.DIALPLAN_CONTEXT_PREVIEW_OUTCALL);
+	                actionMap.put(AmiParamConst.EXTENSION, enterpriseId + cno);
+	                actionMap.put(AmiParamConst.PRIORITY, 1);
+	                actionMap.put(AmiParamConst.CHANNEL, callAgent.getInterface());
+	                actionMap.put(AmiParamConst.ORIGINATE_TIMEOUT, timeout);
+	                actionMap.put(AmiParamConst.CLID, clidRight);     
 	                               
 	                JSONObject actionEvent = null;
 
