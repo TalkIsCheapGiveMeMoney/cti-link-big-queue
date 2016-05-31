@@ -198,7 +198,7 @@ public class WhisperService {
 
         String mainUniqueId = null;
         Map<String, Object> getVarMap = new HashMap<String, Object>();
-    	getVarMap.put(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID, AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID);
+    	getVarMap.put(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID, "0");
     	Map<String, Object> getVarResponse = getVarActionService.getVar(sipId, whisperedChannel, getVarMap);
     	if(getVarResponse != null){
     		if(getVarResponse.get(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID) != null){

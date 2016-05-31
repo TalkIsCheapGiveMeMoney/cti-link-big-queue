@@ -78,7 +78,7 @@ public class DirectCallStartService {
 					
 					String directCallReadWaitStatus = null;
 			        Map<String, Object> getVarMap = new HashMap<String, Object>();
-			    	getVarMap.put(AmiChanVarNameConst.DIRECT_CALL_READ_STATUS, AmiChanVarNameConst.DIRECT_CALL_READ_STATUS);
+			    	getVarMap.put(AmiChanVarNameConst.DIRECT_CALL_READ_STATUS, "1");
 			    	Map<String, Object> getVarResponse = getVarActionService.getVar(sipId, channel, getVarMap);
 			    	if(getVarResponse != null){
 			    		if(getVarResponse.get(AmiChanVarNameConst.DIRECT_CALL_READ_STATUS) != null){

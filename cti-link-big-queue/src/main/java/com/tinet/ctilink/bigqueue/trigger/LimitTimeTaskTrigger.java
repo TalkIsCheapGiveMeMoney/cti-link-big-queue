@@ -48,12 +48,12 @@ public class LimitTimeTaskTrigger implements TaskSchedulerTrigger {
     	String file = param.get("file").toString();
     	
     	Map<String, Object> varParam = new HashMap<String, Object>();
-    	varParam.put("CHANNEL(state)", "channelState");
+    	varParam.put("CHANNEL(state)", "1");
     	
     	Map<String, Object> getVarResponse = getVarActionService.getVar(sipId, channel, varParam);
     	if(getVarResponse != null){
-    		if(getVarResponse.get("channelState") != null){
-    			String channelState = getVarResponse.get("channelState").toString();
+    		if(getVarResponse.get("CHANNEL(state)") != null){
+    			String channelState = getVarResponse.get("CHANNEL(state)").toString();
     			if(!channelState.equals("Up")){
     				return;
     			}
