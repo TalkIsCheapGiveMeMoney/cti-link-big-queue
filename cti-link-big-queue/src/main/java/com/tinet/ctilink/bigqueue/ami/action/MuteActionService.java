@@ -20,8 +20,8 @@ public class MuteActionService {
 	public AmiActionResponse mute(Integer sipId, String channel, String direction, String state){
 		Map<String, Object> paramsMap = new HashMap<String, Object>();
 		paramsMap.put(AmiParamConst.CHANNEL, channel);
-		paramsMap.put(AmiParamConst.VARIABLE_MUTE_DIRECTION, direction);
-		paramsMap.put(AmiParamConst.VARIABLE_MUTE_STATE, state);
+		paramsMap.put(AmiParamConst.MUTE_DIRECTION, direction);
+		paramsMap.put(AmiParamConst.MUTE_STATE, state);
 		paramsMap.put(ControlConst.PARAM_SIP_ID, sipId);
 
 	    return controlActionService.handleAction("mute", paramsMap);

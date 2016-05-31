@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.tinet.ctilink.ami.inc.AmiChannelStatusConst;
 import com.tinet.ctilink.ami.inc.AmiEventTypeConst;
+import com.tinet.ctilink.ami.inc.AmiParamConst;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
 import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
@@ -76,6 +77,14 @@ public class StatusHandler implements EventHandler, InitializingBean{
 								if(oldDeviceStatus != BigQueueConst.MEMBER_DEVICE_STATUS_IDLE && oldDeviceStatus != BigQueueConst.MEMBER_DEVICE_STATUS_LOCKED){
 									logger.error(String.format("bad status received, new=%d old=%d", statusInt, oldDeviceStatus));
 									return false;
+								}
+								{
+									String callType = event.getString(AmiParamConst.CALL_TYPE);
+									callAgent.setCurrentCallType(Integer.parseInt(callType));
+									String consulterCno = event.getString(AmiParamConst.CONSULTER_CNO);
+									callAgent.setConsulterCno(consulterCno);
+									String transferCno = event.getString(AmiParamConst.TRANSFER_CNO);
+									callAgent.setConsulterCno(transferCno);
 								}
 								deviceStatus = BigQueueConst.MEMBER_DEVICE_STATUS_INVITE;
 								break;
@@ -276,8 +285,16 @@ public class StatusHandler implements EventHandler, InitializingBean{
 							statusEvent.put("pauseType", callAgent.getPauseType());
 						}
 						if(deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_INUSE) 
-								|| deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_RINGING) 
-								|| deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_INVITE)){
+								|| deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_RINGING) ){
+							if(StringUtils.isNotEmpty(callAgent.getConsulterCno())){
+								statusEvent.put("consulterCno", callAgent.getConsulterCno());
+							}
+							if(StringUtils.isNotEmpty(callAgent.getTransferCno())){
+								statusEvent.put("transferCno", callAgent.getTransferCno());
+							}
+							statusEvent.put("callType", callAgent.getCurrentCallType());
+						}
+						if(deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_INUSE) ){
 							if(StringUtils.isNotEmpty(callAgent.getBusyDescription())){
 								statusEvent.put("busyDescription", callAgent.getBusyDescription());
 							}

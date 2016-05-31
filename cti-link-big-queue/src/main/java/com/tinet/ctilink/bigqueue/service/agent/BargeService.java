@@ -176,12 +176,11 @@ public class BargeService {
         varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_NUMBER_TYPE, String.valueOf(customerNumberType)); //电话类型
         varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_AREA_CODE, customerAreaCode); //区号
         varMap.put("__" + AmiChanVarNameConst.CUR_QUEUE, curQueue); //
-        varMap.put("__" + AmiChanVarNameConst.ENTERPRISE_ID, String.valueOf(enterpriseId));
         if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
         	varMap.put("__" + AmiChanVarNameConst.BARGER_CNO, bargeObject);
         	varMap.put(AmiChanVarNameConst.CDR_DETAIL_CNO, bargeObject);
-        	varMap.put(AmiChanVarNameConst.CHANNEL_CNO, bargeObject);
-        	varMap.put(AmiChanVarNameConst.PRE_DIAL_RUN, Const.DIALPLAN_CONTEXT_PREVIEW_OUTCALL_PREDIAL);
+        	varMap.put(AmiChanVarNameConst.CDR_CNO, bargeObject);
+        	varMap.put(AmiChanVarNameConst.PRE_DIAL_RUN, "\"" + Const.DIALPLAN_CONTEXT_PREVIEW_OUTCALL_PREDIAL + "," + enterpriseId +",1\"");
         }
         varMap.put("__" + AmiChanVarNameConst.BARGED_CNO, bargedCno);
         varMap.put("__" + AmiChanVarNameConst.BARGER_INTERFACE, destInterface);
@@ -217,10 +216,10 @@ public class BargeService {
         Map<String, Object> actionMap = new HashMap<String, Object>();
         actionMap.put(AmiParamConst.DIALPLAN_CONTEXT, Const.DIALPLAN_CONTEXT_BARGE);
         actionMap.put(AmiParamConst.EXTENSION, enterpriseId + bargedCno);
-        actionMap.put(AmiParamConst.PRIORITY, "1");
+        actionMap.put(AmiParamConst.PRIORITY, 1);
         actionMap.put(AmiParamConst.OTHER_CHANNEL_ID, mainUniqueId);
         actionMap.put(AmiParamConst.CHANNEL, destInterface);
-        actionMap.put(AmiParamConst.ORIGINATE_TIMEOUT, "30");
+        actionMap.put(AmiParamConst.ORIGINATE_TIMEOUT, 30);
         actionMap.put(AmiParamConst.CLID, clid);     
                        
         JSONObject actionEvent = null;

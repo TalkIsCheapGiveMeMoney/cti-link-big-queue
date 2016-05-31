@@ -153,7 +153,7 @@ public class PreviewOutcallService {
 	                varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_NUMBER, caller.getCallerNumber()); //客户号码
 	                varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_NUMBER_TYPE, String.valueOf(caller.getTelType())); //电话类型
 	                varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_AREA_CODE, caller.getAreaCode()); //区号
-	                varMap.put("__" + AmiChanVarNameConst.ENTERPRISE_ID, String.valueOf(enterpriseId));
+	           
 	                varMap.put("__" + AmiChanVarNameConst.CDR_ENTERPRISE_ID, String.valueOf(enterpriseId));
 	                varMap.put("__" + AmiChanVarNameConst.CDR_BRIDGED_CNO, cno);
 	                varMap.put("__" + AmiChanVarNameConst.CDR_CALL_TYPE, String.valueOf(Const.CDR_CALL_TYPE_PREVIEW_OB));
@@ -192,7 +192,7 @@ public class PreviewOutcallService {
 	                varMap.put(AmiChanVarNameConst.PREVIEW_OUTCALL_LEFT_CLID, obClidLeft);               //客户侧外显号码
 	                
 	                varMap.put(AmiChanVarNameConst.DIAL_TIMEOUT, "60");                  //外呼等待时长  60秒
-	                varMap.put(AmiChanVarNameConst.PRE_DIAL_RUN, Const.DIALPLAN_CONTEXT_PREVIEW_OUTCALL_PREDIAL);
+	                varMap.put(AmiChanVarNameConst.PRE_DIAL_RUN, "\"" + Const.DIALPLAN_CONTEXT_PREVIEW_OUTCALL_PREDIAL + "," + enterpriseId +",1\"");
 	                Map<String, Object> userFieldMap = (Map<String, Object>)(params.get("userField"));
 	                for(String key: userFieldMap.keySet()){
 	                	varMap.put(key, userFieldMap.get(key).toString()); 

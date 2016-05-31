@@ -40,6 +40,8 @@ public class CallAgent {
 	private String monitoredObject;
 	private Integer monitoredObjectType;
 	private String consultChannel; // 咨询时对方的channel
+	private String consulterCno;
+	private String transferCno;
 	
 	private String spyChannel; // 监听者的channel
 	private String whisperChannel; // 耳语者channel
@@ -267,6 +269,19 @@ public class CallAgent {
 	public void setRnaPauseDescription(String rnaPauseDescription) {
 		this.rnaPauseDescription = rnaPauseDescription;
 	}
+	
+	public String getConsulterCno() {
+		return consulterCno;
+	}
+	public void setConsulterCno(String consulterCno) {
+		this.consulterCno = consulterCno;
+	}
+	public String getTransferCno() {
+		return transferCno;
+	}
+	public void setTransferCno(String transferCno) {
+		this.transferCno = transferCno;
+	}
 	public void clearCall(){
 		currentChannel = "";
 		currentChannelUniqueId = "";
@@ -289,5 +304,7 @@ public class CallAgent {
 		whisperChannel = "";
 		threewayChannel = "";
 		bargeChannel = "";
+		consulterCno = "";
+		transferCno = "";
 	}
 }

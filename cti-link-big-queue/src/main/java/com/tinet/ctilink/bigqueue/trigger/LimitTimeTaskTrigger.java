@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.tinet.ctilink.ami.inc.AmiParamConst;
 import com.tinet.ctilink.bigqueue.ami.action.GetVarActionService;
 import com.tinet.ctilink.bigqueue.ami.action.HangupActionService;
 import com.tinet.ctilink.bigqueue.ami.action.OriginateActionService;
@@ -18,6 +19,7 @@ import com.tinet.ctilink.bigqueue.service.imp.ChannelServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.MemberServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.QueueEventServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
+import com.tinet.ctilink.inc.Const;
 import com.tinet.ctilink.scheduler.RedisTaskScheduler;
 import com.tinet.ctilink.scheduler.TaskSchedulerTrigger;
 import com.tinet.ctilink.util.DateUtil;
@@ -72,13 +74,13 @@ public class LimitTimeTaskTrigger implements TaskSchedulerTrigger {
 			varMap.put("spied_unique_id", uniqueId);
 			
 	        Map<String, Object> actionMap = new HashMap<String, Object>();
-	        actionMap.put("context", targetContext);
-	        actionMap.put("exten", targetExtension);
-	        actionMap.put("priority", 1);
-	        actionMap.put("channel", "Local/" + extension + "@" + context);
-	        actionMap.put("timeout", 5000);
-	        actionMap.put("clid", "");     
-	
+	        actionMap.put(AmiParamConst.DIALPLAN_CONTEXT, targetContext);
+	        actionMap.put(AmiParamConst.EXTENSION, targetExtension);
+	        actionMap.put(AmiParamConst.PRIORITY, 1);
+	        actionMap.put(AmiParamConst.CHANNEL, "Local/" + extension + "@" + context);
+	        actionMap.put(AmiParamConst.ORIGINATE_TIMEOUT, 5);
+	        actionMap.put(AmiParamConst.CLID, "");       
+	        
 			originateActionService.originate(sipId, actionMap, null, varMap);
 			
 			Map<String, Object> limitTimeParams = new HashMap<String, Object>();

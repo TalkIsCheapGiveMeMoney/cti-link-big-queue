@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.github.pagehelper.StringUtil;
 import com.tinet.ctilink.ami.action.AmiActionResponse;
 import com.tinet.ctilink.ami.inc.AmiChanVarNameConst;
+import com.tinet.ctilink.ami.inc.AmiParamConst;
 import com.tinet.ctilink.bigqueue.ami.action.GetVarActionService;
 import com.tinet.ctilink.bigqueue.ami.action.OriginateActionService;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
@@ -171,12 +172,11 @@ public class ThreewayService {
         varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_NUMBER_TYPE, String.valueOf(customerNumberType)); //电话类型
         varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_AREA_CODE, customerAreaCode); //区号
         varMap.put("__" + AmiChanVarNameConst.CUR_QUEUE, curQueue); //
-        varMap.put("__" + AmiChanVarNameConst.ENTERPRISE_ID, String.valueOf(enterpriseId));
         if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
         	varMap.put("__" + AmiChanVarNameConst.THREEWAYER_CNO, threewayObject);
         	varMap.put(AmiChanVarNameConst.CDR_DETAIL_CNO, threewayObject);
-        	varMap.put(AmiChanVarNameConst.CHANNEL_CNO, threewayObject);
-        	varMap.put(AmiChanVarNameConst.PRE_DIAL_RUN, Const.DIALPLAN_CONTEXT_PREVIEW_OUTCALL_PREDIAL);
+        	varMap.put(AmiChanVarNameConst.CDR_CNO, threewayObject);
+        	varMap.put(AmiChanVarNameConst.PRE_DIAL_RUN, "\"" + Const.DIALPLAN_CONTEXT_PREVIEW_OUTCALL_PREDIAL + "," + enterpriseId +",1\"");
         
         }
         varMap.put("__" + AmiChanVarNameConst.THREEWAYED_CNO, threewayedCno);
@@ -210,13 +210,13 @@ public class ThreewayService {
     	}
         	
         Map<String, Object> actionMap = new HashMap<String, Object>();
-        actionMap.put("context", Const.DIALPLAN_CONTEXT_THREEWAY);
-        actionMap.put("exten", enterpriseId + threewayedCno);
-        actionMap.put("priority", 1);
-        actionMap.put("otherChannelId", mainUniqueId);
-        actionMap.put("channel", destInterface);
-        actionMap.put("timeout", 30000);
-        actionMap.put("clid", clid);     
+        actionMap.put(AmiParamConst.DIALPLAN_CONTEXT, Const.DIALPLAN_CONTEXT_THREEWAY);
+        actionMap.put(AmiParamConst.EXTENSION, enterpriseId + threewayedCno);
+        actionMap.put(AmiParamConst.PRIORITY, 1);
+        actionMap.put(AmiParamConst.OTHER_CHANNEL_ID, mainUniqueId);
+        actionMap.put(AmiParamConst.CHANNEL, destInterface);
+        actionMap.put(AmiParamConst.ORIGINATE_TIMEOUT, 30);
+        actionMap.put(AmiParamConst.CLID, clid);     
                        
         JSONObject actionEvent = null;
         if (objectType.equals(Const.OBJECT_TYPE_CNO)) {

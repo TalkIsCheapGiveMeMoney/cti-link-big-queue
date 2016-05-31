@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.github.pagehelper.StringUtil;
 import com.tinet.ctilink.ami.action.AmiActionResponse;
 import com.tinet.ctilink.ami.inc.AmiChanVarNameConst;
+import com.tinet.ctilink.ami.inc.AmiParamConst;
 import com.tinet.ctilink.bigqueue.ami.action.GetVarActionService;
 import com.tinet.ctilink.bigqueue.ami.action.OriginateActionService;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
@@ -171,12 +172,12 @@ public class SpyService {
         varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_NUMBER_TYPE, String.valueOf(customerNumberType)); //电话类型
         varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_AREA_CODE, customerAreaCode); //区号
         varMap.put("__" + AmiChanVarNameConst.CUR_QUEUE, curQueue); //
-        varMap.put("__" + AmiChanVarNameConst.ENTERPRISE_ID, String.valueOf(enterpriseId));
+
         if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
         	varMap.put("__" + AmiChanVarNameConst.SPYER_CNO, spyObject);
         	varMap.put(AmiChanVarNameConst.CDR_DETAIL_CNO, spyObject);
-        	varMap.put(AmiChanVarNameConst.CHANNEL_CNO, spyObject);
-        	varMap.put(AmiChanVarNameConst.PRE_DIAL_RUN, Const.DIALPLAN_CONTEXT_PREVIEW_OUTCALL_PREDIAL);
+        	varMap.put(AmiChanVarNameConst.CDR_CNO, spyObject);
+        	varMap.put(AmiChanVarNameConst.PRE_DIAL_RUN, "\"" + Const.DIALPLAN_CONTEXT_PREVIEW_OUTCALL_PREDIAL + "," + enterpriseId +",1\"");
         }
         varMap.put("__" + AmiChanVarNameConst.SPIED_CNO, spiedCno);
         varMap.put("__" + AmiChanVarNameConst.SPY_OBJECT, spyObject);
@@ -209,14 +210,14 @@ public class SpyService {
     	}
         	
         Map<String, Object> actionMap = new HashMap<String, Object>();
-        actionMap.put("context", Const.DIALPLAN_CONTEXT_SPY);
-        actionMap.put("exten", enterpriseId + spiedCno);
-        actionMap.put("priority", 1);
-        actionMap.put("otherChannelId", mainUniqueId);
-        actionMap.put("channel", destInterface);
-        actionMap.put("timeout", 30000);
-        actionMap.put("clid", clid);     
-                       
+        actionMap.put(AmiParamConst.DIALPLAN_CONTEXT, Const.DIALPLAN_CONTEXT_SPY);
+        actionMap.put(AmiParamConst.EXTENSION, enterpriseId + spiedCno);
+        actionMap.put(AmiParamConst.PRIORITY, 1);
+        actionMap.put(AmiParamConst.OTHER_CHANNEL_ID, mainUniqueId);
+        actionMap.put(AmiParamConst.CHANNEL, destInterface);
+        actionMap.put(AmiParamConst.ORIGINATE_TIMEOUT, 30);
+        actionMap.put(AmiParamConst.CLID, clid);     
+      
         JSONObject actionEvent = null;
         if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
         	actionEvent = new JSONObject();
