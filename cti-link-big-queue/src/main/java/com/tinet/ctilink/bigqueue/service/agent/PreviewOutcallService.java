@@ -155,7 +155,7 @@ public class PreviewOutcallService {
 	                varMap.put("__" + AmiChanVarNameConst.CDR_CUSTOMER_AREA_CODE, caller.getAreaCode()); //区号
 	           
 	                varMap.put("__" + AmiChanVarNameConst.CDR_ENTERPRISE_ID, String.valueOf(enterpriseId));
-	                varMap.put("__" + AmiChanVarNameConst.CDR_BRIDGED_CNO, cno);
+	                varMap.put(AmiChanVarNameConst.CDR_CNO, cno);
 	                varMap.put("__" + AmiChanVarNameConst.CDR_CALL_TYPE, String.valueOf(Const.CDR_CALL_TYPE_OB_PREVIEW));
 	                //判断是否打开号码状态语音识别
 	                String enterpriseSettingKey = String.format(CacheKey.ENTERPRISE_SETTING_ENTERPRISE_ID_NAME, Integer.parseInt(enterpriseId), Const.ENTERPRISE_SETTING_NAME_TEL_STATUS_IDENTIFICATION);
@@ -169,7 +169,7 @@ public class PreviewOutcallService {
 	                Integer obRecord = agent.getObRecord();
 	                
 	                varMap.put(AmiChanVarNameConst.IS_OB_RECORD, String.valueOf(obRecord));
-	                varMap.put(AmiChanVarNameConst.CDR_CLIENT_NUMBER, callAgent.getBindTel());
+	                varMap.put(AmiChanVarNameConst.CDR_CALLEE_NUMBER, callAgent.getBindTel());
 
 	                Date startDate = new Date();
 	                long callStartTime =startDate.getTime()/1000;

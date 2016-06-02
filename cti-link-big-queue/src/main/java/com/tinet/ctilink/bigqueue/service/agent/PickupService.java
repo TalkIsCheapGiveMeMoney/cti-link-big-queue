@@ -141,7 +141,7 @@ public class PickupService {
 			        
 			        varMap.put(AmiChanVarNameConst.CDR_ENTERPRISE_ID, String.valueOf(enterpriseId));
 			        varMap.put(AmiChanVarNameConst.CDR_START_TIME, String.valueOf(new Date().getTime() / 1000));
-			        varMap.put(AmiChanVarNameConst.CDR_DETAIL_CNO, cno);
+			        varMap.put(AmiChanVarNameConst.CDR_CNO, cno);
 			        varMap.put(AmiChanVarNameConst.CDR_DETAIL_GW_IP, gwIp);
 			        
 			        String mainUniqueId = null;

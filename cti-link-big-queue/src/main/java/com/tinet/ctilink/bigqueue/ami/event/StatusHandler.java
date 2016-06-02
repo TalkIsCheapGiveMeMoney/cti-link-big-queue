@@ -95,7 +95,7 @@ public class StatusHandler implements EventHandler, InitializingBean{
 								}
 								deviceStatus = BigQueueConst.MEMBER_DEVICE_STATUS_RINGING;
 								try{
-								String channel = event.getString("channel");
+									String channel = event.getString("channel");
 									String uniqueId = event.getString("uniqueId");
 									Integer callType = event.getInt("callType");
 									String customerNumber = event.getString("customerNumber");

@@ -174,7 +174,6 @@ public class WhisperService {
         varMap.put("__" + AmiChanVarNameConst.CUR_QNO, curQno); //
         if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
         	varMap.put("__" + AmiChanVarNameConst.WHISPER_CNO, whisperObject);
-        	varMap.put(AmiChanVarNameConst.CDR_DETAIL_CNO, whisperObject);
         	varMap.put(AmiChanVarNameConst.CDR_CNO, whisperObject);
         	varMap.put(AmiChanVarNameConst.PRE_DIAL_RUN, "\"" + Const.DIALPLAN_CONTEXT_PREVIEW_OUTCALL_PREDIAL + "," + enterpriseId +",1\"");
         

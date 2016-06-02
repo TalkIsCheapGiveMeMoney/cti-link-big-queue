@@ -45,6 +45,7 @@ public class ApplicationStarter implements ApplicationListener<ContextRefreshedE
 		//启动statusCheckScanTask
 		redisTaskScheduler.schedulePeriod("statusCheckScanTask", "statusCheckScanTaskTrigger", null, 10000, 1);
 		
+		amiEventListener.setName("AmiEventListener");
 		amiEventListener.start();
 		
 		logger.info("cti-link-big-queue启动成功");

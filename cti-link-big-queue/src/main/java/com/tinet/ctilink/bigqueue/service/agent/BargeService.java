@@ -178,7 +178,7 @@ public class BargeService {
         varMap.put("__" + AmiChanVarNameConst.CUR_QNO, curQno); //
         if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
         	varMap.put("__" + AmiChanVarNameConst.BARGER_CNO, bargeObject);
-        	varMap.put(AmiChanVarNameConst.CDR_DETAIL_CNO, bargeObject);
+        	varMap.put(AmiChanVarNameConst.CDR_CNO, bargeObject);
         	varMap.put(AmiChanVarNameConst.CDR_CNO, bargeObject);
         	varMap.put(AmiChanVarNameConst.PRE_DIAL_RUN, "\"" + Const.DIALPLAN_CONTEXT_PREVIEW_OUTCALL_PREDIAL + "," + enterpriseId +",1\"");
         }
