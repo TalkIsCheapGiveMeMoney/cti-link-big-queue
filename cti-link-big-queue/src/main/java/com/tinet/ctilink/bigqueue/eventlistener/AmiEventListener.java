@@ -38,6 +38,7 @@ public class AmiEventListener extends Thread{
     			JSONObject jsonObject = JSONObject.fromObject(popRes);
     			if(jsonObject != null){
     				String event = jsonObject.get("event").toString();
+    				logger.info("[AmiEventListenr] " + jsonObject.toString());
     				EventHandler handler = EventHandlerFactory.getInstance(event);
     				if(handler != null){
     					executorService.execute(new Runnable() {
