@@ -61,6 +61,9 @@ public class StatusHandler implements EventHandler, InitializingBean{
 			String cno = event.getString("cno");
 			String status = event.getString("status");
 			
+			if(StringUtils.isEmpty(enterpriseId) || StringUtils.isEmpty(cno)){
+				return false;
+			}
 			
 			//先获取lock memberService.lockMember(enterpriseId, cno);
 			RedisLock memberLock = memberService.lockMember(enterpriseId, cno);
