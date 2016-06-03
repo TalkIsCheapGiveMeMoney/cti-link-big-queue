@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.tinet.ctilink.inc.EnterpriseSettingConst;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -158,7 +159,7 @@ public class PreviewOutcallService {
 	                varMap.put(AmiChanVarNameConst.CDR_CNO, cno);
 	                varMap.put("__" + AmiChanVarNameConst.CDR_CALL_TYPE, String.valueOf(Const.CDR_CALL_TYPE_OB_PREVIEW));
 	                //判断是否打开号码状态语音识别
-	                String enterpriseSettingKey = String.format(CacheKey.ENTERPRISE_SETTING_ENTERPRISE_ID_NAME, Integer.parseInt(enterpriseId), Const.ENTERPRISE_SETTING_NAME_TEL_STATUS_IDENTIFICATION);
+	                String enterpriseSettingKey = String.format(CacheKey.ENTERPRISE_SETTING_ENTERPRISE_ID_NAME, Integer.parseInt(enterpriseId), EnterpriseSettingConst.ENTERPRISE_SETTING_NAME_TEL_STATUS_IDENTIFICATION);
 	        		EnterpriseSetting setting = redisService.get(Const.REDIS_DB_CONF_INDEX, enterpriseSettingKey, EnterpriseSetting.class);
 	                if(setting!=null && "1".equals(setting.getValue())){
 	                	varMap.put("__" + AmiChanVarNameConst.IS_TSI, "1");
@@ -180,7 +181,7 @@ public class PreviewOutcallService {
 
 	                //获取是否自动满意度调查
 	                Integer isInvestigationAuto = 0;
-	                enterpriseSettingKey = String.format(CacheKey.ENTERPRISE_SETTING_ENTERPRISE_ID_NAME, Integer.parseInt(enterpriseId), Const.ENTERPRISE_SETTING_NAME_AUTO_INVESTIGATION_OB);
+	                enterpriseSettingKey = String.format(CacheKey.ENTERPRISE_SETTING_ENTERPRISE_ID_NAME, Integer.parseInt(enterpriseId), EnterpriseSettingConst.ENTERPRISE_SETTING_NAME_AUTO_INVESTIGATION_OB);
 	        		setting = redisService.get(Const.REDIS_DB_CONF_INDEX, enterpriseSettingKey, EnterpriseSetting.class);
 	                if(setting!=null && "1".equals(setting.getValue())){
 	                	isInvestigationAuto = 1;
