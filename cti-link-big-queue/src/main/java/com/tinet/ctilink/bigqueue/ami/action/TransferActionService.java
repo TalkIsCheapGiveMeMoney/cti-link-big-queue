@@ -3,6 +3,8 @@ package com.tinet.ctilink.bigqueue.ami.action;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.dubbo.config.annotation.Reference;
@@ -13,7 +15,7 @@ import com.tinet.ctilink.control.service.v1.ControlActionService;
 
 @Service
 public class TransferActionService {
-	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	@Reference
 	ControlActionService controlActionService;
 	
@@ -25,6 +27,13 @@ public class TransferActionService {
 		paramsMap.put(AmiParamConst.FEATURE, "blindxfer");
 		paramsMap.put(ControlConst.PARAM_SIP_ID, sipId);
 		
-	    return controlActionService.handleAction("transfer", paramsMap);
+		logger.info("transfer paramsMap=" + paramsMap.toString());
+		AmiActionResponse response = controlActionService.handleAction("transfer", paramsMap);
+		if(response != null){
+			logger.info("transfer response=" + response.toString());
+		}else{
+			logger.info("transfer response=null");
+		}
+		return response;
 	}
 }

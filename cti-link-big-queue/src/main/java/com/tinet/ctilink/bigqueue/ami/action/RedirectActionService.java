@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.dubbo.config.annotation.Reference;
@@ -14,7 +16,7 @@ import com.tinet.ctilink.control.service.v1.ControlActionService;
 
 @Service
 public class RedirectActionService {
-	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	@Reference
 	ControlActionService controlActionService;
 	
@@ -33,6 +35,13 @@ public class RedirectActionService {
 			paramsMap.put(AmiParamConst.EXTRA_PRIORITY, extraPriority);
 		}
 		
-	    return controlActionService.handleAction("redirect", paramsMap);
+		logger.info("originate paramsMap=" + paramsMap.toString());
+		AmiActionResponse response = controlActionService.handleAction("redirect", paramsMap);
+		if(response != null){
+			logger.info("redirect response=" + response.toString());
+		}else{
+			logger.info("redirect response=null");
+		}
+		return response;
 	}
 }

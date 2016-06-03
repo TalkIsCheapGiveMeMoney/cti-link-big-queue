@@ -3,6 +3,8 @@ package com.tinet.ctilink.bigqueue.ami.action;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.dubbo.config.annotation.Reference;
@@ -13,7 +15,7 @@ import com.tinet.ctilink.control.service.v1.ControlActionService;
 
 @Service
 public class HangupActionService {
-	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	@Reference
 	ControlActionService controlActionService;
 	
@@ -23,6 +25,13 @@ public class HangupActionService {
 		paramsMap.put(AmiParamConst.HANGUP_CAUSE, cause);
 		paramsMap.put(ControlConst.PARAM_SIP_ID, sipId);
 		
-		return controlActionService.handleAction("hangup", paramsMap);
+		logger.info("hangup paramsMap=" + paramsMap.toString());
+		AmiActionResponse response = controlActionService.handleAction("hangup", paramsMap);
+		if(response != null){
+			logger.info("hangup response=" + response.toString());
+		}else{
+			logger.info("hangup response=null");
+		}
+		return response;
 	}
 }
