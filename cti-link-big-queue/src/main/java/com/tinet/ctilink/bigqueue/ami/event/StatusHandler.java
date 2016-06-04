@@ -273,7 +273,7 @@ public class StatusHandler implements EventHandler, InitializingBean{
 							statusEvent.put("pauseType", callAgent.getPauseType());
 						}
 						if(deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_INUSE) 
-								|| deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_RINGING) ){
+								|| deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_RINGING) || deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_INVITE) ){
 							if(StringUtils.isNotEmpty(callAgent.getConsulterCno())){
 								statusEvent.put("consulterCno", callAgent.getConsulterCno());
 							}
