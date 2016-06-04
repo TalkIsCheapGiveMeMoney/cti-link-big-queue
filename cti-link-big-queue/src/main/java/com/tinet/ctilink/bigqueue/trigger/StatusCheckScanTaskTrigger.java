@@ -70,14 +70,20 @@ public class StatusCheckScanTaskTrigger implements TaskSchedulerTrigger {
 	    			break;
 	    		case BigQueueConst.MEMBER_DEVICE_STATUS_LOCKED:
 	    			if(((new Date().getTime()/1000) - startTime) > BigQueueConst.MEMBER_STATUS_LOCKED_MAX_TIMEOUT){
+	    				CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
+	    				callAgent.clearCall();
 	    				memberService.setDeviceStatus(enterpriseId, cno, BigQueueConst.MEMBER_DEVICE_STATUS_IDLE);
+	    				agentService.saveCallAgent(enterpriseId, cno, callAgent);
 	    				logger.error(String.format("StatusCheckScan bad status [%d] checked: enterpriseId=%s cno=%s", deviceStatus, enterpriseId, field));
 	    			}
 	    			break;
 	    		case BigQueueConst.MEMBER_DEVICE_STATUS_INVITE:
 	    		case BigQueueConst.MEMBER_DEVICE_STATUS_RINGING:
 	    			if(((new Date().getTime()/1000) - startTime) > BigQueueConst.MEMBER_STATUS_TRYING_MAX_TIMEOUT){
+	    				CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
+	    				callAgent.clearCall();
 	    				memberService.setDeviceStatus(enterpriseId, cno, BigQueueConst.MEMBER_DEVICE_STATUS_IDLE);
+	    				agentService.saveCallAgent(enterpriseId, cno, callAgent);
 	    				logger.error(String.format("StatusCheckScan bad status [%d] checked: enterpriseId=%s cno=%s", deviceStatus, enterpriseId, field));
 	    			}
 	    			break;
@@ -87,7 +93,10 @@ public class StatusCheckScanTaskTrigger implements TaskSchedulerTrigger {
 		    			if(channelService.isAlive(agent.getCurrentChannelUniqueId())){
 		    				
 		    			}else{
+		    				CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
+		    				callAgent.clearCall();
 		    				memberService.setDeviceStatus(enterpriseId, cno, BigQueueConst.MEMBER_DEVICE_STATUS_IDLE);
+		    				agentService.saveCallAgent(enterpriseId, cno, callAgent);
 		    				logger.error(String.format("StatusCheckScan bad status [%d] checked: enterpriseId=%s cno=%s", deviceStatus, enterpriseId, field));
 		    			}
 	    			}
