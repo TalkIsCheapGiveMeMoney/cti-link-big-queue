@@ -51,6 +51,7 @@ public class CallAgent {
 	private boolean rnaPause;
 	private Integer rnaPauseType;
 	private String rnaPauseDescription;
+	private boolean bridged;
 	
 	public Integer getLoginType() {
 		return loginType;
@@ -283,6 +284,13 @@ public class CallAgent {
 	public void setTransferCno(String transferCno) {
 		this.transferCno = transferCno;
 	}
+	
+	public boolean isBridged() {
+		return bridged;
+	}
+	public void setBridged(boolean bridged) {
+		this.bridged = bridged;
+	}
 	public void clearCall(){
 		currentChannel = "";
 		currentChannelUniqueId = "";
@@ -307,5 +315,6 @@ public class CallAgent {
 		bargeChannel = "";
 		consulterCno = "";
 		transferCno = "";
+		bridged = false;
 	}
 }

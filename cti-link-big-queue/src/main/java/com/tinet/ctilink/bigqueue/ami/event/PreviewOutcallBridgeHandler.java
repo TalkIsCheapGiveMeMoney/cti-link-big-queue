@@ -40,6 +40,7 @@ public class PreviewOutcallBridgeHandler implements EventHandler, InitializingBe
 					CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
 					if(callAgent != null){
 						callAgent.setBridgedChannel(channel);
+						callAgent.setBridged(true);
 						agentService.saveCallAgent(enterpriseId, cno, callAgent);
 					}else{
 						logger.error("no such callAgent when dispatch BargeLinkEvent");

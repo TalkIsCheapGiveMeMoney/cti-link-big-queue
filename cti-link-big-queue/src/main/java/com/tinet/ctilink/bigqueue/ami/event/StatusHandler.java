@@ -145,52 +145,53 @@ public class StatusHandler implements EventHandler, InitializingBean{
 		
 										queueEventService.publishEvent(queueEvent);
 									}
-									
-									Integer wrapupTime = -1;
-									switch(callAgent.getCurrentCallType()){
-										case Const.CDR_CALL_TYPE_IB:
-										case Const.CDR_CALL_TYPE_OB_WEBCALL:
-										case Const.CDR_CALL_TYPE_OB_PREDICTIVE:
-											if(StringUtils.isNotEmpty(callAgent.getCurrentQno())){
-												 Queue queueConf = queueService.getFromConfCache(enterpriseId, callAgent.getCurrentQno());
-											     if(queueConf != null){
-											    	 wrapupTime = queueConf.getWrapupTime();
-											     }
-											}
-											break;
-										case Const.CDR_CALL_TYPE_OB_DIRECT:
-										case Const.CDR_CALL_TYPE_OB_PREVIEW:
-											break;
-									}
-									if(wrapupTime == -1){
-										Agent agent = agentService.getAgent(enterpriseId, cno);
-										if(agent != null){
-											wrapupTime = agent.getWrapup();
+									if(callAgent.isBridged()){//桥接后再整理
+										Integer wrapupTime = -1;
+										switch(callAgent.getCurrentCallType()){
+											case Const.CDR_CALL_TYPE_IB:
+											case Const.CDR_CALL_TYPE_OB_WEBCALL:
+											case Const.CDR_CALL_TYPE_OB_PREDICTIVE:
+												if(StringUtils.isNotEmpty(callAgent.getCurrentQno())){
+													 Queue queueConf = queueService.getFromConfCache(enterpriseId, callAgent.getCurrentQno());
+												     if(queueConf != null){
+												    	 wrapupTime = queueConf.getWrapupTime();
+												     }
+												}
+												break;
+											case Const.CDR_CALL_TYPE_OB_DIRECT:
+											case Const.CDR_CALL_TYPE_OB_PREVIEW:
+												break;
 										}
-									}
-									if(wrapupTime > 0){
-										Map<String, Object> wrapupParams = new HashMap<String, Object>();
-										wrapupParams.put("enterpriseId", enterpriseId);
-										wrapupParams.put("cno", cno);
-										
-										Date triggerTime = DateUtil.addSecond(new Date(), wrapupTime);
-										redisTaskScheduler.scheduleTimed("warpupTaskSchedulerGroup",
-												String.format(BigQueueConst.WRAPUP_END_TASK_ID, enterpriseId, cno), 
-												"wrapupEndTaskTrigger", 
-												wrapupParams,
-												triggerTime.getTime());
-										
-										memberService.setLoginStatus(enterpriseId, cno, BigQueueConst.MEMBER_LOGIN_STATUS_WRAPUP);
-										
-										JSONObject queueEvent = new JSONObject();
-										queueEvent.put("event", "wrapupStart");
-										queueEvent.put("enterpriseId", enterpriseId);
-										queueEvent.put("qno", callAgent.getCurrentQno());
-										queueEvent.put("wrapupTime", wrapupTime);
-										queueEvent.put("cno", callAgent.getCno());
-										queueEvent.put("uniqueId", callAgent.getCurrentChannelUniqueId());
-
-										queueEventService.publishEvent(queueEvent);
+										if(wrapupTime == -1){
+											Agent agent = agentService.getAgent(enterpriseId, cno);
+											if(agent != null){
+												wrapupTime = agent.getWrapup();
+											}
+										}
+										if(wrapupTime > 0){
+											Map<String, Object> wrapupParams = new HashMap<String, Object>();
+											wrapupParams.put("enterpriseId", enterpriseId);
+											wrapupParams.put("cno", cno);
+											
+											Date triggerTime = DateUtil.addSecond(new Date(), wrapupTime);
+											redisTaskScheduler.scheduleTimed("warpupTaskSchedulerGroup",
+													String.format(BigQueueConst.WRAPUP_END_TASK_ID, enterpriseId, cno), 
+													"wrapupEndTaskTrigger", 
+													wrapupParams,
+													triggerTime.getTime());
+											
+											memberService.setLoginStatus(enterpriseId, cno, BigQueueConst.MEMBER_LOGIN_STATUS_WRAPUP);
+											
+											JSONObject queueEvent = new JSONObject();
+											queueEvent.put("event", "wrapupStart");
+											queueEvent.put("enterpriseId", enterpriseId);
+											queueEvent.put("qno", callAgent.getCurrentQno());
+											queueEvent.put("wrapupTime", wrapupTime);
+											queueEvent.put("cno", callAgent.getCno());
+											queueEvent.put("uniqueId", callAgent.getCurrentChannelUniqueId());
+	
+											queueEventService.publishEvent(queueEvent);
+										}
 									}
 								}else{
 									if(callAgent.getRnaPause()){
@@ -212,11 +213,16 @@ public class StatusHandler implements EventHandler, InitializingBean{
 									logger.error(String.format("bad status received, new=%d old=%d", statusInt, oldDeviceStatus));
 									return false;
 								}
+								Integer callType = event.getInt(AmiParamConst.CALL_TYPE);
+								if(callType.equals(Const.CDR_CALL_TYPE_IB) || callType.equals(Const.CDR_CALL_TYPE_OB_WEBCALL) || callType.equals(Const.CDR_CALL_TYPE_OB_PREDICTIVE)){
+									callAgent.setBridged(true);
+								}else if(callType.equals(Const.CDR_CALL_TYPE_OB_PREVIEW) || callType.equals(Const.CDR_CALL_TYPE_OB_DIRECT) ){
+									
+								}
 								if(oldDeviceStatus != BigQueueConst.MEMBER_DEVICE_STATUS_RINGING){//补救在200时弹屏
 									try{
 										String channel = event.getString("channel");
 										String uniqueId = event.getString("uniqueId");
-										Integer callType = event.getInt("callType");
 										String customerNumber = event.getString("customerNumber");
 										String customerNumberAreaCode = event.getString("customerNumberAreaCode");
 										Integer customerNumberType = event.getInt("customerNumberType");
