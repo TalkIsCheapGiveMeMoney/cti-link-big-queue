@@ -99,6 +99,7 @@ public class HoldService {
 						statusEvent.put("event", "status");
 						statusEvent.put("enterpriseId", enterpriseId);
 						statusEvent.put("cno", cno);
+						statusEvent.put("callType", callType);
 						Integer loginStatus = memberService.getLoginStatus(enterpriseId, cno);
 						statusEvent.put("loginStatus", memberService.getLoginStatus(enterpriseId, cno));
 						statusEvent.put("deviceStatus", memberService.getDeviceStatus(enterpriseId, cno));
