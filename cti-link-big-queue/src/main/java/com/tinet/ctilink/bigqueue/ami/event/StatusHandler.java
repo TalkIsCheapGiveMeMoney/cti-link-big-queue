@@ -193,6 +193,16 @@ public class StatusHandler implements EventHandler, InitializingBean{
 	
 											queueEventService.publishEvent(queueEvent);
 										}
+									}else{
+										if(callAgent.getRnaPause()){
+											
+											pauseService.pauseNolock(enterpriseId, cno, callAgent.getRnaPauseDescription(), callAgent.getRnaPauseType());
+											
+											callAgent = agentService.getCallAgent(enterpriseId, cno);
+											callAgent.setRnaPause(false);
+											callAgent.setRnaPauseDescription("");
+											callAgent.setRnaPauseType(-1);
+										}	
 									}
 								}else{
 									if(callAgent.getRnaPause()){
@@ -268,33 +278,8 @@ public class StatusHandler implements EventHandler, InitializingBean{
 						agentService.saveCallAgent(enterpriseId, cno, callAgent);
 
 						Integer loginStatus = memberService.getLoginStatus(enterpriseId, cno);
+						sendStatusEvent(callAgent, loginStatus, deviceStatus);
 						
-						JSONObject statusEvent = new JSONObject();
-						statusEvent.put("event", "status");
-						statusEvent.put("enterpriseId", enterpriseId);
-						statusEvent.put("cno", cno);
-						statusEvent.put("loginStatus", loginStatus);
-						statusEvent.put("deviceStatus", deviceStatus);
-						if(loginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE)){
-							statusEvent.put("pauseDescription", callAgent.getPauseDescription());
-							statusEvent.put("pauseType", callAgent.getPauseType());
-						}
-						if(deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_INUSE) 
-								|| deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_RINGING) || deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_INVITE) ){
-							if(StringUtils.isNotEmpty(callAgent.getConsulterCno())){
-								statusEvent.put("consulterCno", callAgent.getConsulterCno());
-							}
-							if(StringUtils.isNotEmpty(callAgent.getTransferCno())){
-								statusEvent.put("transferCno", callAgent.getTransferCno());
-							}
-							statusEvent.put("callType", callAgent.getCurrentCallType());
-						}
-						if(deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_INUSE) ){
-							if(StringUtils.isNotEmpty(callAgent.getBusyDescription())){
-								statusEvent.put("busyDescription", callAgent.getBusyDescription());
-							}
-						}
-						redisService.convertAndSend(BigQueueCacheKey.AGENT_GATEWAY_EVENT_TOPIC, statusEvent);
 						if(ringingEvent != null){
 							redisService.convertAndSend(BigQueueCacheKey.AGENT_GATEWAY_EVENT_TOPIC, ringingEvent);
 						}
@@ -313,5 +298,33 @@ public class StatusHandler implements EventHandler, InitializingBean{
 			return false;
 		}
 		return true;
+	}
+	public void sendStatusEvent(CallAgent callAgent, Integer loginStatus, Integer deviceStatus){
+		JSONObject statusEvent = new JSONObject();
+		statusEvent.put("event", "status");
+		statusEvent.put("enterpriseId", callAgent.getEnterpriseId());
+		statusEvent.put("cno", callAgent.getCno());
+		statusEvent.put("loginStatus", loginStatus);
+		statusEvent.put("deviceStatus", deviceStatus);
+		if(loginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE)){
+			statusEvent.put("pauseDescription", callAgent.getPauseDescription());
+			statusEvent.put("pauseType", callAgent.getPauseType());
+		}
+		if(deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_INUSE) 
+				|| deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_RINGING) || deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_INVITE) ){
+			if(StringUtils.isNotEmpty(callAgent.getConsulterCno())){
+				statusEvent.put("consulterCno", callAgent.getConsulterCno());
+			}
+			if(StringUtils.isNotEmpty(callAgent.getTransferCno())){
+				statusEvent.put("transferCno", callAgent.getTransferCno());
+			}
+			statusEvent.put("callType", callAgent.getCurrentCallType());
+		}
+		if(deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_INUSE) ){
+			if(StringUtils.isNotEmpty(callAgent.getBusyDescription())){
+				statusEvent.put("busyDescription", callAgent.getBusyDescription());
+			}
+		}
+		redisService.convertAndSend(BigQueueCacheKey.AGENT_GATEWAY_EVENT_TOPIC, statusEvent);
 	}
 }

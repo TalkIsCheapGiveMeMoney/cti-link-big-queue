@@ -2,12 +2,15 @@ package com.tinet.ctilink.bigqueue.trigger;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.tinet.ctilink.bigqueue.ami.event.StatusHandler;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
+import com.tinet.ctilink.bigqueue.inc.BigQueueCacheKey;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
 import com.tinet.ctilink.bigqueue.service.imp.AgentServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.ChannelServiceImp;
@@ -35,7 +38,9 @@ public class WrapupEndTaskTrigger implements TaskSchedulerTrigger {
 	private AgentServiceImp agentService;
 	@Autowired
 	QueueEventServiceImp queueEventService;
-	
+	@Autowired
+	StatusHandler statusHandler;
+	 
     public void taskTriggered(String taskId, Map<String, Object> param) {
     	String enterpriseId = param.get("enterpriseId").toString();
     	String cno = param.get("cno").toString();
@@ -48,7 +53,9 @@ public class WrapupEndTaskTrigger implements TaskSchedulerTrigger {
 				if(callAgent != null){
 					Integer loginStatus = memberService.getLoginStatus(enterpriseId, cno);
 					if(loginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_WRAPUP)){
-						memberService.setLoginStatus(enterpriseId, cno, BigQueueConst.MEMBER_LOGIN_STATUS_READY);
+						memberService.setLoginStatus(enterpriseId, cno, loginStatus);
+						Integer deviceStatus = memberService.getDeviceStatus(enterpriseId, cno);
+						statusHandler.sendStatusEvent(callAgent, BigQueueConst.MEMBER_LOGIN_STATUS_READY, deviceStatus);
 						
 						JSONObject queueEvent = new JSONObject();
 						queueEvent.put("event", "wrapupEnd");
