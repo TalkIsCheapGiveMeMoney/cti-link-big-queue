@@ -42,6 +42,7 @@ public class BigQueueConst {
 	
 	public static final int MEMBER_STATUS_TRYING_MAX_TIMEOUT = 80;
 	public static final int MEMBER_STATUS_LOCKED_MAX_TIMEOUT = 10;
+	public static final int MEMBER_STATUS_INUSE_START_TIMEOUT = 10;
 	
     public static String WRAPUP_END_TASK_ID = "wrapup_end_task_id_%s_%s";//wrapup_end_task_id_{enterpriseId}_{cno}
     public static String LIMIT_TIME_TASK_ID = "limit_time_task_id_%s";//wrapup_end_task_id_{uniqueId}

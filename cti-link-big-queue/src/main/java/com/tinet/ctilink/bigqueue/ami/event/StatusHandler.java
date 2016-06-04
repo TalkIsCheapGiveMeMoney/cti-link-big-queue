@@ -98,18 +98,19 @@ public class StatusHandler implements EventHandler, InitializingBean{
 								}
 								deviceStatus = BigQueueConst.MEMBER_DEVICE_STATUS_RINGING;
 								try{
-									String channel = event.getString("channel");
-									String uniqueId = event.getString("uniqueId");
-									Integer callType = event.getInt("callType");
-									String customerNumber = event.getString("customerNumber");
-									String customerNumberAreaCode = event.getString("customerNumberAreaCode");
-									Integer customerNumberType = event.getInt("customerNumberType");
-									Integer detailCallType = event.getInt("detailCallType");
-									String hotline = event.getString("hotline");
-									String numberTrunk = event.getString("numberTrunk");
-									String queue = event.getString("queue");
-									String bridgedChannel = event.getString("bridgedChannel");
-									String bridgedChannelUniqueId = event.getString("bridgedUniqueId");
+									
+									String channel = event.getString(AmiParamConst.CHANNEL);
+									String uniqueId = event.getString(AmiParamConst.UNIQUE_ID);
+									Integer callType = event.getInt(AmiParamConst.CALL_TYPE);
+									String customerNumber = event.getString(AmiParamConst.CUSTOMER_NUMBER);
+									String customerNumberAreaCode = event.getString(AmiParamConst.CUSTOMER_AREA_CODE);
+									Integer customerNumberType = event.getInt(AmiParamConst.CUSTOMER_NUMBER_TYPE);
+									Integer detailCallType = event.getInt(AmiParamConst.DETAIL_CALL_TYPE);
+									String hotline = event.getString(AmiParamConst.HOTLINE);
+									String numberTrunk = event.getString(AmiParamConst.NUMBER_TRUNK);
+									String queue = event.getString(AmiParamConst.QNO);
+									String bridgedChannel = event.getString(AmiParamConst.BRIDGED_CHANNEL);
+									String bridgedChannelUniqueId = event.getString(AmiParamConst.BRIDGED_UNIQUE_ID);
 									
 									callAgent.setCurrentCallType(callType);
 									callAgent.setCurrentChannel(channel);

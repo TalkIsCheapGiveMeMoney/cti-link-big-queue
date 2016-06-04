@@ -83,11 +83,13 @@ public class StatusCheckScanTaskTrigger implements TaskSchedulerTrigger {
 	    			break;
 	    		case BigQueueConst.MEMBER_DEVICE_STATUS_INUSE:
 	    			CallAgent agent = agentService.getCallAgent(enterpriseId, cno);
-	    			if(channelService.isAlive(agent.getCurrentChannelUniqueId())){
-	    				
-	    			}else{
-	    				memberService.setDeviceStatus(enterpriseId, cno, BigQueueConst.MEMBER_DEVICE_STATUS_IDLE);
-	    				logger.error("StatusCheckScan bad status [%d] checked: enterpriseId=%s cno=%s", deviceStatus, enterpriseId, field);
+	    			if(((new Date().getTime()/1000) - startTime) > BigQueueConst.MEMBER_STATUS_INUSE_START_TIMEOUT){
+		    			if(channelService.isAlive(agent.getCurrentChannelUniqueId())){
+		    				
+		    			}else{
+		    				memberService.setDeviceStatus(enterpriseId, cno, BigQueueConst.MEMBER_DEVICE_STATUS_IDLE);
+		    				logger.error(String.format("StatusCheckScan bad status [%d] checked: enterpriseId=%s cno=%s", deviceStatus, enterpriseId, field));
+		    			}
 	    			}
 	    			break;
     		}
