@@ -24,7 +24,6 @@ public class TransferActionService {
 		paramsMap.put(AmiParamConst.CHANNEL, channel);
 		paramsMap.put(AmiParamConst.DIALPLAN_CONTEXT, context);
 		paramsMap.put(AmiParamConst.EXTENSION, exten);
-		paramsMap.put(AmiParamConst.FEATURE, "blindxfer");
 		paramsMap.put(ControlConst.PARAM_SIP_ID, sipId);
 		
 		logger.info("transfer paramsMap=" + paramsMap.toString());

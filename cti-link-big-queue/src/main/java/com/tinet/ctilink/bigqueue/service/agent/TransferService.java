@@ -72,7 +72,7 @@ public class TransferService {
 					}
 					String transferObject = params.get("transferObject").toString();     //电话号码    座席号    分机号
 		            String objectType = params.get("objectType").toString();           //0：普通电话1：座席号 2：IVR id+IVR 节点
-		            String extension = objectType + transferObject + "#"; // 
+		            String extension = objectType + transferObject; // 
 		            
 					if(objectType.equals("1")){
 		        		CallAgent tranferedCallAgent = agentService.getCallAgent(enterpriseId, transferObject);

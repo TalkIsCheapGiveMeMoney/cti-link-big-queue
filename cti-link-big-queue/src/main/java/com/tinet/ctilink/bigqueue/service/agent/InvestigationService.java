@@ -64,7 +64,7 @@ public class InvestigationService {
 					Integer sipId = callAgent.getCurrentSipId();
 					String channel = callAgent.getCurrentChannel();
 					String uniqueId = callAgent.getCurrentChannelUniqueId();
-					String bridgeChannel = callAgent.getBargeChannel();
+					String bridgeChannel = callAgent.getBridgedChannel();
 					if(StringUtil.isEmpty(channel)){
 						response = ActionResponse.createFailResponse(-1, "no channel");
 						return response;
