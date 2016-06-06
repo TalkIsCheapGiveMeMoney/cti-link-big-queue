@@ -159,12 +159,18 @@ public class PreviewOutcallService {
 	                varMap.put("__" + AmiChanVarNameConst.CDR_ENTERPRISE_ID, String.valueOf(enterpriseId));
 	                varMap.put(AmiChanVarNameConst.CDR_CNO, cno);
 	                varMap.put("__" + AmiChanVarNameConst.CDR_CALL_TYPE, String.valueOf(Const.CDR_CALL_TYPE_OB_PREVIEW));
+	                
 	                //判断是否打开号码状态语音识别
 	                String enterpriseSettingKey = String.format(CacheKey.ENTERPRISE_SETTING_ENTERPRISE_ID_NAME, Integer.parseInt(enterpriseId), EnterpriseSettingConst.ENTERPRISE_SETTING_NAME_TEL_STATUS_IDENTIFICATION);
 	        		EnterpriseSetting setting = redisService.get(Const.REDIS_DB_CONF_INDEX, enterpriseSettingKey, EnterpriseSetting.class);
 	                if(setting!=null && "1".equals(setting.getValue())){
 	                	varMap.put("__" + AmiChanVarNameConst.IS_TSI, "1");
 	                }
+	                setting = redisService.get(Const.REDIS_DB_CONF_INDEX, String.format(CacheKey.ENTERPRISE_SETTING_ENTERPRISE_ID_NAME, enterpriseId
+							, EnterpriseSettingConst.ENTERPRISE_SETTING_NAME_MP3_RATIO), EnterpriseSetting.class);
+					if (setting != null ) { 
+						varMap.put("__" + AmiChanVarNameConst.MP3_RATIO, setting.getValue());
+					}
 	                //获取是否外呼录音
 	                String agentKey = String.format(CacheKey.AGENT_ENTERPRISE_ID_CNO, Integer.parseInt(enterpriseId), cno);
 	                Agent agent = redisService.get(Const.REDIS_DB_CONF_INDEX, agentKey, Agent.class);
