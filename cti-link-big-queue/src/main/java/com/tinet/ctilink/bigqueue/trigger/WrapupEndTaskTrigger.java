@@ -53,7 +53,7 @@ public class WrapupEndTaskTrigger implements TaskSchedulerTrigger {
 				if(callAgent != null){
 					Integer loginStatus = memberService.getLoginStatus(enterpriseId, cno);
 					if(loginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_WRAPUP)){
-						memberService.setLoginStatus(enterpriseId, cno, loginStatus);
+						memberService.setLoginStatus(enterpriseId, cno, BigQueueConst.MEMBER_LOGIN_STATUS_READY);
 						Integer deviceStatus = memberService.getDeviceStatus(enterpriseId, cno);
 						statusHandler.sendStatusEvent(callAgent, BigQueueConst.MEMBER_LOGIN_STATUS_READY, deviceStatus);
 						
