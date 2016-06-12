@@ -1,6 +1,7 @@
 package com.tinet.ctilink.bigqueue.service.imp;
 
 import java.util.Date;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ public class QueueEventServiceImp {
 	
 	public void publishEvent(JSONObject event){
 		try{
+			event.put("id", UUID.randomUUID().toString());
 			event.put("eventTime", new Long(new Date().getTime()/1000).intValue());
 			redisService.convertAndSend(BigQueueCacheKey.QUEUE_EVENT_TOPIC, event);
 		}catch(Exception e){
