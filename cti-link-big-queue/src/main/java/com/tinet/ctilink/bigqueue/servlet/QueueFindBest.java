@@ -53,12 +53,7 @@ public class QueueFindBest extends HttpServlet {
         CallMember callMember = queueService.findBest(enterpriseId, qno, uniqueId, customerNumber, queueRemeberCno);
         if(callMember != null){
 	        res.put(BigQueueChannelVar.QUEUE_CODE, BigQueueConst.QUEUE_CODE_ROUTE_OK);
-			//res.put(BigQueueChannelVar.QUEUE_DIAL_INTERFACE, callMember.getInterface());
 			res.put(BigQueueChannelVar.QUEUE_DIAL_CNO, callMember.getCno());
-			//Agent agent = agentService.getAgent(enterpriseId, callMember.getCno());
-			//res.put(BigQueueChannelVar.AGENT_IS_RECORD, agent.getIbRecord());
-			//CallAgent callAgent = agentService.getCallAgent(enterpriseId, callMember.getCno());
-			//res.put(BigQueueChannelVar.QUEUE_DIAL_TEL, callAgent.getBindTel());
         }else{
         	res.put(BigQueueChannelVar.QUEUE_CODE, BigQueueConst.QUEUE_CODE_ROUTE_FAIL);
         }
