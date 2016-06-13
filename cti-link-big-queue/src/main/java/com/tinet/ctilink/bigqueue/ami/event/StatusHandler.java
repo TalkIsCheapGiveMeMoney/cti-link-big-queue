@@ -96,6 +96,11 @@ public class StatusHandler implements EventHandler, InitializingBean{
 									logger.error(String.format("bad status received, new=%d old=%d", statusInt, oldDeviceStatus));
 									return false;
 								}
+								ringingEvent = new JSONObject();
+								ringingEvent.put("event", "ringing");
+								ringingEvent.put("enterpriseId", enterpriseId);
+								ringingEvent.put("cno", cno);
+								
 								deviceStatus = BigQueueConst.MEMBER_DEVICE_STATUS_RINGING;
 								try{
 									
@@ -108,7 +113,7 @@ public class StatusHandler implements EventHandler, InitializingBean{
 									Integer detailCallType = event.getInt(AmiParamConst.DETAIL_CALL_TYPE);
 									String hotline = event.getString(AmiParamConst.HOTLINE);
 									String numberTrunk = event.getString(AmiParamConst.NUMBER_TRUNK);
-									String queue = event.getString(AmiParamConst.QNO);
+									String qno = event.getString(AmiParamConst.QNO);
 									String bridgedChannel = event.getString(AmiParamConst.BRIDGED_CHANNEL);
 									String bridgedChannelUniqueId = event.getString(AmiParamConst.BRIDGED_UNIQUE_ID);
 									
@@ -123,15 +128,23 @@ public class StatusHandler implements EventHandler, InitializingBean{
 									callAgent.setCurrentDetailCallType(detailCallType);
 									callAgent.setCurrentHotline(hotline);
 									callAgent.setCurrentNumberTrunk(numberTrunk);
-									callAgent.setCurrentQno(queue);
+									callAgent.setCurrentQno(qno);
+									
+									ringingEvent.put(AmiParamConst.CALL_TYPE, callType);
+									ringingEvent.put(AmiParamConst.CHANNEL, channel);
+									ringingEvent.put(AmiParamConst.UNIQUE_ID, uniqueId);
+									ringingEvent.put(AmiParamConst.CUSTOMER_NUMBER, customerNumber);
+									ringingEvent.put(AmiParamConst.CUSTOMER_NUMBER_TYPE, customerNumberType);
+									ringingEvent.put(AmiParamConst.CUSTOMER_AREA_CODE, customerNumberAreaCode);
+									ringingEvent.put(AmiParamConst.DETAIL_CALL_TYPE, detailCallType);
+									ringingEvent.put(AmiParamConst.HOTLINE, hotline);
+									ringingEvent.put(AmiParamConst.NUMBER_TRUNK, numberTrunk);
+									ringingEvent.put(AmiParamConst.QNO, qno);    
+
 								}catch(Exception e){
 									
 								}
-								ringingEvent = new JSONObject();
-								ringingEvent.put("event", "ringing");
-								ringingEvent.put("enterpriseId", enterpriseId);
-								ringingEvent.put("cno", cno);
-								
+					                
 								JSONObject variables = event.getJSONObject("variables");
 								ringingEvent.put("variables", variables);
 								break;
@@ -261,6 +274,16 @@ public class StatusHandler implements EventHandler, InitializingBean{
 										ringingEvent.put("event", "ringing");
 										ringingEvent.put("enterpriseId", enterpriseId);
 										ringingEvent.put("cno", cno);
+										ringingEvent.put(AmiParamConst.CALL_TYPE, callType);
+										ringingEvent.put(AmiParamConst.CHANNEL, channel);
+										ringingEvent.put(AmiParamConst.UNIQUE_ID, uniqueId);
+										ringingEvent.put(AmiParamConst.CUSTOMER_NUMBER, customerNumber);
+										ringingEvent.put(AmiParamConst.CUSTOMER_NUMBER_TYPE, customerNumberType);
+										ringingEvent.put(AmiParamConst.CUSTOMER_AREA_CODE, customerNumberAreaCode);
+										ringingEvent.put(AmiParamConst.DETAIL_CALL_TYPE, detailCallType);
+										ringingEvent.put(AmiParamConst.HOTLINE, hotline);
+										ringingEvent.put(AmiParamConst.NUMBER_TRUNK, numberTrunk);
+										ringingEvent.put(AmiParamConst.QNO, qno);  
 										
 										variables = event.getJSONObject("variables");
 										ringingEvent.put("variables", variables);
