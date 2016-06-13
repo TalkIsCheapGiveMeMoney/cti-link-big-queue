@@ -166,7 +166,7 @@ public class PreviewOutcallService {
 	                if(setting!=null && "1".equals(setting.getValue())){
 	                	varMap.put("__" + AmiChanVarNameConst.IS_TSI, "1");
 	                }
-	                setting = redisService.get(Const.REDIS_DB_CONF_INDEX, String.format(CacheKey.ENTERPRISE_SETTING_ENTERPRISE_ID_NAME, enterpriseId
+	                setting = redisService.get(Const.REDIS_DB_CONF_INDEX, String.format(CacheKey.ENTERPRISE_SETTING_ENTERPRISE_ID_NAME, Integer.parseInt(enterpriseId)
 							, EnterpriseSettingConst.ENTERPRISE_SETTING_NAME_MP3_RATIO), EnterpriseSetting.class);
 					if (setting != null ) { 
 						varMap.put("__" + AmiChanVarNameConst.MP3_RATIO, setting.getValue());
@@ -185,7 +185,13 @@ public class PreviewOutcallService {
 	                //member
 	                varMap.put(AmiChanVarNameConst.CDR_STATUS, String.valueOf(Const.CDR_STATUS_OB_PREVIEW_AGENT_NO_ANSWER));
 	                
-
+	                setting = redisService.get(Const.REDIS_DB_CONF_INDEX, String.format(CacheKey.ENTERPRISE_SETTING_ENTERPRISE_ID_NAME, Integer.parseInt(enterpriseId)
+							, EnterpriseSettingConst.ENTERPRISE_SETTING_NAME_RECORD_FILE_USERFIELD), EnterpriseSetting.class);
+					if (setting != null ) { 
+						varMap.put(AmiChanVarNameConst.RECORD_FILE_USERFIELD, setting.getValue());
+						varMap.put(AmiChanVarNameConst.MONITOR_TYPE, setting.getProperty());
+					}
+					
 	                //获取是否自动满意度调查
 	                Integer isInvestigationAuto = 0;
 	                enterpriseSettingKey = String.format(CacheKey.ENTERPRISE_SETTING_ENTERPRISE_ID_NAME, Integer.parseInt(enterpriseId), EnterpriseSettingConst.ENTERPRISE_SETTING_NAME_AUTO_INVESTIGATION_OB);

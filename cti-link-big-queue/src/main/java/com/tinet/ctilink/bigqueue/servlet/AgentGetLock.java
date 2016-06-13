@@ -15,10 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.github.pagehelper.StringUtil;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
+import com.tinet.ctilink.bigqueue.inc.BigQueueChannelVar;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
 import com.tinet.ctilink.bigqueue.service.imp.AgentServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.MemberServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
+import com.tinet.ctilink.conf.model.Agent;
 import com.tinet.ctilink.conf.model.Queue;
 import com.tinet.ctilink.json.JSONObject;
 import com.tinet.ctilink.util.AgentUtil;
@@ -64,9 +66,12 @@ public class AgentGetLock extends HttpServlet {
   			        if(loginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_READY) && deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_IDLE)){
   			        	memberService.setDeviceStatus(enterpriseId, cno, BigQueueConst.MEMBER_DEVICE_STATUS_LOCKED);
 		        		JSONObject object = new JSONObject();
-  			        	object.put("dial_interface", callAgent.getInterface());
-  			        	object.put("dial_tel", callAgent.getBindTel());
-  			        	object.put("dial_gw_ip", AgentUtil.getGwIp(callAgent.getInterface()));
+  			        	object.put(BigQueueChannelVar.DIAL_INTERFACE, callAgent.getInterface());
+  			        	object.put(BigQueueChannelVar.DIAL_TEL, callAgent.getBindTel());
+  			        	object.put(BigQueueChannelVar.DIAL_GW_IP, AgentUtil.getGwIp(callAgent.getInterface()));
+  						Agent agent = agentService.getAgent(enterpriseId, cno);
+  			        	object.put(BigQueueChannelVar.AGENT_IS_RECORD, agent.getIbRecord());
+  			        	
   			        	out.print(object.toString());
   			        	return;
   			        }
