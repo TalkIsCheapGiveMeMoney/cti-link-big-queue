@@ -178,7 +178,9 @@ public class PreviewOutcallService {
 	                
 	                varMap.put(AmiChanVarNameConst.IS_OB_RECORD, String.valueOf(obRecord));
 	                varMap.put(AmiChanVarNameConst.CDR_CALLEE_NUMBER, callAgent.getBindTel());
-
+	                if(callAgent.getBindType().equals(Const.BIND_TYPE_EXTEN) || callAgent.getBindType().equals(Const.BIND_TYPE_SOFT_PHONE)){
+	                	varMap.put(AmiChanVarNameConst.CDR_EXTEN, callAgent.getBindTel());
+	                }
 	                Date startDate = new Date();
 	                long callStartTime =startDate.getTime()/1000;
 	                varMap.put(AmiChanVarNameConst.CDR_START_TIME, String.valueOf(callStartTime));
@@ -201,7 +203,7 @@ public class PreviewOutcallService {
 	                }
 	                
 	                varMap.put(AmiChanVarNameConst.CDR_GW_IP, gwIp);
-	                varMap.put("__" + AmiChanVarNameConst.CDR_NUMBER_TRUNK, clidRight);                 //座席侧外显号码
+	                varMap.put(AmiChanVarNameConst.CDR_CLID, clidRight);                 //座席侧外显号码
 	                varMap.put("__" + AmiChanVarNameConst.IS_INVESTIGATION_AUTO, String.valueOf(isInvestigationAuto));
 	                varMap.put(AmiChanVarNameConst.PREVIEW_OUTCALL_LEFT_CLID, obClidLeft);               //客户侧外显号码
 	                
