@@ -140,7 +140,12 @@ public class StatusHandler implements EventHandler, InitializingBean{
 									ringingEvent.put(AmiParamConst.HOTLINE, hotline);
 									ringingEvent.put(AmiParamConst.NUMBER_TRUNK, numberTrunk);
 									ringingEvent.put(AmiParamConst.QNO, qno);    
-
+									if(StringUtils.isNotEmpty(event.getString(AmiParamConst.CONSULTER_CNO))){
+										ringingEvent.put(AmiParamConst.CONSULTER_CNO, event.getString("consulterCno"));
+									}
+									if(StringUtils.isNotEmpty(event.getString(AmiParamConst.TRANSFER_CNO))){
+										ringingEvent.put(AmiParamConst.TRANSFER_CNO, event.getString(AmiParamConst.TRANSFER_CNO));
+									}
 								}catch(Exception e){
 									
 								}
@@ -284,6 +289,12 @@ public class StatusHandler implements EventHandler, InitializingBean{
 										ringingEvent.put(AmiParamConst.HOTLINE, hotline);
 										ringingEvent.put(AmiParamConst.NUMBER_TRUNK, numberTrunk);
 										ringingEvent.put(AmiParamConst.QNO, qno);  
+										if(StringUtils.isNotEmpty(event.getString(AmiParamConst.CONSULTER_CNO))){
+											ringingEvent.put(AmiParamConst.CONSULTER_CNO, event.getString("consulterCno"));
+										}
+										if(StringUtils.isNotEmpty(event.getString(AmiParamConst.TRANSFER_CNO))){
+											ringingEvent.put(AmiParamConst.TRANSFER_CNO, event.getString(AmiParamConst.TRANSFER_CNO));
+										}
 										
 										variables = event.getJSONObject("variables");
 										ringingEvent.put("variables", variables);
