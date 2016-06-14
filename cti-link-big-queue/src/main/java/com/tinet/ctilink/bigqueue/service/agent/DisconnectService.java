@@ -66,7 +66,7 @@ public class DisconnectService {
 		RedisLock memberLock = memberService.lockMember(enterpriseId, disconnectedCno);
 		if(memberLock != null){
 			try{
-				CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
+				CallAgent callAgent = agentService.getCallAgent(enterpriseId, disconnectedCno);
 				if(callAgent != null){
 					Integer sipId = callAgent.getCurrentSipId();
 					String channel = callAgent.getCurrentChannel();
@@ -76,9 +76,9 @@ public class DisconnectService {
 						response = ActionResponse.createFailResponse(-1, "no channel");
 						return response;
 					}
-					String destChannel = callAgent.getCurrentChannel();;
+					String destChannel = callAgent.getCurrentChannel();
 					Map<String, String> varMap = new HashMap<String,String>();
-					varMap.put(AmiChanVarNameConst.CDR_FORCE_DISCONNECT, "1");
+					varMap.put(AmiChanVarNameConst.CDR_END_REASON, String.valueOf(Const.CDR_END_REASON_DISCONNECT));
 					 if (callType == Const.CDR_CALL_TYPE_IB || callType ==Const.CDR_CALL_TYPE_OB_WEBCALL || callType == Const.CDR_CALL_TYPE_OB_PREDICTIVE){//呼入
 						 destChannel = callAgent.getBridgedChannel();
 				     }else if(callType == Const.CDR_CALL_TYPE_OB_DIRECT || callType == Const.CDR_CALL_TYPE_OB_PREVIEW){//点击外呼
