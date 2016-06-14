@@ -128,8 +128,8 @@ public class StatusHandler implements EventHandler, InitializingBean{
 									callAgent.setCurrentDetailCallType(detailCallType);
 									callAgent.setCurrentHotline(hotline);
 									callAgent.setCurrentNumberTrunk(numberTrunk);
-									callAgent.setCurrentQno(qno);
-									
+									callAgent.setCurrentQno(qno);		
+
 									ringingEvent.put(AmiParamConst.CALL_TYPE, callType);
 									ringingEvent.put(AmiParamConst.CHANNEL, channel);
 									ringingEvent.put(AmiParamConst.UNIQUE_ID, uniqueId);

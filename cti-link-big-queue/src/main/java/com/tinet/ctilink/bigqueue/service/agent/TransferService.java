@@ -13,6 +13,7 @@ import com.tinet.ctilink.ami.action.AmiActionResponse;
 import com.tinet.ctilink.ami.inc.AmiChanVarNameConst;
 import com.tinet.ctilink.bigqueue.ami.action.GetVarActionService;
 import com.tinet.ctilink.bigqueue.ami.action.OriginateActionService;
+import com.tinet.ctilink.bigqueue.ami.action.SetVarActionService;
 import com.tinet.ctilink.bigqueue.ami.action.TransferActionService;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
@@ -47,6 +48,8 @@ public class TransferService {
 	private ChannelServiceImp channelService;
 	@Autowired
 	private RedisTaskScheduler redisTaskScheduler;
+	@Autowired
+	SetVarActionService setVarActionService;
 	
 	@Autowired
 	GetVarActionService getVarActionService;
@@ -65,7 +68,8 @@ public class TransferService {
 				if(callAgent != null){
 					Integer sipId = callAgent.getCurrentSipId();
 					String channel = callAgent.getCurrentChannel();
-	
+					Integer callType = callAgent.getCurrentCallType();
+					
 					if(StringUtil.isEmpty(channel)){
 						response = ActionResponse.createFailResponse(-1, "no channel");
 						return response;
@@ -86,6 +90,15 @@ public class TransferService {
 							return response;
 		        		}
 		            }
+					Map<String, String> varMap = new HashMap<String,String>();
+					String destChannel = null;
+					varMap.put(AmiChanVarNameConst.TRANSFER_CNO, callAgent.getCno());
+					 if (callType == Const.CDR_CALL_TYPE_IB || callType ==Const.CDR_CALL_TYPE_OB_WEBCALL || callType == Const.CDR_CALL_TYPE_OB_PREDICTIVE){//呼入
+						 destChannel = callAgent.getBridgedChannel();
+				     }else if(callType == Const.CDR_CALL_TYPE_OB_DIRECT || callType == Const.CDR_CALL_TYPE_OB_PREVIEW){//点击外呼
+				    	 destChannel = callAgent.getBridgedChannel();
+				     }
+					setVarActionService.setVar(sipId, destChannel, varMap);
 					AmiActionResponse amiResponse = transferActionService.transfer(sipId, channel, "web_transfer", extension);
     				if(amiResponse != null && (amiResponse.getCode() == 0)){
     	            	response = ActionResponse.createSuccessResponse();

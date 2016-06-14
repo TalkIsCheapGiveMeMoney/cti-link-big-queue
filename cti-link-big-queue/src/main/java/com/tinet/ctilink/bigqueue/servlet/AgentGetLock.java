@@ -55,8 +55,8 @@ public class AgentGetLock extends HttpServlet {
         String cno = req.getParameter("cno");
        
         //先获取lock memberService.lockMember(enterpriseId, cno);
-  		RedisLock bargedMemberLock = memberService.lockMember(enterpriseId, cno);
-  		if(bargedMemberLock != null){
+  		RedisLock memberLock = memberService.lockMember(enterpriseId, cno);
+  		if(memberLock != null){
   			try{
   				CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
   				if(callAgent != null){
@@ -79,7 +79,7 @@ public class AgentGetLock extends HttpServlet {
   			}catch(Exception e){
   				e.printStackTrace();
   			}finally{
-  				memberService.unlockMember(bargedMemberLock);
+  				memberService.unlockMember(memberLock);
   			}
   		}else{
   		}
