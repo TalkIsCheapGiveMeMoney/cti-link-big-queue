@@ -47,7 +47,7 @@ public class ThreewayLinkHandler implements EventHandler, InitializingBean{
 						callAgent.setThreewayChannel(channel);
 						callAgent.setMonitoredObject(threewayObject);
 						callAgent.setMonitoredObjectType(Integer.parseInt(objectType));
-						agentService.saveCallAgent(enterpriseId, cno, callAgent);
+						agentService.saveCallAgent(enterpriseId, threewayedCno, callAgent);
 					}else{
 						logger.error("no such callAgent when dispatch BargeLinkEvent");
 					}

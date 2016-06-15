@@ -47,7 +47,7 @@ public class SpyLinkHandler implements EventHandler, InitializingBean{
 						callAgent.setSpyChannel(channel);
 						callAgent.setMonitoredObject(spyObject);
 						callAgent.setMonitoredObjectType(Integer.parseInt(objectType));
-						agentService.saveCallAgent(enterpriseId, cno, callAgent);
+						agentService.saveCallAgent(enterpriseId, spiedCno, callAgent);
 					}else{
 						logger.error("no such callAgent when dispatch BargeLinkEvent");
 					}

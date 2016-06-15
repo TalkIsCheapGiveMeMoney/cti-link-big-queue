@@ -47,7 +47,7 @@ public class WhisperLinkHandler implements EventHandler, InitializingBean{
 						callAgent.setWhisperChannel(channel);
 						callAgent.setMonitoredObject(whisperObject);
 						callAgent.setMonitoredObjectType(Integer.parseInt(objectType));
-						agentService.saveCallAgent(enterpriseId, cno, callAgent);
+						agentService.saveCallAgent(enterpriseId, whisperedCno, callAgent);
 					}else{
 						logger.error("no such callAgent when dispatch BargeLinkEvent");
 					}

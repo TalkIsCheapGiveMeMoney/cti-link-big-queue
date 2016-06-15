@@ -47,7 +47,7 @@ public class ThreewayUnlinkHandler implements EventHandler, InitializingBean{
 						callAgent.setThreewayChannel("");
 						callAgent.setMonitoredObject("");
 						callAgent.setMonitoredObjectType(0);
-						agentService.saveCallAgent(enterpriseId, cno, callAgent);
+						agentService.saveCallAgent(enterpriseId, threewayedCno, callAgent);
 					}else{
 						logger.error("no such callAgent when dispatch BargeLinkEvent");
 					}

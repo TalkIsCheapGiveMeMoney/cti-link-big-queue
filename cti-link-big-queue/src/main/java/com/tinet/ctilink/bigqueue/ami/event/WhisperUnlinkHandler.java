@@ -46,7 +46,7 @@ public class WhisperUnlinkHandler implements EventHandler, InitializingBean{
 						callAgent.setWhisperChannel("");
 						callAgent.setMonitoredObject("");
 						callAgent.setMonitoredObjectType(0);
-						agentService.saveCallAgent(enterpriseId, cno, callAgent);
+						agentService.saveCallAgent(enterpriseId, whisperedCno, callAgent);
 					}else{
 						logger.error("no such callAgent when dispatch BargeLinkEvent");
 					}
