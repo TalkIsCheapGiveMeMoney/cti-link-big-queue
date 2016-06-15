@@ -67,7 +67,7 @@ public class InteractService {
 				if(callAgent != null){
 					Integer sipId = callAgent.getCurrentSipId();
 					String channel = callAgent.getCurrentChannel();
-					String bridgeChannel = callAgent.getBargeChannel();
+					String bridgeChannel = callAgent.getBridgedChannel();
 					Integer callType = callAgent.getCurrentCallType();
 					if(StringUtils.isEmpty(channel)){
 						response = ActionResponse.createFailResponse(-1, "no channel");
