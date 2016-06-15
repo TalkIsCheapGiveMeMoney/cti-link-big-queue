@@ -15,6 +15,7 @@ import com.tinet.ctilink.ami.inc.AmiChanVarNameConst;
 import com.tinet.ctilink.bigqueue.ami.action.GetVarActionService;
 import com.tinet.ctilink.bigqueue.ami.action.HangupActionService;
 import com.tinet.ctilink.bigqueue.ami.action.OriginateActionService;
+import com.tinet.ctilink.bigqueue.ami.action.SetVarActionService;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
@@ -48,7 +49,8 @@ public class ConsultTransferService {
 	private ChannelServiceImp channelService;
 	@Autowired
 	private RedisTaskScheduler redisTaskScheduler;
-	
+	@Autowired
+	SetVarActionService setVarActionService;
 	@Autowired
 	HangupActionService hangupActionService;
 	@Autowired
@@ -76,6 +78,10 @@ public class ConsultTransferService {
 						response = ActionResponse.createFailResponse(-1, "no consult channel");
 						return response;
 					}
+					Map<String, String> varMap = new HashMap<String, String>();
+					varMap.put(AmiChanVarNameConst.CONSULT_TRANSFER, "1");
+					setVarActionService.setVar(sipId, consultChannel, varMap);
+					
 					AmiActionResponse amiResponse = hangupActionService.hangup(sipId, channel, new Integer(3));
     				if(amiResponse != null && (amiResponse.getCode() == 0)){
     					if(params.get("limitTimeSecond") != null){

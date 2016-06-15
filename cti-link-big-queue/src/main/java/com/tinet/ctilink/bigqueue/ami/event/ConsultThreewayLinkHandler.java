@@ -31,15 +31,15 @@ public class ConsultThreewayLinkHandler implements EventHandler, InitializingBea
 		try{
 			String enterpriseId = event.getString("enterpriseId");
 			String cno = event.getString("cno");
-			String consulterCno = event.getString("consulterCno");
-			
+			String consultObject = event.getString("consultObject");
+			String objectType = event.getString("objectType");
 			// 发送事件到被咨询的那个人，通知被咨询那个人是谁咨询的他，所以需要发送给前台，前台需要显示谁咨询的。
-			if (StringUtils.isNotEmpty(cno)) {
+			if (StringUtils.isNotEmpty(objectType) && objectType.equals("1")) {
 				JSONObject consulteeEvent = new JSONObject();
 				consulteeEvent.put("event", event.getString("event"));
 				consulteeEvent.put("enterpriseId", enterpriseId);
-				consulteeEvent.put("cno", cno);
-				consulteeEvent.put("consulterCno", consulterCno);
+				consulteeEvent.put("cno", consultObject);
+				consulteeEvent.put("consulterCno", cno);
 				redisService.convertAndSend(BigQueueCacheKey.AGENT_GATEWAY_EVENT_TOPIC, event);
 			}
 
@@ -47,7 +47,7 @@ public class ConsultThreewayLinkHandler implements EventHandler, InitializingBea
 			JSONObject consulteeEvent = new JSONObject();
 			consulteeEvent.put("event", event.getString("event"));
 			consulteeEvent.put("enterpriseId", event.getString("enterpriseId"));
-			consulteeEvent.put("cno", consulterCno);
+			consulteeEvent.put("cno", cno);
 			redisService.convertAndSend(BigQueueCacheKey.AGENT_GATEWAY_EVENT_TOPIC, event);
 		}catch(Exception e){
 			e.printStackTrace();
