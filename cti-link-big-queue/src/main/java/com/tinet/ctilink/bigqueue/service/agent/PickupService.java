@@ -72,8 +72,8 @@ public class PickupService {
 				if(pickupCallAgent != null){
 					Integer sipId = pickupCallAgent.getCurrentSipId();
 					String channel = pickupCallAgent.getCurrentChannel();
-					String bridgeChannel = pickupCallAgent.getBargeChannel();
 					Integer callType = pickupCallAgent.getCurrentCallType();
+					String bridgeChannel = pickupCallAgent.getBridgedChannel();
 					String customerNumber = pickupCallAgent.getCurrentCustomerNumber();
 					Integer customerNumberType = pickupCallAgent.getCurrentCustomerNumberType();
 					String customerAreaCode = pickupCallAgent.getCurrentCustomerNumberAreaCode();
@@ -127,7 +127,7 @@ public class PickupService {
 		        	varMap.put("__" + AmiChanVarNameConst.PICKUPER_CNO, cno);
 		        	varMap.put(AmiChanVarNameConst.CDR_CNO, cno);
 		        	varMap.put(AmiChanVarNameConst.PRE_DIAL_RUN, "\"" + Const.DIALPLAN_CONTEXT_PREVIEW_OUTCALL_PREDIAL + "," + enterpriseId +",1\"");
-		        	varMap.put(AmiChanVarNameConst.PICKUPER_INTERFACE, destInterface);
+		        	varMap.put(AmiChanVarNameConst.PICKUPER_TEL, destInterface);
 			       
 			        
 			        varMap.put(AmiChanVarNameConst.CDR_DETAIL_GW_IP, gwIp);
@@ -138,7 +138,7 @@ public class PickupService {
 			        }
 			        varMap.put(AmiChanVarNameConst.CDR_NUMBER_TRUNK, clid);
 			        varMap.put(AmiChanVarNameConst.CDR_STATUS, String.valueOf(Const.CDR_STATUS_DETAIL_CALL_FAIL));
-			        
+			        varMap.put(AmiChanVarNameConst.CDR_CALL_TYPE, String.valueOf(callType));
 			        varMap.put(AmiChanVarNameConst.CDR_ENTERPRISE_ID, String.valueOf(enterpriseId));
 			        varMap.put(AmiChanVarNameConst.CDR_START_TIME, String.valueOf(new Date().getTime() / 1000));
 			        varMap.put(AmiChanVarNameConst.CDR_CNO, cno);
