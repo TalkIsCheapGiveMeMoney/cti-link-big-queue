@@ -190,7 +190,7 @@ public class WhisperService {
         }
         varMap.put(AmiChanVarNameConst.CDR_NUMBER_TRUNK, clid);
         varMap.put(AmiChanVarNameConst.CDR_STATUS, String.valueOf(Const.CDR_STATUS_DETAIL_CALL_FAIL));
-        
+        varMap.put(AmiChanVarNameConst.CDR_CALL_TYPE, String.valueOf(callType));
         varMap.put(AmiChanVarNameConst.CDR_ENTERPRISE_ID, String.valueOf(enterpriseId));
         varMap.put(AmiChanVarNameConst.CDR_START_TIME, String.valueOf(new Date().getTime() / 1000));
         
@@ -202,6 +202,7 @@ public class WhisperService {
     	if(getVarResponse != null){
     		if(getVarResponse.get(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID) != null){
     			mainUniqueId = getVarResponse.get(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID);
+    			varMap.put(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID, mainUniqueId);
     		}else{
     			response = ActionResponse.createFailResponse(-1, "get var fail");
     			return response;

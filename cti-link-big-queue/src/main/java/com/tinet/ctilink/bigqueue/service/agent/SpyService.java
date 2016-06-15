@@ -191,7 +191,7 @@ public class SpyService {
         }
         varMap.put(AmiChanVarNameConst.CDR_NUMBER_TRUNK, clid);
         varMap.put(AmiChanVarNameConst.CDR_STATUS, String.valueOf(Const.CDR_STATUS_DETAIL_CALL_FAIL));
-        
+        varMap.put(AmiChanVarNameConst.CDR_CALL_TYPE, String.valueOf(callType));
         varMap.put(AmiChanVarNameConst.CDR_ENTERPRISE_ID, String.valueOf(enterpriseId));
         varMap.put(AmiChanVarNameConst.CDR_START_TIME, String.valueOf(new Date().getTime() / 1000));
         
