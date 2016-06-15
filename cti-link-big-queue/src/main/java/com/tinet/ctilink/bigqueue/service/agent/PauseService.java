@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.tinet.ctilink.bigqueue.ami.action.GetVarActionService;
 import com.tinet.ctilink.bigqueue.ami.action.OriginateActionService;
+import com.tinet.ctilink.bigqueue.ami.event.StatusHandler;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
@@ -47,6 +48,8 @@ public class PauseService {
 	GetVarActionService getVarActionService;
 	@Autowired
 	OriginateActionService originateActionService;
+	@Autowired
+	StatusHandler statusHandler;
 	
 	public ActionResponse pause(Map<String,Object> params){
 		ActionResponse response = null;
@@ -131,7 +134,9 @@ public class PauseService {
 				queueEventService.publishEvent(queueEvent);
 				break;
 			}
+			Integer deviceStatus = memberService.getDeviceStatus(enterpriseId, cno);
 			agentService.saveCallAgent(enterpriseId, cno, callAgent);
+			statusHandler.sendStatusEvent(callAgent, BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE, deviceStatus);
 			response = ActionResponse.createSuccessResponse();
 		}else{
 			response = ActionResponse.createFailResponse(-1, "no such agent");

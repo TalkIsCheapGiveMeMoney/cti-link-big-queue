@@ -57,9 +57,9 @@ public class SetUnpauseService {
 		String monitorCno = params.get("monitorCno").toString();
 		
 		Map<String,Object> newParams = new HashMap<String, Object>();
-		params.put("enterpriseId", enterpriseId);
-		params.put("cno", monitoredCno);
-		params.put("monitorCno", monitorCno);
+		newParams.put("enterpriseId", enterpriseId);
+		newParams.put("cno", monitoredCno);
+		newParams.put("monitorCno", monitorCno);
 		
 		return unpauseService.unpause(newParams);
 	}

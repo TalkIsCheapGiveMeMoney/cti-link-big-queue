@@ -53,11 +53,11 @@ public class SetPauseService {
 		String monitorCno = params.get("monitorCno").toString();
 		
 		Map<String,Object> newParams = new HashMap<String, Object>();
-		params.put("enterpriseId", enterpriseId);
-		params.put("cno", monitoredCno);
-		params.put("type", String.valueOf(BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE_TYPE_FORCE));
-		params.put("description", "管理置忙");
-		params.put("monitorCno", monitorCno);
+		newParams.put("enterpriseId", enterpriseId);
+		newParams.put("cno", monitoredCno);
+		newParams.put("type", String.valueOf(BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE_TYPE_FORCE));
+		newParams.put("description", "管理置忙");
+		newParams.put("monitorCno", monitorCno);
 		
 		return pauseService.pause(newParams);
 

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.tinet.ctilink.bigqueue.ami.action.GetVarActionService;
 import com.tinet.ctilink.bigqueue.ami.action.OriginateActionService;
+import com.tinet.ctilink.bigqueue.ami.event.StatusHandler;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
@@ -48,6 +49,8 @@ public class LogoutService {
 	GetVarActionService getVarActionService;
 	@Autowired
 	OriginateActionService originateActionService;
+	@Autowired
+	StatusHandler statusHandler;
 	
 	public ActionResponse logout(Map<String,Object> params){
 		ActionResponse response = null;
@@ -67,6 +70,8 @@ public class LogoutService {
 					}
 					memberService.setLoginStatus(enterpriseId, cno, BigQueueConst.MEMBER_LOGIN_STATUS_OFFLINE);
 					agentService.saveCallAgent(enterpriseId, cno, null);
+					
+					statusHandler.sendStatusEvent(callAgent, BigQueueConst.MEMBER_LOGIN_STATUS_OFFLINE, deviceStatus);
 				}else{
 					response = ActionResponse.createFailResponse(-1, "no call agent");
 					return response;
