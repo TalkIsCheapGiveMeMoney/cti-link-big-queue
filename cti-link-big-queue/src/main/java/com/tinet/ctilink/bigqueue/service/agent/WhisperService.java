@@ -219,16 +219,17 @@ public class WhisperService {
         actionMap.put(AmiParamConst.CLID, clid);     
                        
         JSONObject actionEvent = null;
-        if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
-        	actionEvent = new JSONObject();
-        	actionEvent.put("event", "originateResponse");
-        	actionEvent.put("originateType", "whisper");
-        	actionEvent.put("enterpriseId", enterpriseId);
-        	actionEvent.put("cno", whisperObject);
-        	actionEvent.put("whisperedCno", whisperedCno);
-        	actionEvent.put("whisperObject", whisperObject);
-        	actionEvent.put("objectType", objectType);
-        }
+
+    	actionEvent = new JSONObject();
+    	actionEvent.put("event", "originateResponse");
+    	actionEvent.put("originateType", "whisper");
+    	actionEvent.put("enterpriseId", enterpriseId);
+    	if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
+    		actionEvent.put("cno", whisperObject);
+    	}
+    	actionEvent.put("whisperedCno", whisperedCno);
+    	actionEvent.put("whisperObject", whisperObject);
+    	actionEvent.put("objectType", objectType);
         
         try{
         	if (objectType.equals(Const.OBJECT_TYPE_CNO)) {

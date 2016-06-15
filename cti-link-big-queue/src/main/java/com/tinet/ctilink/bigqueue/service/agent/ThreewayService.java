@@ -220,16 +220,17 @@ public class ThreewayService {
         actionMap.put(AmiParamConst.CLID, clid);     
                        
         JSONObject actionEvent = null;
-        if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
-        	actionEvent = new JSONObject();
-        	actionEvent.put("event", "originateResponse");
-        	actionEvent.put("originateType", "threeway");
-        	actionEvent.put("enterpriseId", enterpriseId);
-        	actionEvent.put("cno", threewayObject);
-        	actionEvent.put("threewayedCno", threewayedCno);
-        	actionEvent.put("threewayObject", threewayObject);
-        	actionEvent.put("objectType", objectType);
-        }
+
+    	actionEvent = new JSONObject();
+    	actionEvent.put("event", "originateResponse");
+    	actionEvent.put("originateType", "threeway");
+    	actionEvent.put("enterpriseId", enterpriseId);
+    	if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
+    		actionEvent.put("cno", threewayObject);
+    	}
+    	actionEvent.put("threewayedCno", threewayedCno);
+    	actionEvent.put("threewayObject", threewayObject);
+    	actionEvent.put("objectType", objectType);
         
         try{
         	if (objectType.equals(Const.OBJECT_TYPE_CNO)) {

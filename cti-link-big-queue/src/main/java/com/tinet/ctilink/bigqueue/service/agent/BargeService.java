@@ -224,16 +224,16 @@ public class BargeService {
         actionMap.put(AmiParamConst.CLID, clid);     
                        
         JSONObject actionEvent = null;
-        if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
-        	actionEvent = new JSONObject();
-        	actionEvent.put("event", "originateResponse");
-        	actionEvent.put("originateType", "barge");
-        	actionEvent.put("enterpriseId", enterpriseId);
-        	actionEvent.put("cno", bargeObject);
-        	actionEvent.put("bargedCno", bargedCno);
-        	actionEvent.put("bargeObject", bargeObject);
-        	actionEvent.put("objectType", objectType);
-        }
+    	actionEvent = new JSONObject();
+    	actionEvent.put("event", "originateResponse");
+    	actionEvent.put("originateType", "barge");
+    	actionEvent.put("enterpriseId", enterpriseId);
+    	if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
+    		actionEvent.put("cno", bargeObject);
+    	}
+    	actionEvent.put("bargedCno", bargedCno);
+    	actionEvent.put("bargeObject", bargeObject);
+    	actionEvent.put("objectType", objectType);
         
         try{
         	if (objectType.equals(Const.OBJECT_TYPE_CNO)) {

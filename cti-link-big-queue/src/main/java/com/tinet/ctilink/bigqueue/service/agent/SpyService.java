@@ -220,16 +220,17 @@ public class SpyService {
         actionMap.put(AmiParamConst.CLID, clid);     
       
         JSONObject actionEvent = null;
-        if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
-        	actionEvent = new JSONObject();
-        	actionEvent.put("event", "originateResponse");
-        	actionEvent.put("originateType", "spy");
-        	actionEvent.put("enterpriseId", enterpriseId);
-        	actionEvent.put("cno", spyObject);
-        	actionEvent.put("spiedCno", spiedCno);
-        	actionEvent.put("spyObject", spyObject);
-        	actionEvent.put("objectType", objectType);
-        }
+        
+    	actionEvent = new JSONObject();
+    	actionEvent.put("event", "originateResponse");
+    	actionEvent.put("originateType", "spy");
+    	actionEvent.put("enterpriseId", enterpriseId);
+    	if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
+    		actionEvent.put("cno", spyObject);
+    	}
+    	actionEvent.put("spiedCno", spiedCno);
+    	actionEvent.put("spyObject", spyObject);
+    	actionEvent.put("objectType", objectType);
         
         try{
         	if (objectType.equals(Const.OBJECT_TYPE_CNO)) {
