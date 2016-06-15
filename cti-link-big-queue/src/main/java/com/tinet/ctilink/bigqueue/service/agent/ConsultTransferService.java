@@ -69,7 +69,7 @@ public class ConsultTransferService {
 					Integer sipId = callAgent.getCurrentSipId();
 					String channel = callAgent.getCurrentChannel();
 					String uniqueId = callAgent.getCurrentChannelUniqueId();
-					String consultChannel = callAgent.getConsultChannel();
+					String consultChannel = callAgent.getConsultLocalChannel();
 					if(StringUtil.isEmpty(channel)){
 						response = ActionResponse.createFailResponse(-1, "no channel");
 						return response;

@@ -59,7 +59,7 @@ public class UnconsultService {
 				CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
 				if(callAgent != null){
 					Integer sipId = callAgent.getCurrentSipId();
-					String channel = callAgent.getConsultChannel();
+					String channel = callAgent.getConsultLocalChannel();
 					if(StringUtils.isEmpty(channel)){
 						response = ActionResponse.createFailResponse(-1, "no channel");
 						return response;

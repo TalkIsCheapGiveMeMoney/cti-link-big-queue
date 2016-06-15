@@ -40,7 +40,7 @@ public class ConsultStartHandler implements EventHandler, InitializingBean{
 				try{
 					CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
 					if(callAgent != null){
-						callAgent.setConsultChannel(channel);
+						callAgent.setConsultLocalChannel(channel);
 						agentService.saveCallAgent(enterpriseId, cno, callAgent);
 					}else{
 						logger.error("no such callAgent when dispatch BargeLinkEvent");

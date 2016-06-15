@@ -40,6 +40,7 @@ public class UnconsultHandler implements EventHandler, InitializingBean{
 					CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
 					if(callAgent != null){
 						callAgent.setConsultChannel("");
+						callAgent.setConsultLocalChannel("");
 						agentService.saveCallAgent(enterpriseId, cno, callAgent);
 					}else{
 						logger.error("no such callAgent when dispatch BargeLinkEvent");

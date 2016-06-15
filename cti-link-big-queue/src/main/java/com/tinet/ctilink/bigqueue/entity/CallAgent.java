@@ -40,6 +40,7 @@ public class CallAgent {
 	private String monitoredObject;
 	private Integer monitoredObjectType;
 	private String consultChannel; // 咨询时对方的channel
+	private String consultLocalChannel; 
 	private String consulterCno;
 	private String transferCno;
 	
@@ -285,6 +286,12 @@ public class CallAgent {
 		this.transferCno = transferCno;
 	}
 	
+	public String getConsultLocalChannel() {
+		return consultLocalChannel;
+	}
+	public void setConsultLocalChannel(String consultLocalChannel) {
+		this.consultLocalChannel = consultLocalChannel;
+	}
 	public boolean isBridged() {
 		return bridged;
 	}
@@ -309,6 +316,7 @@ public class CallAgent {
 		monitoredObject = "";
 		monitoredObjectType = 0;
 		consultChannel = "";
+		consultLocalChannel = "";
 		spyChannel = "";
 		whisperChannel = "";
 		threewayChannel = "";

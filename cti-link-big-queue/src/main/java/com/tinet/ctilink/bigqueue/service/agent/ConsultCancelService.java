@@ -64,7 +64,7 @@ public class ConsultCancelService {
 			try{
 				CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
 				if(callAgent != null){
-					String consultCancelChannel = callAgent.getConsultChannel();
+					String consultCancelChannel = callAgent.getConsultLocalChannel();
 					Integer sipId = callAgent.getCurrentSipId();
 					
 					 try{
