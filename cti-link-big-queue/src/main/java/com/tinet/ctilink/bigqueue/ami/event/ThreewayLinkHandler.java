@@ -20,6 +20,7 @@ public class ThreewayLinkHandler implements EventHandler, InitializingBean{
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	@Autowired
     private RedisService redisService;
+	@Autowired
     private AgentServiceImp agentService;
 	@Autowired
     private MemberServiceImp memberService;

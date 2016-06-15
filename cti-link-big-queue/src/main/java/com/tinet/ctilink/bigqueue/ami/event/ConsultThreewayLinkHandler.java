@@ -18,6 +18,7 @@ public class ConsultThreewayLinkHandler implements EventHandler, InitializingBea
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	@Autowired
     private RedisService redisService;
+	@Autowired
     private AgentServiceImp agentService;
 	@Autowired
     private MemberServiceImp memberService;

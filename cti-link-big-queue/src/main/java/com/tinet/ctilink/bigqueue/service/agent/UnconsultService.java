@@ -65,7 +65,7 @@ public class UnconsultService {
 						return response;
 					}
 					Integer deviceStatus = memberService.getDeviceStatus(enterpriseId, cno);
-					if(!deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_RINGING)){
+					if(!deviceStatus.equals(BigQueueConst.MEMBER_DEVICE_STATUS_INUSE)){
 						 response = ActionResponse.createFailResponse(-1, "not on ring");
 						 return response;
 					}
