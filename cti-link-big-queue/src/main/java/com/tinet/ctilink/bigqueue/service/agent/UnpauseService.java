@@ -2,6 +2,7 @@ package com.tinet.ctilink.bigqueue.service.agent;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,13 +51,13 @@ public class UnpauseService {
 		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
 		String cno = params.get("cno").toString();
-		
+		String monitorCno = (params.get("monitorCno") == null)?"":params.get("monitorCno").toString();
 		
 		//先获取lock memberService.lockMember(enterpriseId, cno);
 		RedisLock memberLock = memberService.lockMember(enterpriseId, cno);
 		if(memberLock != null){
 			try{
-				return unpauseNolock(enterpriseId, cno);
+				return unpauseNolock(enterpriseId, cno, monitorCno);
 			}catch(Exception e){
 				e.printStackTrace();
 				response = ActionResponse.createFailResponse(-1, "exception");
@@ -71,7 +72,7 @@ public class UnpauseService {
 		return response;
 	}
 	
-	public ActionResponse unpauseNolock(String enterpriseId, String cno){
+	public ActionResponse unpauseNolock(String enterpriseId, String cno, String monitorCno){
 		ActionResponse response = null;
 		JSONObject queueEvent;
 		CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
@@ -93,6 +94,9 @@ public class UnpauseService {
 				queueEvent.put("event", "unpause");
 				queueEvent.put("enterpriseId", enterpriseId);
 				queueEvent.put("cno", cno);
+				if(StringUtils.isNotEmpty(monitorCno)){
+					queueEvent.put("monitorCno", monitorCno);
+				}
 				queueEventService.publishEvent(queueEvent);
 				break;
 			case BigQueueConst.MEMBER_LOGIN_STATUS_WRAPUP:
@@ -106,6 +110,9 @@ public class UnpauseService {
 				queueEvent.put("event", "pause");
 				queueEvent.put("enterpriseId", enterpriseId);
 				queueEvent.put("cno", cno);
+				if(StringUtils.isNotEmpty(monitorCno)){
+					queueEvent.put("monitorCno", monitorCno);
+				}
 				queueEventService.publishEvent(queueEvent);
 				
 				queueEvent = new JSONObject();

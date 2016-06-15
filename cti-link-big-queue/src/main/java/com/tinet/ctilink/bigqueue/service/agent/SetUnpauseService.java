@@ -1,5 +1,6 @@
 package com.tinet.ctilink.bigqueue.service.agent;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -41,37 +42,25 @@ public class SetUnpauseService {
 	private ChannelServiceImp channelService;
 	@Autowired
 	private RedisTaskScheduler redisTaskScheduler;
-	
+	@Autowired
+	UnpauseService unpauseService;
 	@Autowired
 	GetVarActionService getVarActionService;
 	@Autowired
 	OriginateActionService originateActionService;
 	public ActionResponse setUnpause(Map<String,Object> params){
 		ActionResponse response = null;
-		String enterpriseId = params.get("enterpriseId").toString();
-		String cno = params.get("cno").toString();
 		
-		//先获取lock memberService.lockMember(enterpriseId, cno);
-		RedisLock memberLock = memberService.lockMember(enterpriseId, cno);
-		if(memberLock != null){
-			try{
-				CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
-				if(callAgent != null){
-					
-				}else {
-					response = ActionResponse.createFailResponse(-1, "no such agent");
-				}
-			}catch(Exception e){
-				e.printStackTrace();
-				response = ActionResponse.createFailResponse(-1, "exception");
-				return response;
-			}finally{
-				memberService.unlockMember(memberLock);
-			}
-		}else{
-			response = ActionResponse.createFailResponse(-1, "fail to get lock");
-		}
-
-		return response;
+		String enterpriseId = params.get("enterpriseId").toString();
+		String cno = (params.get("cno") == null)?"":params.get("cno").toString();
+		String monitoredCno = params.get("monitoredCno").toString();
+		String monitorCno = params.get("monitorCno").toString();
+		
+		Map<String,Object> newParams = new HashMap<String, Object>();
+		params.put("enterpriseId", enterpriseId);
+		params.put("cno", monitoredCno);
+		params.put("monitorCno", monitorCno);
+		
+		return unpauseService.unpause(newParams);
 	}
 }

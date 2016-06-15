@@ -141,7 +141,7 @@ public class PreviewOutcallService {
 	                if(loginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE)  || 
 	                        (loginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_WRAPUP))){//置忙外呼就不再置忙preivewoutcalling,如果在整理要调用置忙让整理结束
 	                	
-	                	unpauseService.unpauseNolock(enterpriseId, cno);
+	                	unpauseService.unpauseNolock(enterpriseId, cno, null);
 	                	
 	                	if(loginStatus.equals(BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE)){
 		                	callAgent.setRnaPause(true);

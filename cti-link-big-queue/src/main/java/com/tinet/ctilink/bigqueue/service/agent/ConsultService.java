@@ -1,5 +1,6 @@
 package com.tinet.ctilink.bigqueue.service.agent;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +14,7 @@ import com.tinet.ctilink.ami.inc.AmiChanVarNameConst;
 import com.tinet.ctilink.bigqueue.ami.action.ConsultActionService;
 import com.tinet.ctilink.bigqueue.ami.action.GetVarActionService;
 import com.tinet.ctilink.bigqueue.ami.action.OriginateActionService;
+import com.tinet.ctilink.bigqueue.ami.action.SetVarActionService;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
 import com.tinet.ctilink.bigqueue.entity.CallAgent;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
@@ -46,7 +48,8 @@ public class ConsultService {
 	private ChannelServiceImp channelService;
 	@Autowired
 	private RedisTaskScheduler redisTaskScheduler;
-	
+	@Autowired
+	SetVarActionService setVarActionService;
 	@Autowired
 	GetVarActionService getVarActionService;
 	@Autowired
@@ -67,7 +70,7 @@ public class ConsultService {
 				if(callAgent != null){
 					String channel = callAgent.getCurrentChannel();
 					Integer sipId = callAgent.getCurrentSipId();
-					
+					Integer callType = callAgent.getCurrentCallType();
 					if(StringUtils.isEmpty(channel)){
 						response = ActionResponse.createFailResponse(-1, "no channel");
 						return response;
@@ -87,6 +90,15 @@ public class ConsultService {
 							return response;
 		        		}
 		            }
+		            Map<String, String> varMap = new HashMap<String,String>();
+					String destChannel = null;
+					varMap.put(AmiChanVarNameConst.CONSULTER_CNO, callAgent.getCno());
+					 if (callType == Const.CDR_CALL_TYPE_IB || callType ==Const.CDR_CALL_TYPE_OB_WEBCALL || callType == Const.CDR_CALL_TYPE_OB_PREDICTIVE){//呼入
+						 destChannel = callAgent.getBridgedChannel();
+				     }else if(callType == Const.CDR_CALL_TYPE_OB_DIRECT || callType == Const.CDR_CALL_TYPE_OB_PREVIEW){//点击外呼
+				    	 destChannel = callAgent.getBridgedChannel();
+				     }
+					setVarActionService.setVar(sipId, destChannel, varMap);
 		            AmiActionResponse amiResponse = consultActionService.consult(sipId, channel, "web_consult", extension);
     				if(amiResponse != null && (amiResponse.getCode() == 0)){
     					response = ActionResponse.createSuccessResponse();

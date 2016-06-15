@@ -1,5 +1,6 @@
 package com.tinet.ctilink.bigqueue.service.agent;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Component;
 import com.tinet.ctilink.bigqueue.ami.action.GetVarActionService;
 import com.tinet.ctilink.bigqueue.ami.action.OriginateActionService;
 import com.tinet.ctilink.bigqueue.entity.ActionResponse;
-import com.tinet.ctilink.bigqueue.entity.CallAgent;
 import com.tinet.ctilink.bigqueue.inc.BigQueueConst;
 import com.tinet.ctilink.bigqueue.service.imp.AgentServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.ChannelServiceImp;
@@ -18,9 +18,7 @@ import com.tinet.ctilink.bigqueue.service.imp.MemberServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.QueueEventServiceImp;
 import com.tinet.ctilink.bigqueue.service.imp.QueueServiceImp;
 import com.tinet.ctilink.cache.RedisService;
-import com.tinet.ctilink.json.JSONObject;
 import com.tinet.ctilink.scheduler.RedisTaskScheduler;
-import com.tinet.ctilink.util.RedisLock;
 
 @Component
 public class SetPauseService {
@@ -41,37 +39,27 @@ public class SetPauseService {
 	private ChannelServiceImp channelService;
 	@Autowired
 	private RedisTaskScheduler redisTaskScheduler;
+	@Autowired
+	PauseService pauseService;
 	
 	@Autowired
 	GetVarActionService getVarActionService;
 	@Autowired
 	OriginateActionService originateActionService;
 	public ActionResponse setPause(Map<String,Object> params){
-		ActionResponse response = null;
 		String enterpriseId = params.get("enterpriseId").toString();
-		String cno = params.get("cno").toString();
+		String cno = (params.get("cno") == null)?"":params.get("cno").toString();
+		String monitoredCno = params.get("monitoredCno").toString();
+		String monitorCno = params.get("monitorCno").toString();
 		
-		//先获取lock memberService.lockMember(enterpriseId, cno);
-		RedisLock memberLock = memberService.lockMember(enterpriseId, cno);
-		if(memberLock != null){
-			try{
-				CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
-				if(callAgent != null){
-					
-				}else {
-					response = ActionResponse.createFailResponse(-1, "no such agent");
-				}
-			}catch(Exception e){
-				e.printStackTrace();
-				response = ActionResponse.createFailResponse(-1, "exception");
-				return response;
-			}finally{
-				memberService.unlockMember(memberLock);
-			}
-		}else{
-			response = ActionResponse.createFailResponse(-1, "fail to get lock");
-		}
+		Map<String,Object> newParams = new HashMap<String, Object>();
+		params.put("enterpriseId", enterpriseId);
+		params.put("cno", monitoredCno);
+		params.put("type", String.valueOf(BigQueueConst.MEMBER_LOGIN_STATUS_PAUSE_TYPE_FORCE));
+		params.put("description", "管理置忙");
+		params.put("monitorCno", monitorCno);
+		
+		return pauseService.pause(newParams);
 
-		return response;
 	}
 }

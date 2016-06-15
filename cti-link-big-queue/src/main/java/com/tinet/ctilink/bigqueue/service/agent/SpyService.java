@@ -203,6 +203,7 @@ public class SpyService {
     	if(getVarResponse != null){
     		if(getVarResponse.get(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID) != null){
     			mainUniqueId = getVarResponse.get(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID);
+    			varMap.put(AmiChanVarNameConst.CDR_MAIN_UNIQUE_ID, mainUniqueId);
     		}else{
     			response = ActionResponse.createFailResponse(-1, "get var fail");
     			return response;

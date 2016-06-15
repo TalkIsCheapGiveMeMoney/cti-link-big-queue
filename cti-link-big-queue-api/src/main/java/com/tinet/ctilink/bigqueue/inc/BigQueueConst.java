@@ -17,6 +17,7 @@ public class BigQueueConst {
 	public static final int MEMBER_LOGIN_STATUS_PAUSE_TYPE_NORMAL = 1;
 	public static final int MEMBER_LOGIN_STATUS_PAUSE_TYPE_REST = 2;
 	public static final int MEMBER_LOGIN_STATUS_PAUSE_TYPE_IM = 3;
+	public static final int MEMBER_LOGIN_STATUS_PAUSE_TYPE_FORCE = 4;
 	
 	public static final int ENTERPRISE_ID_LEN = 7;
 	

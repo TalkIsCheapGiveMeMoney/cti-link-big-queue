@@ -2,6 +2,7 @@ package com.tinet.ctilink.bigqueue.service.agent;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,12 +54,13 @@ public class PauseService {
 		String cno = params.get("cno").toString();
 		Integer type = Integer.parseInt(params.get("type").toString());
 		String description = params.get("description").toString();
+		String monitorCno = (params.get("monitorCno") == null)?"":params.get("monitorCno").toString();
 		
 		//先获取lock memberService.lockMember(enterpriseId, cno);
 		RedisLock memberLock = memberService.lockMember(enterpriseId, cno);
 		if(memberLock != null){
 			try{
-				return pauseNolock(enterpriseId, cno, description, type);
+				return pauseNolock(enterpriseId, cno, description, type, monitorCno);
 			}catch(Exception e){
 				e.printStackTrace();
 				response = ActionResponse.createFailResponse(-1, "exception");
@@ -72,7 +74,7 @@ public class PauseService {
 		return response;
 	}
 	
-	public ActionResponse pauseNolock(String enterpriseId, String cno, String description, Integer type){
+	public ActionResponse pauseNolock(String enterpriseId, String cno, String description, Integer type, String monitorCno){
 		ActionResponse response = null;
 		JSONObject queueEvent;
 		CallAgent callAgent = agentService.getCallAgent(enterpriseId, cno);
@@ -96,6 +98,9 @@ public class PauseService {
 				queueEvent.put("cno", cno);
 				queueEvent.put("type", type);
 				queueEvent.put("description", description);
+				if(StringUtils.isNotEmpty(monitorCno)){
+					queueEvent.put("monitorCno", monitorCno);
+				}
 
 				queueEventService.publishEvent(queueEvent);
 				break;
@@ -114,6 +119,9 @@ public class PauseService {
 				queueEvent.put("cno", cno);
 				queueEvent.put("type", type);
 				queueEvent.put("description", description);
+				if(StringUtils.isNotEmpty(monitorCno)){
+					queueEvent.put("monitorCno", monitorCno);
+				}
 				queueEventService.publishEvent(queueEvent);
 				
 				queueEvent = new JSONObject();
